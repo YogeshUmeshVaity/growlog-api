@@ -1,0 +1,11 @@
+### Get all plants
+GET http://localhost:3000/plants
+
+### Create a plant
+POST http://localhost:3000/plants
+Content-Type: application/json
+
+{
+    "name": "Haworthia Attenuatta Lime",
+    "imageUrl": "Haworthia-Attenuatta-Lime.jpg"
+}
