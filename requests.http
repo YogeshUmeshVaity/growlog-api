@@ -1,3 +1,5 @@
+POST http://localhost:3000/users
+
 ### Get all plants
 GET http://localhost:3000/plants
 
