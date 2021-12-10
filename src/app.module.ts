@@ -22,7 +22,7 @@ import { UsersModule } from './users/users.module'
           database: config.get<string>('POSTGRES_DATABASE_NAME'),
           username: config.get<string>('POSTGRES_USER_NAME'),
           password: config.get<string>('POSTGRES_PASSWORD'),
-          synchronize: true, // TODO: Disable this in production.
+          synchronize: true, // TODO: Disable this forever once the app goes in production.
           entities: [User],
         }
       },
