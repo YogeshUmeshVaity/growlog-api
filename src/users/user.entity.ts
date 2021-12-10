@@ -1,7 +1,7 @@
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm'
 
 /**
- * Represents a user in the app.
+ * Represents a currently logged in user in the app.
  */
 @Entity({ name: 'users' })
 export class User {
@@ -18,8 +18,9 @@ export class User {
   email: string
 
   /**
-   * User's hashed password along with the random hashed salt separated by a dot. This field is
-   * optional, if the user is logged in using the OpenID.
+   * User's hashed password along with the random hashed salt separated by a dot. The hashed salt
+   * helps prevent Rainbow Table Attack. This field is optional, if the user is logged in using
+   * the OpenID.
    */
   @Column({ nullable: true })
   hashedPassword?: string
