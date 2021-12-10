@@ -26,7 +26,7 @@ export class User {
   /**
    * User's email retrieved from local sign up or from the social login.
    */
-  @Column()
+  @Column({ unique: true })
   email: string
 
   /**
