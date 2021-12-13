@@ -8,8 +8,10 @@ import { UsersModule } from './users/users.module'
 
 @Module({
   imports: [
+    // The forRoot() method registers the ConfigService provider.
+    // During this step, environment variable key/value pairs are parsed and resolved.
     ConfigModule.forRoot({
-      isGlobal: true,
+      isGlobal: true, // So that we don't have to import this module in every module.
       envFilePath: `.env.${process.env.NODE_ENV}`,
     }),
     TypeOrmModule.forRootAsync({
