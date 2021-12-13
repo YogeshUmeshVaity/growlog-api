@@ -6,13 +6,20 @@ import { AppService } from './app.service'
 import { User } from './users/user.entity'
 import { UsersModule } from './users/users.module'
 
+/**
+ * The forRoot() method registers the ConfigService provider. During this step, environment variable
+ * key/value pairs are parsed and resolved.
+ *
+ * isGlobal: true; so that we don't have to import this module in every module.
+ * cache: true; improves performance of accessing the envs.
+ */
+
 @Module({
   imports: [
-    // The forRoot() method registers the ConfigService provider.
-    // During this step, environment variable key/value pairs are parsed and resolved.
     ConfigModule.forRoot({
-      isGlobal: true, // So that we don't have to import this module in every module.
+      isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV}`,
+      cache: true,
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
