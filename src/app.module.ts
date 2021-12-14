@@ -5,7 +5,7 @@ import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { User } from './users/user.entity'
 import { UsersModule } from './users/users.module'
-import { AuthModule } from './auth/auth.module';
+import { AuthModule } from './auth/auth.module'
 import { APP_PIPE } from '@nestjs/core'
 
 /**
@@ -41,7 +41,7 @@ import { APP_PIPE } from '@nestjs/core'
           username: config.get<string>('POSTGRES_USER_NAME'),
           password: config.get<string>('POSTGRES_PASSWORD'),
           synchronize: true, // TODO: Disable this forever once the app goes in production.
-          entities: [User],
+          entities: [User]
         }
       }
     }),

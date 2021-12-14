@@ -3,7 +3,7 @@ import {
   CreateDateColumn,
   Entity,
   PrimaryGeneratedColumn,
-  UpdateDateColumn,
+  UpdateDateColumn
 } from 'typeorm'
 import { v4 as uuid } from 'uuid'
 
@@ -20,7 +20,7 @@ export class User {
 
   /**
    * Username retrieved from local sign up or from the social login.
-   * 
+   *
    * TODO: Rename to 'name'
    */
   @Column()

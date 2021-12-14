@@ -37,7 +37,7 @@ export class SignUpDto {
   //TODO: test if we need @IsNotEmpty
   @IsString()
   @Matches(/^(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/, {
-    message: 'Password must contain at least 1 digit and 1 special character.',
+    message: 'Password must contain at least 1 digit and 1 special character.'
   })
   password: string
 

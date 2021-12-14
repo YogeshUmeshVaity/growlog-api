@@ -3,7 +3,7 @@ import {
   Controller,
   Get,
   NotImplementedException,
-  Post,
+  Post
 } from '@nestjs/common'
 import { SignUpDto } from './dtos/signup-user.dto'
 import { UsersService } from './users.service'

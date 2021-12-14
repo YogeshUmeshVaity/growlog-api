@@ -14,7 +14,7 @@ export class UsersRepository extends AbstractRepository<User> {
 
   async createAndSave(userInfo: SignUpDto) {
     const user = this.repository.create({
-      ...userInfo,
+      ...userInfo
     })
     user.renewTokenInvalidator()
     return await this.repository.save(user)
