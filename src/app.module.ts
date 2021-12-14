@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common'
+import { Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AppController } from './app.controller'
@@ -6,6 +6,7 @@ import { AppService } from './app.service'
 import { User } from './users/user.entity'
 import { UsersModule } from './users/users.module'
 import { AuthModule } from './auth/auth.module';
+import { APP_PIPE } from '@nestjs/core'
 
 /**
  * The forRoot() method registers the ConfigService provider. During this step, environment variable
@@ -48,6 +49,10 @@ import { AuthModule } from './auth/auth.module';
     AuthModule
   ],
   controllers: [AppController],
-  providers: [AppService]
+  providers: [
+    AppService,
+    // Validates the body parameters using the class specified with class-validator package.
+    { provide: APP_PIPE, useValue: new ValidationPipe({ whitelist: true }) }
+  ]
 })
 export class AppModule {}
