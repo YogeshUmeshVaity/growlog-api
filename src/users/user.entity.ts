@@ -5,6 +5,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm'
+import { v4 as uuid } from 'uuid'
 
 /**
  * Represents a currently logged in user in the app.
@@ -19,6 +20,8 @@ export class User {
 
   /**
    * Username retrieved from local sign up or from the social login.
+   * 
+   * TODO: Rename to 'name'
    */
   @Column()
   username: string
@@ -75,4 +78,12 @@ export class User {
    */
   @UpdateDateColumn()
   updatedAt: Date
+
+  /**
+   * Generates a new tokenInvalidator. This logs the user out of all devices as tokens signed with
+   * JWT secrete + tokenInvalidator will change.
+   */
+  renewTokenInvalidator() {
+    this.tokenInvalidator = uuid()
+  }
 }

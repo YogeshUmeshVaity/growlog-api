@@ -1,6 +1,13 @@
-import { IsEmail, IsString, Matches, MinLength } from 'class-validator'
+import { Transform, TransformFnParams } from 'class-transformer'
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsString,
+  Matches,
+  MinLength
+} from 'class-validator'
 
-// Note: It's not a good practice to have max length on passwords, usernames and emails.
+// Note: It's not a good practice to have max length on passwords, usernames and emails:
 // https://stackoverflow.com/a/3797135/5925259
 
 // Password Regex: ^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$
@@ -15,14 +22,19 @@ import { IsEmail, IsString, Matches, MinLength } from 'class-validator'
 
 const MIN_USERNAME_LENGTH = 3
 
-export class SignupDto {
+export class SignUpDto {
+  //TODO: test if we need @IsNotEmpty
   @IsString()
   @MinLength(MIN_USERNAME_LENGTH)
+  @Transform(({ value }: TransformFnParams) => value.trim()) // trim spaces
   username: string
 
+  //TODO: test if we need @IsNotEmpty
   @IsEmail()
+  @Transform(({ value }: TransformFnParams) => value.trim())
   email: string
 
+  //TODO: test if we need @IsNotEmpty
   @IsString()
   @Matches(/^(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{8,}$/, {
     message: 'Password must contain at least 1 digit and 1 special character.',
@@ -30,5 +42,6 @@ export class SignupDto {
   password: string
 
   @IsString()
+  @IsNotEmpty() // required because we check the equality first.
   confirmPassword: string
 }

@@ -1,17 +1,25 @@
-import { Controller, Get, Post } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  NotImplementedException,
+  Post,
+} from '@nestjs/common'
+import { SignUpDto } from './dtos/signup-user.dto'
 import { UsersService } from './users.service'
 
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get()
-  findMe() {
-    return { username: 'test', email: 'test@test.com' }
+  @Post('/sign-up')
+  async signup(@Body() body: SignUpDto) {
+    return await this.usersService.signUp(body)
   }
 
-  @Post()
-  create() {
-    return this.usersService.create()
+  @Get()
+  findMe() {
+    //TODO:
+    throw new NotImplementedException('feature not implemented.')
   }
 }

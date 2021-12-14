@@ -5,13 +5,21 @@ import { AppController } from './app.controller'
 import { AppService } from './app.service'
 import { User } from './users/user.entity'
 import { UsersModule } from './users/users.module'
+import { AuthModule } from './auth/auth.module';
 
 /**
  * The forRoot() method registers the ConfigService provider. During this step, environment variable
  * key/value pairs are parsed and resolved.
  *
- * isGlobal: true; so that we don't have to import this module in every module.
+ * isGlobal: true; so we don't have to import this module in every module.
  * cache: true; improves performance of accessing the envs.
+ *
+ * TODO: Check if Nest prevents app start up, if env vars are absent. If not, implement it with
+ * the require() method.
+ * https://docs.nestjs.com/techniques/configuration#schema-validation
+ *
+ * TODO: Consider using getter functions for envs. Possibly with a separate module called 'config'.
+ * https://docs.nestjs.com/techniques/configuration#custom-getter-functions
  */
 
 @Module({
@@ -19,7 +27,7 @@ import { UsersModule } from './users/users.module'
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `.env.${process.env.NODE_ENV}`,
-      cache: true,
+      cache: true
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
@@ -34,11 +42,12 @@ import { UsersModule } from './users/users.module'
           synchronize: true, // TODO: Disable this forever once the app goes in production.
           entities: [User],
         }
-      },
+      }
     }),
     UsersModule,
+    AuthModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService]
 })
 export class AppModule {}
