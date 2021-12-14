@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common'
+import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { SignUpDto } from './dtos/signup-user.dto'
 import { UsersRepository } from './users.repository'
 import * as bcrypt from 'bcrypt'
@@ -6,19 +6,19 @@ import { AuthService } from 'src/auth/auth.service'
 
 @Injectable()
 export class UsersService {
+  private readonly logger = new Logger(UsersService.name)
   constructor(
     private readonly usersRepository: UsersRepository,
     private readonly authService: AuthService
   ) {}
 
-  // TODO: Fix hashedPassword in db being null.
   async signUp(userInfo: SignUpDto) {
     this.throwIfConfirmPasswordNotEqual(userInfo)
     await this.throwIfUsernameExists(userInfo)
     await this.throwIfEmailExists(userInfo)
     await this.hashThePassword(userInfo)
     const user = await this.createUserInDb(userInfo)
-    return this.authService.logIn(user)
+    return await this.authService.logIn(user)
   }
 
   private async createUserInDb(userInfo: SignUpDto) {
@@ -32,7 +32,6 @@ export class UsersService {
   }
 
   private throwIfConfirmPasswordNotEqual(body: SignUpDto) {
-    console.log('Sign up body: ', body)
     if (body.password.trim() !== body.confirmPassword.trim()) {
       throw new BadRequestException(
         'Confirm Password must match with Password.'
