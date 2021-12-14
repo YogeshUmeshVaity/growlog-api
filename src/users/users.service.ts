@@ -11,6 +11,7 @@ export class UsersService {
     private readonly authService: AuthService
   ) {}
 
+  // TODO: Fix hashedPassword in db being null.
   async signUp(userInfo: SignUpDto) {
     this.throwIfConfirmPasswordNotEqual(userInfo)
     await this.throwIfUsernameExists(userInfo)
