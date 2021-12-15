@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
 import { AppModule } from './../src/app.module'
+import { clearDb } from './test.utils'
 
 describe(`App (e2e)`, () => {
   let app: INestApplication
@@ -13,6 +14,8 @@ describe(`App (e2e)`, () => {
 
     app = moduleFixture.createNestApplication()
     await app.init()
+
+    await clearDb()
   })
 
   afterAll(async () => {
@@ -23,8 +26,8 @@ describe(`App (e2e)`, () => {
     describe(`sign-up route`, () => {
       it(`should return a token when correct user info provided.`, async () => {
         const user = {
-          username: 'test21',
-          email: 'test21@test.com',
+          username: 'test1',
+          email: 'test1@test.com',
           password: 'test123&',
           confirmPassword: 'test123&'
         }
@@ -36,8 +39,8 @@ describe(`App (e2e)`, () => {
 
       it(`should throw when password less than 8 chars.`, async () => {
         const user = {
-          username: 'test12',
-          email: 'test12@test.com',
+          username: 'test2',
+          email: 'test2@test.com',
           password: 't123&',
           confirmPassword: 't123&'
         }
