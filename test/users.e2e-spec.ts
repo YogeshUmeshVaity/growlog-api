@@ -3,12 +3,13 @@ import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
 import { AppModule } from './../src/app.module'
 import {
+  userWithAlreadyExistingName,
   userWithConfirmPasswordNoMatch,
   userWithCorrectInfo,
   userWithPasswordSevenChars,
   userWithPasswordWithoutDigit,
   userWithPasswordWithoutSpecialChars
-} from './fixtures/users'
+} from './fixtures/users.fixtures'
 import { clearDb } from './test.utils'
 
 describe(`App (e2e)`, () => {
@@ -63,6 +64,30 @@ describe(`App (e2e)`, () => {
         const response = await request(app.getHttpServer())
           .post('/users/sign-up')
           .send(userWithConfirmPasswordNoMatch)
+          .expect(400)
+      })
+
+      it(`should throw when username already exists.`, async () => {
+        await clearDb()
+        await request(app.getHttpServer())
+          .post('/users/sign-up')
+          .send(userWithCorrectInfo)
+          .expect(201)
+        await request(app.getHttpServer())
+          .post('/users/sign-up')
+          .send(userWithAlreadyExistingName)
+          .expect(400)
+      })
+
+      it(`should throw when email already exists.`, async () => {
+        await clearDb()
+        await request(app.getHttpServer())
+          .post('/users/sign-up')
+          .send(userWithCorrectInfo)
+          .expect(201)
+        await request(app.getHttpServer())
+          .post('/users/sign-up')
+          .send(userWithCorrectInfo)
           .expect(400)
       })
     })
