@@ -2,6 +2,13 @@ import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
 import { AppModule } from './../src/app.module'
+import {
+  userWithConfirmPasswordNoMatch,
+  userWithCorrectInfo,
+  userWithPasswordSevenChars,
+  userWithPasswordWithoutDigit,
+  userWithPasswordWithoutSpecialChars
+} from './fixtures/users'
 import { clearDb } from './test.utils'
 
 describe(`App (e2e)`, () => {
@@ -25,28 +32,37 @@ describe(`App (e2e)`, () => {
   describe(`UsersModule`, () => {
     describe(`sign-up route`, () => {
       it(`should return a token when correct user info provided.`, async () => {
-        const user = {
-          username: 'test1',
-          email: 'test1@test.com',
-          password: 'test123&',
-          confirmPassword: 'test123&'
-        }
         const response = await request(app.getHttpServer())
           .post('/users/sign-up')
-          .send(user)
+          .send(userWithCorrectInfo)
           .expect(201)
       })
 
-      it(`should throw when password less than 8 chars.`, async () => {
-        const user = {
-          username: 'test2',
-          email: 'test2@test.com',
-          password: 't123&',
-          confirmPassword: 't123&'
-        }
+      it(`should throw when password less than 8 characters.`, async () => {
         const response = await request(app.getHttpServer())
           .post('/users/sign-up')
-          .send(user)
+          .send(userWithPasswordSevenChars)
+          .expect(400)
+      })
+
+      it(`should throw when password is without any special character.`, async () => {
+        const response = await request(app.getHttpServer())
+          .post('/users/sign-up')
+          .send(userWithPasswordWithoutSpecialChars)
+          .expect(400)
+      })
+
+      it(`should throw when password is without any digit.`, async () => {
+        const response = await request(app.getHttpServer())
+          .post('/users/sign-up')
+          .send(userWithPasswordWithoutDigit)
+          .expect(400)
+      })
+
+      it(`should throw when confirm password doesn't match with password.`, async () => {
+        const response = await request(app.getHttpServer())
+          .post('/users/sign-up')
+          .send(userWithConfirmPasswordNoMatch)
           .expect(400)
       })
     })

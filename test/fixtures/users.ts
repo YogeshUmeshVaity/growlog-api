@@ -11,3 +11,24 @@ export const userWithPasswordSevenChars = {
   password: 't123&',
   confirmPassword: 't123&'
 }
+
+export const userWithPasswordWithoutSpecialChars = {
+  username: 'test2',
+  email: 'test2@test.com',
+  password: 'testtest1',
+  confirmPassword: 'testtest1'
+}
+
+export const userWithPasswordWithoutDigit = {
+  username: 'test2',
+  email: 'test2@test.com',
+  password: 'testtest&',
+  confirmPassword: 'testtest&'
+}
+
+export const userWithConfirmPasswordNoMatch = {
+  username: 'test2',
+  email: 'test2@test.com',
+  password: 'testtest1&',
+  confirmPassword: 'testtest&'
+}
