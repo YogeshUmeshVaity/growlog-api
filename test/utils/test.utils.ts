@@ -1,5 +1,6 @@
 import { getConnection } from 'typeorm'
 import { Response } from 'supertest'
+import { response } from 'express'
 
 /**
  * Clears the database by synchronizing.
@@ -29,4 +30,14 @@ export const expectMessageFrom = (response: Response) => {
   } else {
     return expect(message)
   }
+}
+
+export const tokenFrom = (response: Response) => {
+  const token = response.body.token
+  const base64Url = token.split('.')[1] // token you get
+  const base64 = base64Url.replace('-', '+').replace('_', '/')
+  const decodedData = JSON.parse(
+    Buffer.from(base64, 'base64').toString('binary')
+  )
+  return decodedData
 }

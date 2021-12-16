@@ -16,7 +16,8 @@ import {
   signUpWithPasswordWithoutSpecialChars,
   signUpWithUsernameTwoChars
 } from './fixtures/sign-up.fixtures'
-import { clearDb, expectMessageFrom } from '../utils/test.utils'
+import { clearDb, expectMessageFrom, tokenFrom } from '../utils/test.utils'
+import { isUUID } from 'class-validator'
 
 describe(`UsersModule`, () => {
   let app: INestApplication
@@ -36,13 +37,16 @@ describe(`UsersModule`, () => {
     await app.close()
   })
 
-  describe(`sign-up route`, () => {
+  describe(`sign-up`, () => {
     it(`should return a token when correct user info provided.`, async () => {
       const response = await request(app.getHttpServer())
         .post('/users/sign-up')
         .send(signUpWithCorrectInfo)
         .expect(201)
       expect(response.body).toHaveProperty('token')
+      const decodedToken = tokenFrom(response)
+      expect(decodedToken.username).toEqual(signUpWithCorrectInfo.username)
+      expect(decodedToken).toHaveProperty('userId')
     })
 
     it(`should throw when username less than ${MIN_LENGTH_USERNAME} characters.`, async () => {
