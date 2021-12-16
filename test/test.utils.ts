@@ -1,4 +1,5 @@
 import { getConnection } from 'typeorm'
+import { Response } from 'supertest'
 
 /**
  * Clears the database by synchronizing.
@@ -13,5 +14,19 @@ export const clearDb = async () => {
     await getConnection().synchronize(true)
   } catch (err) {
     throw new Error('Unable to clear the database.')
+  }
+}
+
+/**
+ * Utility function that extracts the first error message from the Supertest response object.
+ * @param response object from Supertest.
+ * @returns jest.JestMatchers<any>
+ */
+export const expectMessageFrom = (response: Response) => {
+  const message = response.body.message
+  if (message instanceof Array) {
+    return expect(message[0])
+  } else {
+    return expect(message)
   }
 }
