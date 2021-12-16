@@ -5,9 +5,23 @@ export const userWithCorrectInfo = {
   confirmPassword: 'test123&'
 }
 
+export const userWithUsernameTwoChars = {
+  username: 'te',
+  email: 'test1@test.com',
+  password: 'test123&',
+  confirmPassword: 'test123&'
+}
+
 export const userWithAlreadyExistingName = {
   username: 'test1',
   email: 'testUnique@test.com',
+  password: 'test123&',
+  confirmPassword: 'test123&'
+}
+
+export const userWithInvalidEmail = {
+  username: 'test2',
+  email: 'test2@test',
   password: 'test123&',
   confirmPassword: 'test123&'
 }
