@@ -1,60 +1,60 @@
-export const userWithCorrectInfo = {
+export const signUpWithCorrectInfo = {
   username: 'test1',
   email: 'test1@test.com',
   password: 'test123&',
   confirmPassword: 'test123&'
 }
 
-export const userWithUsernameTwoChars = {
+export const signUpWithUsernameTwoChars = {
   username: 'te',
   email: 'test1@test.com',
   password: 'test123&',
   confirmPassword: 'test123&'
 }
 
-export const userWithAlreadyExistingName = {
+export const signUpWithAlreadyExistingName = {
   username: 'test1',
   email: 'testUnique@test.com',
   password: 'test123&',
   confirmPassword: 'test123&'
 }
 
-export const userWithInvalidEmail = {
+export const signUpWithInvalidEmail = {
   username: 'test2',
   email: 'test2@test',
   password: 'test123&',
   confirmPassword: 'test123&'
 }
 
-export const userWithAlreadyExistingEmail = {
+export const signUpWithAlreadyExistingEmail = {
   username: 'testUnique',
   email: 'test1@test.com',
   password: 'test123&',
   confirmPassword: 'test123&'
 }
 
-export const userWithPasswordSevenChars = {
+export const signUpWithPasswordSevenChars = {
   username: 'test2',
   email: 'test2@test.com',
   password: 't123&',
   confirmPassword: 't123&'
 }
 
-export const userWithPasswordWithoutSpecialChars = {
+export const signUpWithPasswordWithoutSpecialChars = {
   username: 'test2',
   email: 'test2@test.com',
   password: 'testtest1',
   confirmPassword: 'testtest1'
 }
 
-export const userWithPasswordWithoutDigit = {
+export const signUpWithPasswordWithoutDigit = {
   username: 'test2',
   email: 'test2@test.com',
   password: 'testtest&',
   confirmPassword: 'testtest&'
 }
 
-export const userWithConfirmPasswordNoMatch = {
+export const signUpWithConfirmPasswordNoMatch = {
   username: 'test2',
   email: 'test2@test.com',
   password: 'testtest1&',
