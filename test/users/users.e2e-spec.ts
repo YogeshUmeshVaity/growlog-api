@@ -16,7 +16,7 @@ import {
   signUpWithPasswordWithoutSpecialChars,
   signUpWithUsernameTwoChars
 } from './fixtures/sign-up.fixtures'
-import { clearDb, expectMessageFrom, tokenFrom } from '../utils/test.utils'
+import { clearDb, messageFrom, tokenFrom } from '../utils/test.utils'
 import { validate as isUuid } from 'uuid'
 
 describe(`UsersModule`, () => {
@@ -54,7 +54,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(signUpWithUsernameTwoChars)
         .expect(400)
-      expectMessageFrom(response).toEqual(
+      expect(messageFrom(response)).toEqual(
         `Username must be at least ${MIN_LENGTH_USERNAME} characters long.`
       )
     })
@@ -64,7 +64,9 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(signUpWithInvalidEmail)
         .expect(400)
-      expectMessageFrom(response).toEqual('Please enter a valid email address.')
+      expect(messageFrom(response)).toEqual(
+        'Please enter a valid email address.'
+      )
     })
 
     it(`should throw when password less than ${MIN_LENGTH_PASSWORD} characters.`, async () => {
@@ -72,7 +74,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(signUpWithPasswordSevenChars)
         .expect(400)
-      expectMessageFrom(response).toEqual(
+      expect(messageFrom(response)).toEqual(
         `Password must be at least ${MIN_LENGTH_PASSWORD} characters long.`
       )
     })
@@ -82,7 +84,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(signUpWithPasswordWithoutSpecialChars)
         .expect(400)
-      expectMessageFrom(response).toEqual(
+      expect(messageFrom(response)).toEqual(
         'Password must contain at least 1 digit and 1 special character.'
       )
     })
@@ -92,7 +94,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(signUpWithPasswordWithoutDigit)
         .expect(400)
-      expectMessageFrom(response).toEqual(
+      expect(messageFrom(response)).toEqual(
         'Password must contain at least 1 digit and 1 special character.'
       )
     })
@@ -102,7 +104,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(signUpWithConfirmPasswordNoMatch)
         .expect(400)
-      expectMessageFrom(response).toEqual(
+      expect(messageFrom(response)).toEqual(
         'Confirm Password must match with Password.'
       )
     })
@@ -117,7 +119,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(signUpWithAlreadyExistingName)
         .expect(400)
-      expectMessageFrom(response).toEqual('Username already exists.')
+      expect(messageFrom(response)).toEqual('Username already exists.')
     })
 
     it(`should throw when email already exists.`, async () => {
@@ -130,7 +132,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(signUpWithCorrectInfo)
         .expect(400)
-      expectMessageFrom(response).toEqual('Username already exists.')
+      expect(messageFrom(response)).toEqual('Username already exists.')
     })
   })
 })

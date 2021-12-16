@@ -23,12 +23,12 @@ export const clearDb = async () => {
  * @param response object from Supertest.
  * @returns jest.JestMatchers<any>
  */
-export const expectMessageFrom = (response: Response) => {
+export const messageFrom = (response: Response) => {
   const message = response.body.message
   if (message instanceof Array) {
-    return expect(message[0])
+    return message[0]
   } else {
-    return expect(message)
+    return message
   }
 }
 
