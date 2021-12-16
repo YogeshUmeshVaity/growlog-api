@@ -17,6 +17,7 @@ import {
   signUpWithUsernameTwoChars
 } from './fixtures/sign-up.fixtures'
 import { clearDb, expectMessageFrom, tokenFrom } from '../utils/test.utils'
+import { validate as isUuid } from 'uuid'
 
 describe(`UsersModule`, () => {
   let app: INestApplication
@@ -43,9 +44,9 @@ describe(`UsersModule`, () => {
         .send(signUpWithCorrectInfo)
         .expect(201)
       expect(response.body).toHaveProperty('token')
-      const decodedToken = tokenFrom(response)
-      expect(decodedToken.username).toEqual(signUpWithCorrectInfo.username)
-      expect(decodedToken).toHaveProperty('userId')
+      const { username, userId } = tokenFrom(response)
+      expect(username).toEqual(signUpWithCorrectInfo.username)
+      expect(isUuid(userId)).toBe(true)
     })
 
     it(`should throw when username less than ${MIN_LENGTH_USERNAME} characters.`, async () => {

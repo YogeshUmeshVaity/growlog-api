@@ -1,5 +1,5 @@
 import { Logger } from '@nestjs/common'
-import { AbstractRepository, Entity, EntityRepository } from 'typeorm'
+import { AbstractRepository, EntityRepository } from 'typeorm'
 import { SignUpDto } from './dtos/signup-user.dto'
 import { User } from './user.entity'
 
