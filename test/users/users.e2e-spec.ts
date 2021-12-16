@@ -17,7 +17,6 @@ import {
   signUpWithUsernameTwoChars
 } from './fixtures/sign-up.fixtures'
 import { clearDb, expectMessageFrom, tokenFrom } from '../utils/test.utils'
-import { isUUID } from 'class-validator'
 
 describe(`UsersModule`, () => {
   let app: INestApplication
