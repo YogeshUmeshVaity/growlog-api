@@ -4,8 +4,8 @@ import * as request from 'supertest'
 import {
   MIN_LENGTH_PASSWORD,
   MIN_LENGTH_USERNAME
-} from '../src/users/dtos/signup-user.dto'
-import { AppModule } from './../src/app.module'
+} from '../../src/users/dtos/signup-user.dto'
+import { AppModule } from '../../src/app.module'
 import {
   userWithAlreadyExistingName,
   userWithConfirmPasswordNoMatch,
@@ -15,8 +15,8 @@ import {
   userWithPasswordWithoutDigit,
   userWithPasswordWithoutSpecialChars,
   userWithUsernameTwoChars
-} from './fixtures/users.fixtures'
-import { clearDb, expectMessageFrom } from './test.utils'
+} from './fixtures/sign-up.fixtures'
+import { clearDb, expectMessageFrom } from '../utils/test.utils'
 
 describe(`UsersModule`, () => {
   let app: INestApplication
