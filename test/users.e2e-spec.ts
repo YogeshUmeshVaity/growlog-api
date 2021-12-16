@@ -42,6 +42,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(userWithCorrectInfo)
         .expect(201)
+      expect(response.body).toHaveProperty('token')
     })
 
     it(`should throw when username less than ${MIN_LENGTH_USERNAME} characters.`, async () => {
@@ -49,7 +50,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(userWithUsernameTwoChars)
         .expect(400)
-      expectMessageFrom(response).toBe(
+      expectMessageFrom(response).toEqual(
         `Username must be at least ${MIN_LENGTH_USERNAME} characters long.`
       )
     })
@@ -59,7 +60,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(userWithInvalidEmail)
         .expect(400)
-      expectMessageFrom(response).toBe('Please enter a valid email address.')
+      expectMessageFrom(response).toEqual('Please enter a valid email address.')
     })
 
     it(`should throw when password less than ${MIN_LENGTH_PASSWORD} characters.`, async () => {
@@ -67,7 +68,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(userWithPasswordSevenChars)
         .expect(400)
-      expectMessageFrom(response).toBe(
+      expectMessageFrom(response).toEqual(
         `Password must be at least ${MIN_LENGTH_PASSWORD} characters long.`
       )
     })
@@ -77,7 +78,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(userWithPasswordWithoutSpecialChars)
         .expect(400)
-      expectMessageFrom(response).toBe(
+      expectMessageFrom(response).toEqual(
         'Password must contain at least 1 digit and 1 special character.'
       )
     })
@@ -87,7 +88,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(userWithPasswordWithoutDigit)
         .expect(400)
-      expectMessageFrom(response).toBe(
+      expectMessageFrom(response).toEqual(
         'Password must contain at least 1 digit and 1 special character.'
       )
     })
@@ -97,7 +98,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(userWithConfirmPasswordNoMatch)
         .expect(400)
-      expectMessageFrom(response).toBe(
+      expectMessageFrom(response).toEqual(
         'Confirm Password must match with Password.'
       )
     })
@@ -112,7 +113,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(userWithAlreadyExistingName)
         .expect(400)
-      expectMessageFrom(response).toBe('Username already exists.')
+      expectMessageFrom(response).toEqual('Username already exists.')
     })
 
     it(`should throw when email already exists.`, async () => {
@@ -125,7 +126,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(userWithCorrectInfo)
         .expect(400)
-      expectMessageFrom(response).toBe('Username already exists.')
+      expectMessageFrom(response).toEqual('Username already exists.')
     })
   })
 })
