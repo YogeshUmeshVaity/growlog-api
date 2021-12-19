@@ -11,11 +11,11 @@ export class AuthService {
     private readonly jwtService: JwtService
   ) {}
 
-  async logIn(user: User) {
+  async logIn(user: User): Promise<Token> {
     return await this.generateJwt(user)
   }
 
-  async generateJwt(user: User): Promise<Token> {
+  private async generateJwt(user: User): Promise<Token> {
     const token = await this.jwtService.signAsync(
       this.jwtPayload(user),
       this.jwtOptions(user)
