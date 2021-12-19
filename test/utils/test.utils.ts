@@ -37,7 +37,7 @@ export const messageFrom = (response: Response) => {
  * On the server side:
  * 1. JavaScript object with payload is converted to JSON string.
  * 2. JSON string is converted to binary data.
- *    Binary data cannot be sent in URL due to characters conflicts.
+ *    Binary data cannot be sent in URL due to character conflicts.
  * 3. So, this binary data is encoded to Base64 string.
  *    Base64 string still contains conflicting characters like '+', '/'.
  * 4. So, this Base64 string is converted to Base64Url.
