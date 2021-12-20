@@ -38,11 +38,11 @@ export class SignUpDto {
     message: `Username must be at least ${MIN_LENGTH_USERNAME} characters long.`
   })
   @Transform(({ value }: TransformFnParams) => value.trim()) // trim spaces
-  username: string
+  readonly username: string
 
   @IsEmail({}, { message: 'Please enter a valid email address.' })
   @Transform(({ value }: TransformFnParams) => value.trim())
-  email: string
+  readonly email: string
 
   @MinLength(MIN_LENGTH_PASSWORD, {
     message: `Password must be at least ${MIN_LENGTH_PASSWORD} characters long.`
@@ -50,10 +50,10 @@ export class SignUpDto {
   @Matches(regexOneDigitOneSpecialChar, {
     message: 'Password must contain at least 1 digit and 1 special character.'
   })
-  password: string
+  readonly password: string
 
   // Empty check is required because we check the equality first.
   @IsString()
   @IsNotEmpty({ message: `Confirm Password must not be empty.` })
-  confirmPassword: string
+  readonly confirmPassword: string
 }
