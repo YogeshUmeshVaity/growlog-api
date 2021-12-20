@@ -6,7 +6,6 @@ import {
   signUpWithCorrectInfo
 } from '../../test/users/fixtures/sign-up.fixtures'
 import { AuthService } from '../auth/auth.service'
-import { SignUpDto } from './dtos/signup-user.dto'
 import { User } from './user.entity'
 import { UsersRepository } from './users.repository'
 import { UsersService } from './users.service'
