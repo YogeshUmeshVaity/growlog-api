@@ -6,6 +6,7 @@ import {
   signUpWithCorrectInfo
 } from '../../test/users/fixtures/sign-up.fixtures'
 import { AuthService } from '../auth/auth.service'
+import { SignUpDto } from './dtos/signup-user.dto'
 import { User } from './user.entity'
 import { UsersRepository } from './users.repository'
 import { UsersService } from './users.service'
@@ -52,11 +53,14 @@ describe('UsersService', () => {
     })
 
     it(`should hash the password when correct user info provided.`, async () => {
+      const repositorySpy = jest.spyOn(repository, 'createAndSave')
       await usersService.signUp(signUpWithCorrectInfo)
-      // It won't be the same object, if password is hashed.
-      expect(repository.createAndSave).not.toBeCalledWith(signUpWithCorrectInfo)
-      // Due to random salt, a different hash is generated every time for the same input.
-      // So, this looks like the best we can do.
+      // Get the argument that createAndSave() was called with.
+      const hashedPassword = repositorySpy.mock.calls[0][0].password
+      const providedPassword = signUpWithCorrectInfo.password
+      // Due to random salt, a different hash is generated every time even for the same input.
+      // So, we can only check for inequality.
+      expect(hashedPassword).not.toEqual(providedPassword)
     })
 
     it(`should throw when confirm-password doesn't match with password.`, async () => {
