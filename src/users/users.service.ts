@@ -28,7 +28,6 @@ export class UsersService {
   private async hashThePassword(userInfo: SignUpDto) {
     const salt = await bcrypt.genSalt()
     const hashedPassword = await bcrypt.hash(userInfo.password, salt)
-    //userInfo.password = hashedPassword
     const hashedInfo = {
       username: userInfo.username,
       email: userInfo.email,

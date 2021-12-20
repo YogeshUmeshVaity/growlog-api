@@ -50,8 +50,8 @@ describe('UsersService', () => {
     it(`should return a token when correct user info provided.`, async () => {
       const returnedToken = await usersService.signUp(signUpWithCorrectInfo)
       expect(returnedToken).toEqual(sampleToken)
-      //expect(repository.createAndSave).toBeCalledWith(signUpWithCorrectInfo)
-      expect(authService.logIn).toBeCalledWith(signUpWithCorrectInfo)
+      // Test for hashed password. It won't be the same object, if password is hashed.
+      expect(repository.createAndSave).not.toBeCalledWith(signUpWithCorrectInfo)
     })
 
     it(`should throw when confirm-password doesn't match with password.`, async () => {
