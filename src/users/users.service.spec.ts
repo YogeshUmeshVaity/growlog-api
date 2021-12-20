@@ -5,6 +5,7 @@ import {
   signUpWithCorrectInfo
 } from '../../test/users/fixtures/sign-up.fixtures'
 import { AuthService } from '../auth/auth.service'
+import { User } from './user.entity'
 import { UsersRepository } from './users.repository'
 import { UsersService } from './users.service'
 
@@ -49,7 +50,7 @@ describe('UsersService', () => {
     it(`should return a token when correct user info provided.`, async () => {
       const returnedToken = await usersService.signUp(signUpWithCorrectInfo)
       expect(returnedToken).toEqual(sampleToken)
-      expect(repository.createAndSave).toBeCalledWith(signUpWithCorrectInfo)
+      //expect(repository.createAndSave).toBeCalledWith(signUpWithCorrectInfo)
       expect(authService.logIn).toBeCalledWith(signUpWithCorrectInfo)
     })
 
@@ -62,6 +63,20 @@ describe('UsersService', () => {
         expect(error).toHaveProperty(
           'message',
           'Confirm Password must match with Password.'
+        )
+      }
+    })
+
+    it(`should throw when username already exists.`, async () => {
+      expect.assertions(3)
+      repository.findByName = jest.fn().mockResolvedValue(new User())
+      try {
+        await usersService.signUp(signUpWithCorrectInfo)
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException)
+        expect(error).toHaveProperty('message', 'Username already exists.')
+        expect(repository.findByName).toBeCalledWith(
+          signUpWithCorrectInfo.username
         )
       }
     })
