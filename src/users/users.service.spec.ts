@@ -1,6 +1,7 @@
 import { BadRequestException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import {
+  sampleToken,
   signUpWithConfirmPasswordNoMatch,
   signUpWithCorrectInfo
 } from '../../test/users/fixtures/sign-up.fixtures'
@@ -8,8 +9,6 @@ import { AuthService } from '../auth/auth.service'
 import { User } from './user.entity'
 import { UsersRepository } from './users.repository'
 import { UsersService } from './users.service'
-
-const sampleToken = { token: 'SomeBigTextJwtToken' }
 
 describe('UsersService', () => {
   let usersService: UsersService
@@ -50,13 +49,12 @@ describe('UsersService', () => {
     it(`should return a token when correct user info provided.`, async () => {
       const returnedToken = await usersService.signUp(signUpWithCorrectInfo)
       expect(returnedToken).toEqual(sampleToken)
-      // Test for hashed password. It won't be the same object, if password is hashed.
-      expect(repository.createAndSave).not.toBeCalledWith(signUpWithCorrectInfo)
     })
 
     it(`should hash the password when correct user info provided.`, async () => {
       await usersService.signUp(signUpWithCorrectInfo)
-      // Test for hashed password. It won't be the same object, if password is hashed.
+      // It won't be the same object, if password is hashed. Due to random salt, a different hash
+      // is generated every time for the same input. This looks like the best we can do.
       expect(repository.createAndSave).not.toBeCalledWith(signUpWithCorrectInfo)
     })
 
