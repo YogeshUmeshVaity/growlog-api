@@ -1,3 +1,3 @@
 export interface Token {
-  token: string
+  readonly token: string
 }

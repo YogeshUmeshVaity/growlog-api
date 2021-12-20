@@ -54,6 +54,12 @@ describe('UsersService', () => {
       expect(repository.createAndSave).not.toBeCalledWith(signUpWithCorrectInfo)
     })
 
+    it(`should hash the password when correct user info provided.`, async () => {
+      await usersService.signUp(signUpWithCorrectInfo)
+      // Test for hashed password. It won't be the same object, if password is hashed.
+      expect(repository.createAndSave).not.toBeCalledWith(signUpWithCorrectInfo)
+    })
+
     it(`should throw when confirm-password doesn't match with password.`, async () => {
       expect.assertions(2)
       try {
