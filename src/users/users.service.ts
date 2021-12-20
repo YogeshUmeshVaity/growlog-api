@@ -28,13 +28,11 @@ export class UsersService {
   private async hashThePassword(userInfo: SignUpDto) {
     const salt = await bcrypt.genSalt()
     const hashedPassword = await bcrypt.hash(userInfo.password, salt)
-    const hashedInfo = {
-      username: userInfo.username,
-      email: userInfo.email,
-      password: hashedPassword,
-      confirmPassword: userInfo.confirmPassword
+    const hashedUser: SignUpDto = {
+      ...userInfo,
+      password: hashedPassword
     }
-    return hashedInfo
+    return hashedUser
   }
 
   private throwIfConfirmPasswordNotEqual(body: SignUpDto) {
