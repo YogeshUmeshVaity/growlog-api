@@ -1,3 +1,4 @@
+import { Token } from '../../../src/auth/dtos/token.dto'
 import { SignUpDto } from '../../../src/users/dtos/signup-user.dto'
 
 // Specifying annotating with SignUpDto will make them immutable because the field are readonly.
@@ -64,3 +65,5 @@ export const signUpWithConfirmPasswordNoMatch: SignUpDto = {
   password: 'testtest1&',
   confirmPassword: 'testtest&'
 }
+
+export const sampleToken: Token = { token: 'SomeBigTextJwtToken' }
