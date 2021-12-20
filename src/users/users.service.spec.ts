@@ -88,5 +88,19 @@ describe('UsersService', () => {
         )
       }
     })
+
+    it(`should throw when email already exists.`, async () => {
+      expect.assertions(3)
+      repository.findByEmail = jest.fn().mockResolvedValue(new User())
+      try {
+        await usersService.signUp(signUpWithCorrectInfo)
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException)
+        expect(error).toHaveProperty('message', 'Email already exists.')
+        expect(repository.findByEmail).toBeCalledWith(
+          signUpWithCorrectInfo.email
+        )
+      }
+    })
   })
 })
