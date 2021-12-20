@@ -16,19 +16,26 @@ export class UsersService {
     this.throwIfConfirmPasswordNotEqual(userInfo)
     await this.throwIfUsernameExists(userInfo)
     await this.throwIfEmailExists(userInfo)
-    await this.hashThePassword(userInfo)
-    const user = await this.createUserInDb(userInfo)
-    return await this.authService.logIn(user)
+    const hashedUser = await this.hashThePassword(userInfo)
+    const newUser = await this.saveInDb(hashedUser)
+    return await this.authService.logIn(newUser)
   }
 
-  private async createUserInDb(userInfo: SignUpDto) {
+  private async saveInDb(userInfo: SignUpDto) {
     return await this.usersRepository.createAndSave(userInfo)
   }
 
   private async hashThePassword(userInfo: SignUpDto) {
     const salt = await bcrypt.genSalt()
     const hashedPassword = await bcrypt.hash(userInfo.password, salt)
-    userInfo.password = hashedPassword
+    //userInfo.password = hashedPassword
+    const hashedInfo = {
+      username: userInfo.username,
+      email: userInfo.email,
+      password: hashedPassword,
+      confirmPassword: userInfo.confirmPassword
+    }
+    return hashedInfo
   }
 
   private throwIfConfirmPasswordNotEqual(body: SignUpDto) {
