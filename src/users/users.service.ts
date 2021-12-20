@@ -17,11 +17,11 @@ export class UsersService {
     await this.throwIfUsernameExists(userInfo)
     await this.throwIfEmailExists(userInfo)
     const hashedUser = await this.hashThePassword(userInfo)
-    const newUser = await this.saveInDb(hashedUser)
+    const newUser = await this.saveToDb(hashedUser)
     return await this.authService.logIn(newUser)
   }
 
-  private async saveInDb(userInfo: SignUpDto) {
+  private async saveToDb(userInfo: SignUpDto) {
     return await this.usersRepository.createAndSave(userInfo)
   }
 
