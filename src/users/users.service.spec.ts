@@ -8,9 +8,12 @@ import { AuthService } from '../auth/auth.service'
 import { UsersRepository } from './users.repository'
 import { UsersService } from './users.service'
 
+const sampleToken = { token: 'SomeBigTextJwtToken' }
+
 describe('UsersService', () => {
   let usersService: UsersService
   let repository: UsersRepository
+  let authService: AuthService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -21,13 +24,13 @@ describe('UsersService', () => {
           useValue: {
             findByEmail: jest.fn().mockResolvedValue(null),
             findByName: jest.fn().mockResolvedValue(null),
-            createAndSave: jest.fn().mockResolvedValue({})
+            createAndSave: jest.fn().mockResolvedValue(signUpWithCorrectInfo)
           }
         },
         {
           provide: AuthService,
           useValue: {
-            logIn: jest.fn().mockResolvedValue({ token: '' })
+            logIn: jest.fn().mockResolvedValue(sampleToken)
           }
         }
       ]
@@ -35,6 +38,7 @@ describe('UsersService', () => {
 
     usersService = module.get<UsersService>(UsersService)
     repository = module.get<UsersRepository>(UsersRepository)
+    authService = module.get<AuthService>(AuthService)
   })
 
   it('should be defined', () => {
@@ -43,11 +47,13 @@ describe('UsersService', () => {
 
   describe('sign-up', () => {
     it(`should return a token when correct user info provided.`, async () => {
-      const token = await usersService.signUp(signUpWithCorrectInfo)
-      expect(token).toHaveProperty('token')
+      const returnedToken = await usersService.signUp(signUpWithCorrectInfo)
+      expect(returnedToken).toEqual(sampleToken)
+      expect(repository.createAndSave).toBeCalledWith(signUpWithCorrectInfo)
+      expect(authService.logIn).toBeCalledWith(signUpWithCorrectInfo)
     })
 
-    it(`should throw when confirm password doesn't match with password.`, async () => {
+    it(`should throw when confirm-password doesn't match with password.`, async () => {
       expect.assertions(2)
       try {
         await usersService.signUp(signUpWithConfirmPasswordNoMatch)

@@ -99,7 +99,7 @@ describe(`UsersModule`, () => {
       )
     })
 
-    it(`should throw when confirm password doesn't match with password.`, async () => {
+    it(`should throw when confirm-password doesn't match with password.`, async () => {
       const response = await request(app.getHttpServer())
         .post('/users/sign-up')
         .send(signUpWithConfirmPasswordNoMatch)
