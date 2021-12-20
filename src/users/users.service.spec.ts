@@ -53,9 +53,10 @@ describe('UsersService', () => {
 
     it(`should hash the password when correct user info provided.`, async () => {
       await usersService.signUp(signUpWithCorrectInfo)
-      // It won't be the same object, if password is hashed. Due to random salt, a different hash
-      // is generated every time for the same input. This looks like the best we can do.
+      // It won't be the same object, if password is hashed.
       expect(repository.createAndSave).not.toBeCalledWith(signUpWithCorrectInfo)
+      // Due to random salt, a different hash is generated every time for the same input.
+      // So, this looks like the best we can do.
     })
 
     it(`should throw when confirm-password doesn't match with password.`, async () => {
