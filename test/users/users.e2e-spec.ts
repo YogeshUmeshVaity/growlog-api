@@ -134,5 +134,7 @@ describe(`UsersModule`, () => {
         .expect(400)
       expect(messageFrom(response)).toEqual(`Username already exists.`)
     })
+
+    //TODO: e2e test to check if spaces in username and email are trimmed.
   })
 })
