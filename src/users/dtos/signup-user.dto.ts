@@ -4,6 +4,7 @@ import {
   IsNotEmpty,
   IsString,
   Matches,
+  MaxLength,
   MinLength
 } from 'class-validator'
 
@@ -24,6 +25,7 @@ import {
  */
 
 export const MIN_LENGTH_USERNAME = 3
+export const MAX_LENGTH_USERNAME = 21
 export const MIN_LENGTH_PASSWORD = 8
 
 /**
@@ -32,10 +34,21 @@ export const MIN_LENGTH_PASSWORD = 8
  */
 const regexOneDigitOneSpecialChar = /^(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).*$/
 
+/**
+ * Allows only letters and numbers.
+ */
+const regexLettersAndNumbers = /^[a-zA-Z0-9._]+$/
+
 export class SignUpDto {
   @IsString()
   @MinLength(MIN_LENGTH_USERNAME, {
     message: `Username must be at least ${MIN_LENGTH_USERNAME} characters long.`
+  })
+  @MaxLength(MAX_LENGTH_USERNAME, {
+    message: `Username can be maximum ${MAX_LENGTH_USERNAME} characters long.`
+  })
+  @Matches(regexLettersAndNumbers, {
+    message: `Username can contain only letters, numbers, underscores (_) and periods (.).`
   })
   @Transform(({ value }: TransformFnParams) => value.trim()) // trim spaces
   readonly username: string
