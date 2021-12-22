@@ -79,6 +79,8 @@ describe(`UsersModule`, () => {
       )
     })
 
+    // TODO: Add test for max chars username.
+    // TODO: Add test for username containing only letters, numbers.
     it(`should throw when password is without any special character.`, async () => {
       const response = await request(app.getHttpServer())
         .post('/users/sign-up')

@@ -35,9 +35,21 @@ export const MIN_LENGTH_PASSWORD = 8
 const regexOneDigitOneSpecialChar = /^(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).*$/
 
 /**
- * Allows only letters and numbers.
+ * For medium scale apps, use letters and numbers username regex: /^[a-zA-Z0-9]+$/
+ *
+ * For serious and large scale apps, use the stricter username regex:
+ * /^(?=[a-zA-Z0-9._]{3,21}$)(?!.*[_.]{2})[^_.].*[^_.]$/
+ *
+ * 1. Only contains alphanumeric characters, underscore and dot.
+ * 2. Underscore and dot can't be at the end or start of a username.
+ *    (e.g _username / username_ / .username / username.)
+ * 3. Underscore and dot can't be next to each other (e.g user_.name).
+ * 4. Underscore or dot can't be used multiple times in a row (e.g user__name / user..name).
+ * 5. Number of characters must be between 3 to 21.
+ *
+ * For more info: https://stackoverflow.com/q/12018245/5925259
  */
-const regexLettersAndNumbers = /^[a-zA-Z0-9._]+$/
+const regexLettersAndNumbers = /^[a-zA-Z0-9]+$/
 
 export class SignUpDto {
   @IsString()
@@ -48,7 +60,7 @@ export class SignUpDto {
     message: `Username can be maximum ${MAX_LENGTH_USERNAME} characters long.`
   })
   @Matches(regexLettersAndNumbers, {
-    message: `Username can contain only letters, numbers, underscores (_) and periods (.).`
+    message: `Username can contain only letters and numbers.`
   })
   @Transform(({ value }: TransformFnParams) => value.trim()) // trim spaces
   readonly username: string
