@@ -3,6 +3,7 @@ import { validate } from 'class-validator'
 import {
   userWithInvalidEmail,
   userWithPasswordSevenChars,
+  userWithPasswordWithoutDigit,
   userWithPasswordWithoutSpecialChars,
   userWithUsernameTwoChars
 } from '../../../test/users/fixtures/sign-up.fixtures'
@@ -41,6 +42,14 @@ describe(`SignUpDto`, () => {
       SignUpDto,
       userWithPasswordWithoutSpecialChars
     )
+    const errors = await validate(signUpDto)
+    expect(stringified(errors)).toContain(
+      `Password must contain at least 1 digit and 1 special character.`
+    )
+  })
+
+  it(`should throw when password is without any digit.`, async () => {
+    const signUpDto = plainToInstance(SignUpDto, userWithPasswordWithoutDigit)
     const errors = await validate(signUpDto)
     expect(stringified(errors)).toContain(
       `Password must contain at least 1 digit and 1 special character.`
