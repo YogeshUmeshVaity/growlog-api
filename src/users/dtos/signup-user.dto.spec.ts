@@ -1,7 +1,7 @@
-import { ValidationError } from '@nestjs/common'
 import { plainToInstance } from 'class-transformer'
 import { validate } from 'class-validator'
 import { signUpWithUsernameTwoChars } from '../../../test/users/fixtures/sign-up.fixtures'
+import { stringified } from '../../../test/utils/test.utils'
 import { MIN_LENGTH_USERNAME, SignUpDto } from './signup-user.dto'
 
 describe(`SignUpDto`, () => {
@@ -13,7 +13,3 @@ describe(`SignUpDto`, () => {
     )
   })
 })
-
-function stringified(errors: ValidationError[]): string {
-  return JSON.stringify(errors)
-}
