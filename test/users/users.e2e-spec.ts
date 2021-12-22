@@ -7,14 +7,14 @@ import {
 } from '../../src/users/dtos/signup-user.dto'
 import { AppModule } from '../../src/app.module'
 import {
-  signUpWithAlreadyExistingName,
-  signUpWithConfirmPasswordNoMatch,
-  signUpWithCorrectInfo,
-  signUpWithInvalidEmail,
-  signUpWithPasswordSevenChars,
-  signUpWithPasswordWithoutDigit,
-  signUpWithPasswordWithoutSpecialChars,
-  signUpWithUsernameTwoChars
+  userWithAlreadyExistingName,
+  userWithConfirmPasswordNoMatch,
+  userWithCorrectInfo,
+  userWithInvalidEmail,
+  userWithPasswordSevenChars,
+  userWithPasswordWithoutDigit,
+  userWithPasswordWithoutSpecialChars,
+  userWithUsernameTwoChars
 } from './fixtures/sign-up.fixtures'
 import { clearDb, messageFrom, tokenFrom } from '../utils/test.utils'
 import { validate as isUuid } from 'uuid'
@@ -41,18 +41,18 @@ describe(`UsersModule`, () => {
     it(`should return a token when correct user info provided.`, async () => {
       const response = await request(app.getHttpServer())
         .post('/users/sign-up')
-        .send(signUpWithCorrectInfo)
+        .send(userWithCorrectInfo)
         .expect(201)
       expect(response.body).toHaveProperty('token')
       const { username, userId } = tokenFrom(response)
-      expect(username).toEqual(signUpWithCorrectInfo.username)
+      expect(username).toEqual(userWithCorrectInfo.username)
       expect(isUuid(userId)).toBe(true)
     })
 
     it(`should throw when username less than ${MIN_LENGTH_USERNAME} characters.`, async () => {
       const response: request.Response = await request(app.getHttpServer())
         .post('/users/sign-up')
-        .send(signUpWithUsernameTwoChars)
+        .send(userWithUsernameTwoChars)
         .expect(400)
       expect(messageFrom(response)).toEqual(
         `Username must be at least ${MIN_LENGTH_USERNAME} characters long.`
@@ -62,7 +62,7 @@ describe(`UsersModule`, () => {
     it(`should throw when email is invalid.`, async () => {
       const response: request.Response = await request(app.getHttpServer())
         .post('/users/sign-up')
-        .send(signUpWithInvalidEmail)
+        .send(userWithInvalidEmail)
         .expect(400)
       expect(messageFrom(response)).toEqual(
         'Please enter a valid email address.'
@@ -72,7 +72,7 @@ describe(`UsersModule`, () => {
     it(`should throw when password less than ${MIN_LENGTH_PASSWORD} characters.`, async () => {
       const response: request.Response = await request(app.getHttpServer())
         .post('/users/sign-up')
-        .send(signUpWithPasswordSevenChars)
+        .send(userWithPasswordSevenChars)
         .expect(400)
       expect(messageFrom(response)).toEqual(
         `Password must be at least ${MIN_LENGTH_PASSWORD} characters long.`
@@ -82,7 +82,7 @@ describe(`UsersModule`, () => {
     it(`should throw when password is without any special character.`, async () => {
       const response = await request(app.getHttpServer())
         .post('/users/sign-up')
-        .send(signUpWithPasswordWithoutSpecialChars)
+        .send(userWithPasswordWithoutSpecialChars)
         .expect(400)
       expect(messageFrom(response)).toEqual(
         'Password must contain at least 1 digit and 1 special character.'
@@ -92,7 +92,7 @@ describe(`UsersModule`, () => {
     it(`should throw when password is without any digit.`, async () => {
       const response = await request(app.getHttpServer())
         .post('/users/sign-up')
-        .send(signUpWithPasswordWithoutDigit)
+        .send(userWithPasswordWithoutDigit)
         .expect(400)
       expect(messageFrom(response)).toEqual(
         'Password must contain at least 1 digit and 1 special character.'
@@ -102,7 +102,7 @@ describe(`UsersModule`, () => {
     it(`should throw when confirm-password doesn't match with password.`, async () => {
       const response = await request(app.getHttpServer())
         .post('/users/sign-up')
-        .send(signUpWithConfirmPasswordNoMatch)
+        .send(userWithConfirmPasswordNoMatch)
         .expect(400)
       expect(messageFrom(response)).toEqual(
         'Confirm Password must match with Password.'
@@ -113,11 +113,11 @@ describe(`UsersModule`, () => {
       await clearDb()
       await request(app.getHttpServer())
         .post('/users/sign-up')
-        .send(signUpWithCorrectInfo)
+        .send(userWithCorrectInfo)
         .expect(201)
       const response = await request(app.getHttpServer())
         .post('/users/sign-up')
-        .send(signUpWithAlreadyExistingName)
+        .send(userWithAlreadyExistingName)
         .expect(400)
       expect(messageFrom(response)).toEqual('Username already exists.')
     })
@@ -126,11 +126,11 @@ describe(`UsersModule`, () => {
       await clearDb()
       await request(app.getHttpServer())
         .post('/users/sign-up')
-        .send(signUpWithCorrectInfo)
+        .send(userWithCorrectInfo)
         .expect(201)
       const response = await request(app.getHttpServer())
         .post('/users/sign-up')
-        .send(signUpWithCorrectInfo)
+        .send(userWithCorrectInfo)
         .expect(400)
       expect(messageFrom(response)).toEqual('Username already exists.')
     })

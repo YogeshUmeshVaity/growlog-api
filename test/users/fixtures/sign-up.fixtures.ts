@@ -3,63 +3,63 @@ import { SignUpDto } from '../../../src/users/dtos/signup-user.dto'
 
 // Specifying annotating with SignUpDto will make them immutable because the field are readonly.
 // This will prevent the tests from modifying them.
-export const signUpWithCorrectInfo: SignUpDto = {
+export const userWithCorrectInfo: SignUpDto = {
   username: 'test1',
   email: 'test1@test.com',
   password: 'test123&',
   confirmPassword: 'test123&'
 }
 
-export const signUpWithUsernameTwoChars: SignUpDto = {
+export const userWithUsernameTwoChars: SignUpDto = {
   username: 'te',
   email: 'test1@test.com',
   password: 'test123&',
   confirmPassword: 'test123&'
 }
 
-export const signUpWithAlreadyExistingName: SignUpDto = {
+export const userWithAlreadyExistingName: SignUpDto = {
   username: 'test1',
   email: 'testUnique@test.com',
   password: 'test123&',
   confirmPassword: 'test123&'
 }
 
-export const signUpWithInvalidEmail: SignUpDto = {
+export const userWithInvalidEmail: SignUpDto = {
   username: 'test2',
   email: 'test2@test',
   password: 'test123&',
   confirmPassword: 'test123&'
 }
 
-export const signUpWithAlreadyExistingEmail: SignUpDto = {
+export const userWithAlreadyExistingEmail: SignUpDto = {
   username: 'testUnique',
   email: 'test1@test.com',
   password: 'test123&',
   confirmPassword: 'test123&'
 }
 
-export const signUpWithPasswordSevenChars: SignUpDto = {
+export const userWithPasswordSevenChars: SignUpDto = {
   username: 'test2',
   email: 'test2@test.com',
   password: 't123&',
   confirmPassword: 't123&'
 }
 
-export const signUpWithPasswordWithoutSpecialChars: SignUpDto = {
+export const userWithPasswordWithoutSpecialChars: SignUpDto = {
   username: 'test2',
   email: 'test2@test.com',
   password: 'testtest1',
   confirmPassword: 'testtest1'
 }
 
-export const signUpWithPasswordWithoutDigit: SignUpDto = {
+export const userWithPasswordWithoutDigit: SignUpDto = {
   username: 'test2',
   email: 'test2@test.com',
   password: 'testtest&',
   confirmPassword: 'testtest&'
 }
 
-export const signUpWithConfirmPasswordNoMatch: SignUpDto = {
+export const userWithConfirmPasswordNoMatch: SignUpDto = {
   username: 'test2',
   email: 'test2@test.com',
   password: 'testtest1&',

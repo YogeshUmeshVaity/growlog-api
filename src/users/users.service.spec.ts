@@ -2,8 +2,8 @@ import { BadRequestException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import {
   sampleToken,
-  signUpWithConfirmPasswordNoMatch,
-  signUpWithCorrectInfo
+  userWithConfirmPasswordNoMatch,
+  userWithCorrectInfo
 } from '../../test/users/fixtures/sign-up.fixtures'
 import { AuthService } from '../auth/auth.service'
 import { User } from './user.entity'
@@ -24,7 +24,7 @@ describe('UsersService', () => {
           useValue: {
             findByEmail: jest.fn().mockResolvedValue(null),
             findByName: jest.fn().mockResolvedValue(null),
-            createAndSave: jest.fn().mockResolvedValue(signUpWithCorrectInfo)
+            createAndSave: jest.fn().mockResolvedValue(userWithCorrectInfo)
           }
         },
         {
@@ -47,16 +47,16 @@ describe('UsersService', () => {
 
   describe('sign-up', () => {
     it(`should return a token when correct user info provided.`, async () => {
-      const returnedToken = await usersService.signUp(signUpWithCorrectInfo)
+      const returnedToken = await usersService.signUp(userWithCorrectInfo)
       expect(returnedToken).toEqual(sampleToken)
     })
 
     it(`should hash the password when correct user info provided.`, async () => {
       const repositorySpy = jest.spyOn(repository, 'createAndSave')
-      await usersService.signUp(signUpWithCorrectInfo)
+      await usersService.signUp(userWithCorrectInfo)
       // Get the argument that createAndSave() was called with.
       const hashedPassword = repositorySpy.mock.calls[0][0].password
-      const providedPassword = signUpWithCorrectInfo.password
+      const providedPassword = userWithCorrectInfo.password
       // Due to random salt, a different hash is generated every time even for the same input.
       // So, we can only check for inequality.
       expect(hashedPassword).not.toEqual(providedPassword)
@@ -65,7 +65,7 @@ describe('UsersService', () => {
     it(`should throw when confirm-password doesn't match with password.`, async () => {
       expect.assertions(2)
       try {
-        await usersService.signUp(signUpWithConfirmPasswordNoMatch)
+        await usersService.signUp(userWithConfirmPasswordNoMatch)
       } catch (error) {
         expect(error).toBeInstanceOf(BadRequestException)
         expect(error).toHaveProperty(
@@ -79,12 +79,12 @@ describe('UsersService', () => {
       expect.assertions(3)
       repository.findByName = jest.fn().mockResolvedValue(new User())
       try {
-        await usersService.signUp(signUpWithCorrectInfo)
+        await usersService.signUp(userWithCorrectInfo)
       } catch (error) {
         expect(error).toBeInstanceOf(BadRequestException)
         expect(error).toHaveProperty('message', 'Username already exists.')
         expect(repository.findByName).toBeCalledWith(
-          signUpWithCorrectInfo.username
+          userWithCorrectInfo.username
         )
       }
     })
@@ -93,12 +93,12 @@ describe('UsersService', () => {
       expect.assertions(3)
       repository.findByEmail = jest.fn().mockResolvedValue(new User())
       try {
-        await usersService.signUp(signUpWithCorrectInfo)
+        await usersService.signUp(userWithCorrectInfo)
       } catch (error) {
         expect(error).toBeInstanceOf(BadRequestException)
         expect(error).toHaveProperty('message', 'Email already exists.')
         expect(repository.findByEmail).toBeCalledWith(
-          signUpWithCorrectInfo.email
+          userWithCorrectInfo.email
         )
       }
     })
