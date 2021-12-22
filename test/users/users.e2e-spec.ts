@@ -65,7 +65,7 @@ describe(`UsersModule`, () => {
         .send(userWithInvalidEmail)
         .expect(400)
       expect(messageFrom(response)).toEqual(
-        'Please enter a valid email address.'
+        `Please enter a valid email address.`
       )
     })
 
@@ -85,7 +85,7 @@ describe(`UsersModule`, () => {
         .send(userWithPasswordWithoutSpecialChars)
         .expect(400)
       expect(messageFrom(response)).toEqual(
-        'Password must contain at least 1 digit and 1 special character.'
+        `Password must contain at least 1 digit and 1 special character.`
       )
     })
 
@@ -95,7 +95,7 @@ describe(`UsersModule`, () => {
         .send(userWithPasswordWithoutDigit)
         .expect(400)
       expect(messageFrom(response)).toEqual(
-        'Password must contain at least 1 digit and 1 special character.'
+        `Password must contain at least 1 digit and 1 special character.`
       )
     })
 
@@ -105,7 +105,7 @@ describe(`UsersModule`, () => {
         .send(userWithConfirmPasswordNoMatch)
         .expect(400)
       expect(messageFrom(response)).toEqual(
-        'Confirm Password must match with Password.'
+        `Confirm Password must match with Password.`
       )
     })
 
@@ -119,7 +119,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(userWithAlreadyExistingName)
         .expect(400)
-      expect(messageFrom(response)).toEqual('Username already exists.')
+      expect(messageFrom(response)).toEqual(`Username already exists.`)
     })
 
     it(`should throw when email already exists.`, async () => {
@@ -132,7 +132,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(userWithCorrectInfo)
         .expect(400)
-      expect(messageFrom(response)).toEqual('Username already exists.')
+      expect(messageFrom(response)).toEqual(`Username already exists.`)
     })
   })
 })
