@@ -66,4 +66,11 @@ export const userWithConfirmPasswordNoMatch: SignUpDto = {
   confirmPassword: 'testtest&'
 }
 
+export const userWithSpaces: SignUpDto = {
+  username: ' test1             ',
+  email: ' test1@test.com       ',
+  password: 'test123&',
+  confirmPassword: 'test123&'
+}
+
 export const sampleToken: Token = { token: 'SomeBigTextJwtToken' }

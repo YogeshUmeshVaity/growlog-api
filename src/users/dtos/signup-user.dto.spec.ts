@@ -1,10 +1,12 @@
 import { plainToInstance } from 'class-transformer'
 import { validate } from 'class-validator'
 import {
+  userWithCorrectInfo,
   userWithInvalidEmail,
   userWithPasswordSevenChars,
   userWithPasswordWithoutDigit,
   userWithPasswordWithoutSpecialChars,
+  userWithSpaces,
   userWithUsernameTwoChars
 } from '../../../test/users/fixtures/sign-up.fixtures'
 import { stringified } from '../../../test/utils/test.utils'
@@ -54,5 +56,15 @@ describe(`SignUpDto`, () => {
     expect(stringified(errors)).toContain(
       `Password must contain at least 1 digit and 1 special character.`
     )
+  })
+
+  it(`should trim the spaces in username and email`, async () => {
+    // Expect with spaces.
+    expect(userWithSpaces.username).toContain(' ')
+    expect(userWithSpaces.email).toContain(' ')
+    const signUpDto = plainToInstance(SignUpDto, userWithSpaces)
+    // Expect with no spaces.
+    expect(signUpDto.username).toEqual(userWithCorrectInfo.username)
+    expect(signUpDto.email).toEqual(userWithCorrectInfo.email)
   })
 })
