@@ -2,6 +2,7 @@ import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
 import {
+  MAX_LENGTH_USERNAME,
   MIN_LENGTH_PASSWORD,
   MIN_LENGTH_USERNAME
 } from '../../src/users/dtos/signup-user.dto'
@@ -14,6 +15,7 @@ import {
   userWithPasswordSevenChars,
   userWithPasswordWithoutDigit,
   userWithPasswordWithoutSpecialChars,
+  userWithUsernameTwentyTwoChars,
   userWithUsernameTwoChars
 } from './fixtures/sign-up.fixtures'
 import { clearDb, messageFrom, tokenFrom } from '../utils/test.utils'
@@ -59,6 +61,16 @@ describe(`UsersModule`, () => {
       )
     })
 
+    it(`should throw when username more than ${MAX_LENGTH_USERNAME} characters.`, async () => {
+      const response: request.Response = await request(app.getHttpServer())
+        .post('/users/sign-up')
+        .send(userWithUsernameTwentyTwoChars)
+        .expect(400)
+      expect(messageFrom(response)).toEqual(
+        `Username can be maximum ${MAX_LENGTH_USERNAME} characters long.`
+      )
+    })
+
     it(`should throw when email is invalid.`, async () => {
       const response: request.Response = await request(app.getHttpServer())
         .post('/users/sign-up')
@@ -79,7 +91,6 @@ describe(`UsersModule`, () => {
       )
     })
 
-    // TODO: Add test for max chars username.
     // TODO: Add test for username containing only letters, numbers.
     it(`should throw when password is without any special character.`, async () => {
       const response = await request(app.getHttpServer())

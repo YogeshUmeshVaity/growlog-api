@@ -17,6 +17,13 @@ export const userWithUsernameTwoChars: SignUpDto = {
   confirmPassword: 'test123&'
 }
 
+export const userWithUsernameTwentyTwoChars: SignUpDto = {
+  username: 'tessssssssssssssssst22',
+  email: 'test1@test.com',
+  password: 'test123&',
+  confirmPassword: 'test123&'
+}
+
 export const userWithAlreadyExistingName: SignUpDto = {
   username: 'test1',
   email: 'testUnique@test.com',
