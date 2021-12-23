@@ -73,6 +73,13 @@ export const userWithPasswordWithoutDigit: SignUpDto = {
   confirmPassword: 'testtest&'
 }
 
+export const userWithConfirmPasswordEmpty: SignUpDto = {
+  username: 'test2',
+  email: 'test2@test.com',
+  password: 'testtest1&',
+  confirmPassword: ''
+}
+
 export const userWithConfirmPasswordNoMatch: SignUpDto = {
   username: 'test2',
   email: 'test2@test.com',

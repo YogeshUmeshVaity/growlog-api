@@ -9,6 +9,7 @@ import {
 import { AppModule } from '../../src/app.module'
 import {
   userWithAlreadyExistingName,
+  userWithConfirmPasswordEmpty,
   userWithConfirmPasswordNoMatch,
   userWithCorrectInfo,
   userWithInvalidEmail,
@@ -119,6 +120,16 @@ describe(`UsersModule`, () => {
         .expect(400)
       expect(messageFrom(response)).toEqual(
         `Password must contain at least 1 digit and 1 special character.`
+      )
+    })
+
+    it(`should throw when confirm-password is empty.`, async () => {
+      const response = await request(app.getHttpServer())
+        .post('/users/sign-up')
+        .send(userWithConfirmPasswordEmpty)
+        .expect(400)
+      expect(messageFrom(response)).toEqual(
+        `Confirm Password must not be empty.`
       )
     })
 
