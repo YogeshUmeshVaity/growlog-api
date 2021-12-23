@@ -15,6 +15,7 @@ import {
   userWithPasswordSevenChars,
   userWithPasswordWithoutDigit,
   userWithPasswordWithoutSpecialChars,
+  userWithUsernameSpecialChars,
   userWithUsernameTwentyTwoChars,
   userWithUsernameTwoChars
 } from './fixtures/sign-up.fixtures'
@@ -71,6 +72,16 @@ describe(`UsersModule`, () => {
       )
     })
 
+    it(`should throw when username contains special characters.`, async () => {
+      const response: request.Response = await request(app.getHttpServer())
+        .post('/users/sign-up')
+        .send(userWithUsernameSpecialChars)
+        .expect(400)
+      expect(messageFrom(response)).toEqual(
+        `Username can contain only letters and numbers.`
+      )
+    })
+
     it(`should throw when email is invalid.`, async () => {
       const response: request.Response = await request(app.getHttpServer())
         .post('/users/sign-up')
@@ -91,7 +102,6 @@ describe(`UsersModule`, () => {
       )
     })
 
-    // TODO: Add test for username containing only letters, numbers.
     it(`should throw when password is without any special character.`, async () => {
       const response = await request(app.getHttpServer())
         .post('/users/sign-up')

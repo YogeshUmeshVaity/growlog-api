@@ -31,6 +31,13 @@ export const userWithAlreadyExistingName: SignUpDto = {
   confirmPassword: 'test123&'
 }
 
+export const userWithUsernameSpecialChars: SignUpDto = {
+  username: 'test$#1',
+  email: 'test1@test.com',
+  password: 'test123&',
+  confirmPassword: 'test123&'
+}
+
 export const userWithInvalidEmail: SignUpDto = {
   username: 'test2',
   email: 'test2@test',
