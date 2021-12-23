@@ -7,10 +7,12 @@ import {
   userWithPasswordWithoutDigit,
   userWithPasswordWithoutSpecialChars,
   userWithSpaces,
+  userWithUsernameTwentyTwoChars,
   userWithUsernameTwoChars
 } from '../../../test/users/fixtures/sign-up.fixtures'
 import { stringified } from '../../../test/utils/test.utils'
 import {
+  MAX_LENGTH_USERNAME,
   MIN_LENGTH_PASSWORD,
   MIN_LENGTH_USERNAME,
   SignUpDto
@@ -22,6 +24,14 @@ describe(`SignUpDto`, () => {
     const errors = await validate(signUpDto /*{ skipMissingProperties: true }*/)
     expect(stringified(errors)).toContain(
       `Username must be at least ${MIN_LENGTH_USERNAME} characters long.`
+    )
+  })
+
+  it(`should throw when username more than ${MAX_LENGTH_USERNAME} characters.`, async () => {
+    const signUpDto = plainToInstance(SignUpDto, userWithUsernameTwentyTwoChars)
+    const errors = await validate(signUpDto)
+    expect(stringified(errors)).toContain(
+      `Username can be maximum ${MAX_LENGTH_USERNAME} characters long.`
     )
   })
 
