@@ -2,11 +2,12 @@ import { plainToInstance } from 'class-transformer'
 import { validate } from 'class-validator'
 import {
   userWithCorrectInfo,
+  userWithEmailSpaces,
   userWithInvalidEmail,
   userWithPasswordSevenChars,
   userWithPasswordWithoutDigit,
   userWithPasswordWithoutSpecialChars,
-  userWithSpaces,
+  userWithUsernameSpaces,
   userWithUsernameSpecialChars,
   userWithUsernameTwentyTwoChars,
   userWithUsernameTwoChars
@@ -77,13 +78,15 @@ describe(`SignUpDto`, () => {
     )
   })
 
-  it(`should trim the spaces in username and email`, async () => {
-    // Expect with spaces.
-    expect(userWithSpaces.username).toContain(' ')
-    expect(userWithSpaces.email).toContain(' ')
-    const signUpDto = plainToInstance(SignUpDto, userWithSpaces)
-    // Expect with no spaces.
-    expect(signUpDto.username).toEqual(userWithCorrectInfo.username)
+  it(`should trim the spaces in username.`, async () => {
+    expect(userWithUsernameSpaces.username).toContain(' ') // before
+    const signUpDto = plainToInstance(SignUpDto, userWithUsernameSpaces)
+    expect(signUpDto.username).toEqual(userWithCorrectInfo.username) // after
+  })
+
+  it(`should trim the spaces in email`, async () => {
+    expect(userWithEmailSpaces.email).toContain(' ')
+    const signUpDto = plainToInstance(SignUpDto, userWithEmailSpaces)
     expect(signUpDto.email).toEqual(userWithCorrectInfo.email)
   })
 })
