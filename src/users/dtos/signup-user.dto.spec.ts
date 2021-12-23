@@ -7,6 +7,7 @@ import {
   userWithPasswordWithoutDigit,
   userWithPasswordWithoutSpecialChars,
   userWithSpaces,
+  userWithUsernameSpecialChars,
   userWithUsernameTwentyTwoChars,
   userWithUsernameTwoChars
 } from '../../../test/users/fixtures/sign-up.fixtures'
@@ -32,6 +33,14 @@ describe(`SignUpDto`, () => {
     const errors = await validate(signUpDto)
     expect(stringified(errors)).toContain(
       `Username can be maximum ${MAX_LENGTH_USERNAME} characters long.`
+    )
+  })
+
+  it(`should throw when username contains special characters.`, async () => {
+    const signUpDto = plainToInstance(SignUpDto, userWithUsernameSpecialChars)
+    const errors = await validate(signUpDto)
+    expect(stringified(errors)).toContain(
+      `Username can contain only letters and numbers.`
     )
   })
 
