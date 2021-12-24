@@ -76,6 +76,9 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "coveragePathIgnorePatterns": [
+      "<rootDir>/main.ts"
+    ],
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
