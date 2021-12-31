@@ -7,6 +7,10 @@ import { User } from './user.entity'
 export class UsersRepository extends AbstractRepository<User> {
   private readonly logger = new Logger(UsersRepository.name)
 
+  async findById(userId: string): Promise<User> {
+    return await this.repository.findOne(userId)
+  }
+
   async findByEmail(email: string): Promise<User> {
     return await this.repository.findOne({ email })
   }
