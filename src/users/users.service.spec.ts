@@ -13,7 +13,6 @@ import { UsersService } from './users.service'
 describe('UsersService', () => {
   let usersService: UsersService
   let repository: UsersRepository
-  let authService: AuthService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -38,7 +37,6 @@ describe('UsersService', () => {
 
     usersService = module.get<UsersService>(UsersService)
     repository = module.get<UsersRepository>(UsersRepository)
-    authService = module.get<AuthService>(AuthService)
   })
 
   it('should be defined', () => {
@@ -97,9 +95,7 @@ describe('UsersService', () => {
       } catch (error) {
         expect(error).toBeInstanceOf(BadRequestException)
         expect(error).toHaveProperty('message', 'Email already exists.')
-        expect(repository.findByEmail).toBeCalledWith(
-          userWithCorrectInfo.email
-        )
+        expect(repository.findByEmail).toBeCalledWith(userWithCorrectInfo.email)
       }
     })
   })
