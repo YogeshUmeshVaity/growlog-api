@@ -17,7 +17,7 @@ export class UsersController {
     return await this.usersService.signUp(body)
   }
 
-  @Get()
+  @Get('/me')
   findMe() {
     //TODO:
     throw new NotImplementedException('feature not implemented.')
