@@ -13,8 +13,8 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post('/sign-up')
-  async signUp(@Body() body: SignUpDto) {
-    return await this.usersService.signUp(body)
+  async signUp(@Body() userInfo: SignUpDto) {
+    return await this.usersService.signUp(userInfo)
   }
 
   @Get('/me')
