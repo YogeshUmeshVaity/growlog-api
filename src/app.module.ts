@@ -54,6 +54,8 @@ import { APP_PIPE } from '@nestjs/core'
   providers: [
     AppService,
     // Validates the body parameters using the class specified with class-validator package.
+    // The pipe is global regardless of the module you specify in. Specify it in a module where its
+    // class is defined.
     { provide: APP_PIPE, useValue: new ValidationPipe({ whitelist: true }) }
   ]
 })
