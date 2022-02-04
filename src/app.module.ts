@@ -33,7 +33,7 @@ const globalConfigModule = ConfigModule.forRoot({
  * This way we don't need to get a connection to the database in our repositories.
  */
 const typeOrmModule = TypeOrmModule.forRootAsync({
-  // Inject the dependency required by the useFactory.
+  // Injects the dependency required by the useFactory.
   inject: [ConfigService],
   // Creates a TypeOrmModuleAsyncOptions object.
   useFactory: (config: ConfigService) => {
