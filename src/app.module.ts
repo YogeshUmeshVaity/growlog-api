@@ -22,43 +22,47 @@ import { APP_PIPE } from '@nestjs/core'
  * TODO: Consider using getter functions for envs. Possibly with a separate module called 'config'.
  * https://docs.nestjs.com/techniques/configuration#custom-getter-functions
  */
+const globalConfigModule = ConfigModule.forRoot({
+  isGlobal: true,
+  envFilePath: `.env.${process.env.NODE_ENV}`,
+  cache: true
+})
+
+/**
+ * Represents a dynamic module responsible for establishing a connection to the database.
+ * This way we don't need to get a connection to the database in our repositories.
+ */
+const typeOrmModule = TypeOrmModule.forRootAsync({
+  // Inject the dependency required by the useFactory.
+  inject: [ConfigService],
+  // Creates a TypeOrmModuleAsyncOptions object.
+  useFactory: (config: ConfigService) => {
+    return {
+      type: 'postgres',
+      host: config.get<string>('POSTGRES_HOST'),
+      port: config.get<number>('POSTGRES_PORT'),
+      database: config.get<string>('POSTGRES_DATABASE_NAME'),
+      username: config.get<string>('POSTGRES_USER_NAME'),
+      password: config.get<string>('POSTGRES_PASSWORD'),
+      synchronize: true,
+      entities: [User]
+    }
+  }
+})
+
+/**
+ * Validates the body parameters using the class specified with class-validator package.
+ * The pipe is global regardless of the module you specify in. Specify it in a module where its
+ * class is defined.
+ */
+const globalValidationPipe = {
+  provide: APP_PIPE,
+  useValue: new ValidationPipe({ whitelist: true })
+}
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      envFilePath: `.env.${process.env.NODE_ENV}`,
-      cache: true
-    }),
-    // Returns a dynamic module responsible for establishing a connection to the database.
-    // This way we don't need to get a connection to the database in our repositories.
-    TypeOrmModule.forRootAsync({
-      // Inject the dependency required by the useFactory.
-      inject: [ConfigService],
-      // Creates a TypeOrmModuleAsyncOptions object.
-      useFactory: (config: ConfigService) => {
-        return {
-          type: 'postgres',
-          host: config.get<string>('POSTGRES_HOST'),
-          port: config.get<number>('POSTGRES_PORT'), // Note the 'number'.
-          database: config.get<string>('POSTGRES_DATABASE_NAME'),
-          username: config.get<string>('POSTGRES_USER_NAME'),
-          password: config.get<string>('POSTGRES_PASSWORD'),
-          synchronize: true, // TODO: Disable this forever once the app goes in production.
-          entities: [User]
-        }
-      }
-    }),
-    UsersModule,
-    AuthModule
-  ],
+  imports: [globalConfigModule, typeOrmModule, UsersModule, AuthModule],
   controllers: [AppController],
-  providers: [
-    AppService,
-    // Validates the body parameters using the class specified with class-validator package.
-    // The pipe is global regardless of the module you specify in. Specify it in a module where its
-    // class is defined.
-    { provide: APP_PIPE, useValue: new ValidationPipe({ whitelist: true }) }
-  ]
+  providers: [AppService, globalValidationPipe]
 })
 export class AppModule {}
