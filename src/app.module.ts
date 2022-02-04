@@ -30,10 +30,12 @@ import { APP_PIPE } from '@nestjs/core'
       envFilePath: `.env.${process.env.NODE_ENV}`,
       cache: true
     }),
-    // A dynamic module responsible for establishing a connection to the database.
+    // Returns a dynamic module responsible for establishing a connection to the database.
     // This way we don't need to get a connection to the database in our repositories.
     TypeOrmModule.forRootAsync({
+      // Inject the dependency required by the useFactory.
       inject: [ConfigService],
+      // Creates a TypeOrmModuleAsyncOptions object.
       useFactory: (config: ConfigService) => {
         return {
           type: 'postgres',
