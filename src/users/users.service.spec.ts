@@ -16,23 +16,7 @@ describe('UsersService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        UsersService,
-        {
-          provide: UsersRepository,
-          useValue: {
-            findByEmail: jest.fn().mockResolvedValue(null),
-            findByName: jest.fn().mockResolvedValue(null),
-            createAndSave: jest.fn().mockResolvedValue(userWithCorrectInfo)
-          }
-        },
-        {
-          provide: AuthService,
-          useValue: {
-            logIn: jest.fn().mockResolvedValue(sampleToken)
-          }
-        }
-      ]
+      providers: [UsersService, usersRepositoryMock(), authServiceMock()]
     }).compile()
 
     usersService = module.get<UsersService>(UsersService)
@@ -100,3 +84,31 @@ describe('UsersService', () => {
     })
   })
 })
+
+/**
+ * We use functions for representing mocks to avoid singleton const variables. Functions are called
+ * every time in the beforeEach() whereas the const variables become singletons and are reused.
+ * We want to the mocks to be recreated instead of reusing the same instance before each test.
+ *
+ * Another reason for using functions is that we can keep all the mock objects at the bottom of the
+ * file here because they are less important than the actual test code.
+ */
+function authServiceMock() {
+  return {
+    provide: AuthService,
+    useValue: {
+      logIn: jest.fn().mockResolvedValue(sampleToken)
+    }
+  }
+}
+
+function usersRepositoryMock() {
+  return {
+    provide: UsersRepository,
+    useValue: {
+      findByEmail: jest.fn().mockResolvedValue(null),
+      findByName: jest.fn().mockResolvedValue(null),
+      createAndSave: jest.fn().mockResolvedValue(userWithCorrectInfo)
+    }
+  }
+}
