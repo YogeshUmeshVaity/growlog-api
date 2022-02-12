@@ -88,7 +88,7 @@ describe('UsersService', () => {
 /**
  * We use functions for representing mocks to avoid singleton const variables. Functions are called
  * every time in the beforeEach() whereas the const variables are singletons and are reused.
- * We want the mocks to be recreated instead of reusing the same instance before each test.
+ * We want the mocks to be recreated instead of reusing the same instance, before each test.
  *
  * Another reason for using functions is that we can keep all the mock objects at the bottom of the
  * file here because they are less important than the actual test code.
