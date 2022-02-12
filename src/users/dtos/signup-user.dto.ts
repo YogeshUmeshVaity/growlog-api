@@ -1,3 +1,4 @@
+import { applyDecorators } from '@nestjs/common'
 import { Transform, TransformFnParams } from 'class-transformer'
 import {
   IsEmail,
@@ -52,33 +53,64 @@ const regexOneDigitOneSpecialChar = /^(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).*$/
 const regexLettersAndNumbers = /^[a-zA-Z0-9]+$/
 
 export class SignUpDto {
-  @IsString()
-  @MinLength(MIN_LENGTH_USERNAME, {
-    message: `Username must be at least ${MIN_LENGTH_USERNAME} characters long.`
-  })
-  @MaxLength(MAX_LENGTH_USERNAME, {
-    message: `Username can be maximum ${MAX_LENGTH_USERNAME} characters long.`
-  })
-  @Matches(regexLettersAndNumbers, {
-    message: `Username can contain only letters and numbers.`
-  })
-  @Transform(({ value }: TransformFnParams) => value.trim()) // trim spaces
+  @UsernameValidations()
   readonly username: string
 
-  @IsEmail({}, { message: 'Please enter a valid email address.' })
-  @Transform(({ value }: TransformFnParams) => value.trim())
+  @EmailValidations()
   readonly email: string
 
-  @MinLength(MIN_LENGTH_PASSWORD, {
-    message: `Password must be at least ${MIN_LENGTH_PASSWORD} characters long.`
-  })
-  @Matches(regexOneDigitOneSpecialChar, {
-    message: 'Password must contain at least 1 digit and 1 special character.'
-  })
+  @PasswordValidations()
   readonly password: string
 
-  // Empty check is required because we check the equality first.
-  @IsString()
-  @IsNotEmpty({ message: `Confirm Password must not be empty.` })
+  @ConfirmPasswordValidations()
   readonly confirmPassword: string
+}
+
+function UsernameValidations() {
+  return applyDecorators(
+    IsString(),
+
+    MinLength(MIN_LENGTH_USERNAME, {
+      message: `Username must be at least ${MIN_LENGTH_USERNAME} characters long.`
+    }),
+
+    MaxLength(MAX_LENGTH_USERNAME, {
+      message: `Username can be maximum ${MAX_LENGTH_USERNAME} characters long.`
+    }),
+
+    Matches(regexLettersAndNumbers, {
+      message: `Username can contain only letters and numbers.`
+    }),
+
+    Transform(({ value }: TransformFnParams) => value.trim()) // trim spaces
+  )
+}
+
+function EmailValidations() {
+  return applyDecorators(
+    IsEmail({}, { message: 'Please enter a valid email address.' }),
+
+    Transform(({ value }: TransformFnParams) => value.trim())
+  )
+}
+
+function PasswordValidations() {
+  return applyDecorators(
+    MinLength(MIN_LENGTH_PASSWORD, {
+      message: `Password must be at least ${MIN_LENGTH_PASSWORD} characters long.`
+    }),
+
+    Matches(regexOneDigitOneSpecialChar, {
+      message: 'Password must contain at least 1 digit and 1 special character.'
+    })
+  )
+}
+
+function ConfirmPasswordValidations() {
+  return applyDecorators(
+    IsString(),
+
+    // Empty check is required because we check the equality first.
+    IsNotEmpty({ message: `Confirm Password must not be empty.` })
+  )
 }
