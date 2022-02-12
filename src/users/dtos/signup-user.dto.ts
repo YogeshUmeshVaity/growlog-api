@@ -30,8 +30,9 @@ export const MAX_LENGTH_USERNAME = 21
 export const MIN_LENGTH_PASSWORD = 8
 
 /**
- * Requires 1 digit and 1 special character. The dot means anything can go here and the star means
- * at least 0 times so .* accepts any sequence of characters, including an empty string.
+ * Requires 1 digit and 1 special character for the password. The dot means anything can go here
+ * and the star means at least 0 times so .* accepts any sequence of characters, including an empty
+ * string.
  */
 const regexOneDigitOneSpecialChar = /^(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).*$/
 
