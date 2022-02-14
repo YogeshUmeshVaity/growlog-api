@@ -54,10 +54,12 @@ const typeOrmModule = TypeOrmModule.forRootAsync({
  * Validates the body parameters using the class specified with class-validator package.
  * The pipe is global regardless of the module you specify in. Specify it in a module where its
  * class is defined.
+ *
+ * whitelist: true acts as a security feature. It strips out the unwanted properties sent by client.
  */
 const globalValidationPipe = {
   provide: APP_PIPE,
-  useValue: new ValidationPipe({ whitelist: true })
+  useValue: new ValidationPipe({ whitelist: true, transform: true })
 }
 
 @Module({
