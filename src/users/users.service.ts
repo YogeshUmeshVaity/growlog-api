@@ -21,6 +21,10 @@ export class UsersService {
     return await this.authService.logIn(newUser)
   }
 
+  async findById(userId: string) {
+    return await this.usersRepository.findById(userId)
+  }
+
   private async saveToDb(userInfo: SignUpDto) {
     return await this.usersRepository.createAndSave(userInfo)
   }
