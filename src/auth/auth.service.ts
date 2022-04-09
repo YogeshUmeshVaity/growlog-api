@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService, JwtSignOptions } from '@nestjs/jwt'
 import { User } from '../users/user.entity'
@@ -21,6 +21,14 @@ export class AuthService {
       this.jwtOptions(user)
     )
     return { token }
+  }
+
+  async verifyTokenFor(user: User, token: string) {
+    try {
+      this.jwtService.verifyAsync(token, this.jwtOptions(user))
+    } catch {
+      throw new UnauthorizedException('Token is invalid.')
+    }
   }
 
   private jwtPayload(user: User) {
