@@ -58,8 +58,8 @@ export class User {
 
   /**
    * A random string to join with the JWT secret key. Changing this causes the change in the
-   * JWT secret key with which the tokens were created. As a result the tokens stored on all devices
-   * this user become invalid. Helpful for logging out the user from all other devices.
+   * JWT secret key with which the tokens were created. As a result, the tokens stored on all
+   * devices of this user become invalid. Helpful for logging out the user from all other devices.
    */
   @Column()
   tokenInvalidator: string
