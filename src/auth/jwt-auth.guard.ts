@@ -67,10 +67,11 @@ export class JwtAuthGuard implements CanActivate {
 
   private extractTokenFrom(request: Request) {
     const authorizationArray = request.headers.authorization?.split(' ')
+    this.throwIfNoAuthHeader(authorizationArray)
+
     const tokenPrefix = authorizationArray[0]
     const token = authorizationArray[1]
 
-    this.throwIfNoAuthHeader(authorizationArray)
     this.throwIfNoBearerPrefix(tokenPrefix)
     this.throwIfNoToken(token)
 
@@ -84,7 +85,7 @@ export class JwtAuthGuard implements CanActivate {
   }
 
   private throwIfNoBearerPrefix(tokenPrefix: string) {
-    if (tokenPrefix !== 'bearer') {
+    if (tokenPrefix.toLowerCase() !== 'bearer') {
       throw new UnauthorizedException('Authorization type is not valid.')
     }
   }
