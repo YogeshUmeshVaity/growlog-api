@@ -3,9 +3,16 @@ import {
   Controller,
   Get,
   NotImplementedException,
-  Post
+  Post,
+  Request,
+  UseGuards
 } from '@nestjs/common'
+import { JwtAuthGuard } from '../auth/jwt-auth.guard'
+import { Serialize } from '../utils/interceptors/serializer.interceptor'
+import { CurrentUser } from './decorators/current-user.decorator'
 import { SignUpDto } from './dtos/signup-user.dto'
+import { UserDto } from './dtos/user.dto'
+import { User } from './user.entity'
 import { UsersService } from './users.service'
 
 @Controller('users')
@@ -18,8 +25,9 @@ export class UsersController {
   }
 
   @Get('/me')
-  findMe() {
-    //TODO:
-    throw new NotImplementedException('feature not implemented.')
+  @UseGuards(JwtAuthGuard)
+  @Serialize(UserDto) // Can be moved to the entire controller, if there are more instances of it.
+  findMe(@CurrentUser() user: User) {
+    return user
   }
 }
