@@ -51,7 +51,7 @@ export const messageFrom = (response: Response) => {
  * @param response from Supertest.
  * @returns JWT payload in JavaScript object.
  */
-export const tokenFrom = (response: Response) => {
+export const decodeTokenFrom = (response: Response) => {
   const token: string = response.body.token
 
   // Take the middle part of the JWT. This is what contains the payload, like userId.
