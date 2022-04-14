@@ -20,7 +20,7 @@ import {
   userWithUsernameTwentyTwoChars,
   userWithUsernameTwoChars
 } from './fixtures/sign-up.fixtures'
-import { clearDb, messageFrom, tokenFrom } from '../utils/test.utils'
+import { clearDb, messageFrom, decodeTokenFrom } from '../utils/test.utils'
 import { validate as isUuid } from 'uuid'
 
 describe(`UsersModule`, () => {
@@ -34,11 +34,15 @@ describe(`UsersModule`, () => {
     app = moduleFixture.createNestApplication()
     await app.init()
 
-    await clearDb()
+    //await clearDb()
   })
 
   afterAll(async () => {
     await app.close()
+  })
+
+  beforeEach(async () => {
+    await clearDb()
   })
 
   describe(`sign-up`, () => {
@@ -48,7 +52,7 @@ describe(`UsersModule`, () => {
         .send(userWithCorrectInfo)
         .expect(201)
       expect(response.body).toHaveProperty('token')
-      const { username, userId } = tokenFrom(response)
+      const { username, userId } = decodeTokenFrom(response)
       expect(username).toEqual(userWithCorrectInfo.username)
       expect(isUuid(userId)).toBe(true)
     })
@@ -170,5 +174,21 @@ describe(`UsersModule`, () => {
     })
 
     //TODO: e2e test to check if spaces in username and email are trimmed.
+  })
+
+  describe(`findMe`, () => {
+    it(`should return a user when correct token provided.`, async () => {
+      const signUpResponse = await request(app.getHttpServer())
+        .post('/users/sign-up')
+        .send(userWithCorrectInfo)
+        .expect(201)
+
+      const findMeResponse = await request(app.getHttpServer())
+        .get('/users/me')
+        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+        .expect(200)
+      expect(findMeResponse.body.username).toEqual(userWithCorrectInfo.username)
+      expect(findMeResponse.body).not.toHaveProperty('hashedPassword')
+    })
   })
 })
