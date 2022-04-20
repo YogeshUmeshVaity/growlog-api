@@ -26,9 +26,7 @@ describe('UsersController', () => {
         {
           provide: AuthService,
           useValue: {
-            verifyTokenFor: jest
-              .fn()
-              .mockImplementation(() => Promise.resolve())
+            verifyTokenFor: jest.fn().mockResolvedValue({})
           }
         }
       ]
