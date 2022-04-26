@@ -25,7 +25,7 @@ export class AuthService {
 
   async verifyTokenFor(user: User, token: string) {
     try {
-      this.jwtService.verifyAsync(token, this.jwtOptions(user))
+      await this.jwtService.verifyAsync(token, this.jwtOptions(user))
     } catch {
       throw new UnauthorizedException('Token is invalid.')
     }
