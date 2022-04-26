@@ -1,6 +1,8 @@
+import { UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
+import { sample } from 'rxjs'
 import { sampleToken } from '../../test/users/fixtures/sign-up.fixtures'
 import { User } from '../users/user.entity'
 import { AuthService } from './auth.service'
@@ -32,7 +34,10 @@ const ConfigServiceMock = {
 const JwtServiceMock = {
   provide: JwtService,
   useValue: {
-    signAsync: jest.fn().mockResolvedValue(sampleToken)
+    signAsync: jest.fn().mockResolvedValue(sampleToken),
+    verifyAsync: jest
+      .fn()
+      .mockRejectedValue(new UnauthorizedException('Token is invalid.'))
   }
 }
 
@@ -55,6 +60,25 @@ describe('AuthService', () => {
     it(`should return a token.`, async () => {
       const { token } = await authService.logIn(sampleUser())
       expect(token).toEqual(sampleToken)
+    })
+  })
+
+  describe(`verifyTokenFor`, () => {
+    it(`should throw exception when invalid token.`, async () => {
+      expect.assertions(2)
+      try {
+        await authService.verifyTokenFor(sampleUser(), sampleToken.token)
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnauthorizedException)
+        expect(error).toHaveProperty('message', 'Token is invalid.')
+      }
+    })
+
+    it(`should not throw exception when valid token.`, async () => {
+      authService.verifyTokenFor = jest.fn().mockResolvedValue({})
+      await expect(
+        authService.verifyTokenFor(sampleUser(), sampleToken.token)
+      ).resolves.not.toThrow(UnauthorizedException)
     })
   })
 })
