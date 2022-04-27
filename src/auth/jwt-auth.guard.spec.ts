@@ -1,5 +1,9 @@
 import { createMock } from '@golevelup/ts-jest'
-import { ExecutionContext, UnauthorizedException } from '@nestjs/common'
+import {
+  ExecutionContext,
+  NotFoundException,
+  UnauthorizedException
+} from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
 import { sampleToken } from '../../test/users/fixtures/sign-up.fixtures'
@@ -59,6 +63,10 @@ describe('AuthService', () => {
     }).compile()
 
     jwtAuthGuard = module.get<JwtAuthGuard>(JwtAuthGuard)
+  })
+
+  afterEach(() => {
+    jest.clearAllMocks()
   })
 
   it('should be defined', () => {
@@ -135,6 +143,26 @@ describe('AuthService', () => {
           'message',
           'Unable to decode the provided token.'
         )
+      }
+    })
+
+    it(`should throw when user is not found.`, async () => {
+      const context = createMock<ExecutionContext>()
+      context.switchToHttp().getRequest.mockReturnValue({
+        headers: { authorization: `bearer ${sampleToken.token}` }
+      })
+      // This was set to null in previous test, so, we need reset it to a value.
+      jwtServiceMock.decode = jest.fn().mockReturnValue({
+        userId: sampleUser().id,
+        username: sampleUser().username
+      })
+      usersServiceMock.findById = jest.fn().mockResolvedValue(null)
+      expect.assertions(2)
+      try {
+        await jwtAuthGuard.canActivate(context)
+      } catch (error) {
+        expect(error).toBeInstanceOf(NotFoundException)
+        expect(error).toHaveProperty('message', 'User was not found.')
       }
     })
   })
