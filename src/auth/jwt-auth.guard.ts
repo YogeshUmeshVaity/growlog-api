@@ -12,7 +12,7 @@ import { Request } from 'express'
 import { UsersService } from '../users/users.service'
 import { AuthService } from './auth.service'
 
-const IS_PUBLIC_ROUTE_KEY = 'isPublicRoute'
+export const IS_PUBLIC_ROUTE_KEY = 'isPublicRoute'
 export const PublicRoute = () => SetMetadata(IS_PUBLIC_ROUTE_KEY, true)
 
 interface DecodedToken {
@@ -35,15 +35,15 @@ export class JwtAuthGuard implements CanActivate {
       context.getHandler()
     )
 
+    if (isPublicRoute) {
+      return true
+    }
+
     const token = this.extractTokenFrom(request)
     const userId = this.getUserIdFrom(token)
     const user = await this.verifyUser(userId)
     await this.authService.verifyTokenFor(user, token)
     request.user = user
-
-    if (isPublicRoute) {
-      return true
-    }
 
     return request.user !== null
   }

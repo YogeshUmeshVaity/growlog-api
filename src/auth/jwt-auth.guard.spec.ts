@@ -4,65 +4,36 @@ import {
   NotFoundException,
   UnauthorizedException
 } from '@nestjs/common'
+import { Reflector } from '@nestjs/core'
 import { JwtService } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
 import { sampleToken } from '../../test/users/fixtures/sign-up.fixtures'
 import { User } from '../users/user.entity'
 import { UsersService } from '../users/users.service'
 import { AuthService } from './auth.service'
-import { JwtAuthGuard } from './jwt-auth.guard'
-
-// TODO: move it to fixtures and reuse it in auth.service.spec too
-function sampleUser() {
-  const user = new User()
-  user.id = '30ff0b89-7a43-4892-9ccc-86bb5f16e296'
-  user.username = 'abcabc123'
-  user.renewTokenInvalidator()
-  return user
-}
-
-const jwtServiceMock = {
-  signAsync: jest.fn().mockResolvedValue(sampleToken),
-  verifyAsync: jest
-    .fn()
-    .mockRejectedValue(new UnauthorizedException('Token is invalid.')),
-  decode: jest.fn().mockReturnValue({
-    userId: sampleUser().id,
-    username: sampleUser().username
-  })
-}
-
-const authServiceMock = {
-  verifyTokenFor: jest.fn().mockResolvedValue({})
-}
-
-const usersServiceMock = {
-  findById: jest.fn().mockResolvedValue(sampleUser())
-}
+import { IS_PUBLIC_ROUTE_KEY, JwtAuthGuard } from './jwt-auth.guard'
 
 describe('AuthService', () => {
   let jwtAuthGuard: JwtAuthGuard
+  let jwtService: JwtService
+  let usersService: UsersService
+  let reflector: Reflector
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         JwtAuthGuard,
-        {
-          provide: AuthService,
-          useValue: authServiceMock
-        },
-        {
-          provide: JwtService,
-          useValue: jwtServiceMock
-        },
-        {
-          provide: UsersService,
-          useValue: usersServiceMock
-        }
+        jwtServiceMock(),
+        authServiceMock(),
+        usersServiceMock(),
+        reflectorMock()
       ]
     }).compile()
 
     jwtAuthGuard = module.get<JwtAuthGuard>(JwtAuthGuard)
+    jwtService = module.get<JwtService>(JwtService)
+    reflector = module.get<Reflector>(Reflector)
+    usersService = module.get<UsersService>(UsersService)
   })
 
   afterEach(() => {
@@ -78,6 +49,21 @@ describe('AuthService', () => {
       const context = createMock<ExecutionContext>()
       context.switchToHttp().getRequest.mockReturnValue({
         headers: { authorization: `bearer ${sampleToken.token}` }
+      })
+      const canAccess = await jwtAuthGuard.canActivate(context)
+      expect(canAccess).toBeTruthy()
+    })
+
+    it(`should allow access when route has @PublicRoute decorator.`, async () => {
+      const context = createMock<ExecutionContext>()
+      // Make the get() return true for @PublicRoute
+      jest.spyOn(reflector, 'get').mockImplementation((key: string) => {
+        switch (key) {
+          case IS_PUBLIC_ROUTE_KEY:
+            return true
+          default:
+            return false
+        }
       })
       const canAccess = await jwtAuthGuard.canActivate(context)
       expect(canAccess).toBeTruthy()
@@ -133,7 +119,7 @@ describe('AuthService', () => {
       context.switchToHttp().getRequest.mockReturnValue({
         headers: { authorization: `bearer ${sampleToken.token}` }
       })
-      jwtServiceMock.decode = jest.fn().mockReturnValue(null)
+      jest.spyOn(jwtService, 'decode').mockReturnValue(null)
       expect.assertions(2)
       try {
         await jwtAuthGuard.canActivate(context)
@@ -151,12 +137,7 @@ describe('AuthService', () => {
       context.switchToHttp().getRequest.mockReturnValue({
         headers: { authorization: `bearer ${sampleToken.token}` }
       })
-      // This was set to null in previous test, so, we need reset it to a value.
-      jwtServiceMock.decode = jest.fn().mockReturnValue({
-        userId: sampleUser().id,
-        username: sampleUser().username
-      })
-      usersServiceMock.findById = jest.fn().mockResolvedValue(null)
+      jest.spyOn(usersService, 'findById').mockResolvedValue(null)
       expect.assertions(2)
       try {
         await jwtAuthGuard.canActivate(context)
@@ -167,3 +148,62 @@ describe('AuthService', () => {
     })
   })
 })
+
+function authServiceMock() {
+  return {
+    provide: AuthService,
+    useValue: {
+      verifyTokenFor: jest.fn().mockResolvedValue({})
+    }
+  }
+}
+
+function jwtServiceMock() {
+  return {
+    provide: JwtService,
+    useValue: {
+      signAsync: jest.fn().mockResolvedValue(sampleToken),
+      verifyAsync: jest
+        .fn()
+        .mockRejectedValue(new UnauthorizedException('Token is invalid.')),
+      decode: jest.fn().mockReturnValue({
+        userId: sampleUser().id,
+        username: sampleUser().username
+      })
+    }
+  }
+}
+
+function usersServiceMock() {
+  return {
+    provide: UsersService,
+    useValue: {
+      findById: jest.fn().mockResolvedValue(sampleUser())
+    }
+  }
+}
+
+function reflectorMock() {
+  return {
+    provide: Reflector,
+    useValue: {
+      get: jest.fn((key: string) => {
+        switch (key) {
+          case IS_PUBLIC_ROUTE_KEY:
+            return false
+          default:
+            return false
+        }
+      })
+    }
+  }
+}
+
+// TODO: move it to fixtures and reuse it in auth.service.spec too
+function sampleUser() {
+  const user = new User()
+  user.id = '30ff0b89-7a43-4892-9ccc-86bb5f16e296'
+  user.username = 'abcabc123'
+  user.renewTokenInvalidator()
+  return user
+}
