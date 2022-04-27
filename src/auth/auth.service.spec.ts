@@ -74,7 +74,7 @@ describe('AuthService', () => {
     })
 
     it(`should not throw exception when valid token.`, async () => {
-      authService.verifyTokenFor = jest.fn().mockResolvedValue({})
+      JwtServiceMock.useValue.verifyAsync = jest.fn().mockResolvedValue({})
       await expect(
         authService.verifyTokenFor(sampleUser(), sampleToken.token)
       ).resolves.not.toThrow(UnauthorizedException)
