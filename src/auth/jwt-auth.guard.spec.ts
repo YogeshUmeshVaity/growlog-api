@@ -17,32 +17,23 @@ function sampleUser() {
   return user
 }
 
-const JwtServiceMock = {
-  provide: JwtService,
-  useValue: {
-    signAsync: jest.fn().mockResolvedValue(sampleToken),
-    verifyAsync: jest
-      .fn()
-      .mockRejectedValue(new UnauthorizedException('Token is invalid.')),
-    decode: jest.fn().mockReturnValue({
-      userId: sampleUser().id,
-      username: sampleUser().username
-    })
-  }
+const jwtServiceMock = {
+  signAsync: jest.fn().mockResolvedValue(sampleToken),
+  verifyAsync: jest
+    .fn()
+    .mockRejectedValue(new UnauthorizedException('Token is invalid.')),
+  decode: jest.fn().mockReturnValue({
+    userId: sampleUser().id,
+    username: sampleUser().username
+  })
 }
 
-const AuthServiceMock = {
-  provide: AuthService,
-  useValue: {
-    verifyTokenFor: jest.fn().mockResolvedValue({})
-  }
+const authServiceMock = {
+  verifyTokenFor: jest.fn().mockResolvedValue({})
 }
 
-const UsersServiceMock = {
-  provide: UsersService,
-  useValue: {
-    findById: jest.fn().mockResolvedValue(sampleUser())
-  }
+const usersServiceMock = {
+  findById: jest.fn().mockResolvedValue(sampleUser())
 }
 
 describe('AuthService', () => {
@@ -52,9 +43,18 @@ describe('AuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         JwtAuthGuard,
-        AuthServiceMock,
-        JwtServiceMock,
-        UsersServiceMock
+        {
+          provide: AuthService,
+          useValue: authServiceMock
+        },
+        {
+          provide: JwtService,
+          useValue: jwtServiceMock
+        },
+        {
+          provide: UsersService,
+          useValue: usersServiceMock
+        }
       ]
     }).compile()
 
@@ -73,6 +73,51 @@ describe('AuthService', () => {
       })
       const canAccess = await jwtAuthGuard.canActivate(context)
       expect(canAccess).toBeTruthy()
+    })
+
+    it(`should throw when no authorization header.`, async () => {
+      const context = createMock<ExecutionContext>()
+      context.switchToHttp().getRequest.mockReturnValue({
+        headers: {}
+      })
+      expect.assertions(2)
+      try {
+        await jwtAuthGuard.canActivate(context)
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnauthorizedException)
+        expect(error).toHaveProperty('message', 'Token was not found.')
+      }
+    })
+
+    it(`should throw when no bearer prefix in authorization header.`, async () => {
+      const context = createMock<ExecutionContext>()
+      context.switchToHttp().getRequest.mockReturnValue({
+        headers: { authorization: sampleToken.token }
+      })
+      expect.assertions(2)
+      try {
+        await jwtAuthGuard.canActivate(context)
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnauthorizedException)
+        expect(error).toHaveProperty(
+          'message',
+          'Authorization type is not valid.'
+        )
+      }
+    })
+
+    it(`should throw when token not found.`, async () => {
+      const context = createMock<ExecutionContext>()
+      context.switchToHttp().getRequest.mockReturnValue({
+        headers: { authorization: `bearer ` }
+      })
+      expect.assertions(2)
+      try {
+        await jwtAuthGuard.canActivate(context)
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnauthorizedException)
+        expect(error).toHaveProperty('message', 'Token was not provided.')
+      }
     })
   })
 })
