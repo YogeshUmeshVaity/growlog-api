@@ -14,30 +14,24 @@ function sampleUser() {
   return user
 }
 
-const ConfigServiceMock = {
-  provide: ConfigService,
-  useValue: {
-    get: jest.fn((key: string) => {
-      switch (key) {
-        case 'JWT_SECRET':
-          return 'test_secret'
-        case 'JWT_EXPIRY':
-          return '1y'
-        default:
-          return null
-      }
-    })
-  }
+const configServiceMock = {
+  get: jest.fn((key: string) => {
+    switch (key) {
+      case 'JWT_SECRET':
+        return 'test_secret'
+      case 'JWT_EXPIRY':
+        return '1y'
+      default:
+        return null
+    }
+  })
 }
 
-const JwtServiceMock = {
-  provide: JwtService,
-  useValue: {
-    signAsync: jest.fn().mockResolvedValue(sampleToken),
-    verifyAsync: jest
-      .fn()
-      .mockRejectedValue(new UnauthorizedException('Token is invalid.'))
-  }
+const jwtServiceMock = {
+  signAsync: jest.fn().mockResolvedValue(sampleToken),
+  verifyAsync: jest
+    .fn()
+    .mockRejectedValue(new UnauthorizedException('Token is invalid.'))
 }
 
 describe('AuthService', () => {
@@ -45,7 +39,17 @@ describe('AuthService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [AuthService, ConfigServiceMock, JwtServiceMock]
+      providers: [
+        AuthService,
+        {
+          provide: ConfigService,
+          useValue: configServiceMock
+        },
+        {
+          provide: JwtService,
+          useValue: jwtServiceMock
+        }
+      ]
     }).compile()
 
     authService = module.get<AuthService>(AuthService)
@@ -74,7 +78,7 @@ describe('AuthService', () => {
     })
 
     it(`should not throw exception when valid token.`, async () => {
-      JwtServiceMock.useValue.verifyAsync = jest.fn().mockResolvedValue({})
+      jwtServiceMock.verifyAsync = jest.fn().mockResolvedValue({})
       await expect(
         authService.verifyTokenFor(sampleUser(), sampleToken.token)
       ).resolves.not.toThrow(UnauthorizedException)
