@@ -119,5 +119,23 @@ describe('AuthService', () => {
         expect(error).toHaveProperty('message', 'Token was not provided.')
       }
     })
+
+    it(`should throw when unable to decode token.`, async () => {
+      const context = createMock<ExecutionContext>()
+      context.switchToHttp().getRequest.mockReturnValue({
+        headers: { authorization: `bearer ${sampleToken.token}` }
+      })
+      jwtServiceMock.decode = jest.fn().mockReturnValue(null)
+      expect.assertions(2)
+      try {
+        await jwtAuthGuard.canActivate(context)
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnauthorizedException)
+        expect(error).toHaveProperty(
+          'message',
+          'Unable to decode the provided token.'
+        )
+      }
+    })
   })
 })
