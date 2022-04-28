@@ -7,6 +7,7 @@ import {
 import { Reflector } from '@nestjs/core'
 import { JwtService } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
+import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import { sampleToken } from '../../test/users/fixtures/sign-up.fixtures'
 import { User } from '../users/user.entity'
 import { UsersService } from '../users/users.service'
@@ -197,13 +198,4 @@ function reflectorMock() {
       })
     }
   }
-}
-
-// TODO: move it to fixtures and reuse it in auth.service.spec too
-function sampleUser() {
-  const user = new User()
-  user.id = '30ff0b89-7a43-4892-9ccc-86bb5f16e296'
-  user.username = 'abcabc123'
-  user.renewTokenInvalidator()
-  return user
 }

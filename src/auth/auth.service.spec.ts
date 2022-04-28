@@ -2,17 +2,9 @@ import { UnauthorizedException } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { JwtService } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
+import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import { sampleToken } from '../../test/users/fixtures/sign-up.fixtures'
-import { User } from '../users/user.entity'
 import { AuthService } from './auth.service'
-
-function sampleUser() {
-  const user = new User()
-  user.id = '30ff0b89-7a43-4892-9ccc-86bb5f16e296'
-  user.username = 'abcabc123'
-  user.renewTokenInvalidator()
-  return user
-}
 
 describe('AuthService', () => {
   let authService: AuthService
