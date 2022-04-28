@@ -45,7 +45,7 @@ describe('AuthService', () => {
   })
 
   describe(`canActivate`, () => {
-    it(`should allow the route access when valid token.`, async () => {
+    it(`should allow access when valid token.`, async () => {
       const context = createMock<ExecutionContext>()
       context.switchToHttp().getRequest.mockReturnValue({
         headers: { authorization: `bearer ${sampleToken.token}` }

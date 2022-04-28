@@ -14,45 +14,17 @@ function sampleUser() {
   return user
 }
 
-const configServiceMock = {
-  get: jest.fn((key: string) => {
-    switch (key) {
-      case 'JWT_SECRET':
-        return 'test_secret'
-      case 'JWT_EXPIRY':
-        return '1y'
-      default:
-        return null
-    }
-  })
-}
-
-const jwtServiceMock = {
-  signAsync: jest.fn().mockResolvedValue(sampleToken),
-  verifyAsync: jest
-    .fn()
-    .mockRejectedValue(new UnauthorizedException('Token is invalid.'))
-}
-
 describe('AuthService', () => {
   let authService: AuthService
+  let jwtService: JwtService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        AuthService,
-        {
-          provide: ConfigService,
-          useValue: configServiceMock
-        },
-        {
-          provide: JwtService,
-          useValue: jwtServiceMock
-        }
-      ]
+      providers: [AuthService, configServiceMock(), jwtServiceMock()]
     }).compile()
 
     authService = module.get<AuthService>(AuthService)
+    jwtService = module.get<JwtService>(JwtService)
   })
 
   it('should be defined', () => {
@@ -78,10 +50,41 @@ describe('AuthService', () => {
     })
 
     it(`should not throw exception when valid token.`, async () => {
-      jwtServiceMock.verifyAsync = jest.fn().mockResolvedValue({})
+      jest.spyOn(jwtService, 'verifyAsync').mockResolvedValue({})
+      //jwtServiceMock.verifyAsync = jest.fn().mockResolvedValue({})
       await expect(
         authService.verifyTokenFor(sampleUser(), sampleToken.token)
       ).resolves.not.toThrow(UnauthorizedException)
     })
   })
 })
+
+function configServiceMock() {
+  return {
+    provide: ConfigService,
+    useValue: {
+      get: jest.fn((key: string) => {
+        switch (key) {
+          case 'JWT_SECRET':
+            return 'test_secret'
+          case 'JWT_EXPIRY':
+            return '1y'
+          default:
+            return null
+        }
+      })
+    }
+  }
+}
+
+function jwtServiceMock() {
+  return {
+    provide: JwtService,
+    useValue: {
+      signAsync: jest.fn().mockResolvedValue(sampleToken),
+      verifyAsync: jest
+        .fn()
+        .mockRejectedValue(new UnauthorizedException('Token is invalid.'))
+    }
+  }
+}
