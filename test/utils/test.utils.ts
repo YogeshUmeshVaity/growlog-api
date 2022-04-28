@@ -1,6 +1,7 @@
 import { getConnection } from 'typeorm'
 import { Response } from 'supertest'
 import { ValidationError } from 'class-validator'
+import { ROUTE_ARGS_METADATA } from '@nestjs/common/constants'
 
 /**
  * Clears the database by synchronizing.
@@ -82,4 +83,25 @@ export const decodeTokenFrom = (response: Response) => {
  */
 export function stringified(errors: ValidationError[]): string {
   return JSON.stringify(errors)
+}
+
+/**
+ * It's used for testing custom decorators. It extracts the factory function that we pass to the
+ * createParamDecorator() while creating a custom decorator. This factory function is then called
+ * inside the unit test to test the object returned by the custom decorator.
+ * @param decorator is the custom decorator that's under test.
+ * @returns the factory function mentioned above.
+ */
+export function getParamDecoratorFactory(
+  decorator: (...dataOrPipes: unknown[]) => ParameterDecorator
+) {
+  class Test {
+    public test(@decorator() value) {
+      // silences the unused variable warning.
+      return value
+    }
+  }
+
+  const args = Reflect.getMetadata(ROUTE_ARGS_METADATA, Test, 'test')
+  return args[Object.keys(args)[0]].factory
 }

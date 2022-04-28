@@ -10,8 +10,8 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common'
  *
  * Whatever we return from here is going to be our argument wherever we use this decorator.
  *
- * The data parameter is whatever you provide as the argument of the decorator. e.g. The data will
- * be 'abc', if you call the decorator like CurrentUser('abc'). Since we are not passing any
+ * The data parameter is the extra data you provide as the argument of the decorator. e.g. The data
+ * will be 'abc', if you call the decorator like CurrentUser('abc'). Since we are not passing any
  * argument to this decorator, we type it as 'never' instead of unknown or any. Because the type is
  * 'never', if we provide any argument to the decorator, we'll get an error, which is good for type
  * safety.
