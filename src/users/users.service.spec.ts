@@ -1,5 +1,6 @@
 import { BadRequestException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
+import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import {
   sampleToken,
   userWithConfirmPasswordNoMatch,
@@ -27,7 +28,7 @@ describe('UsersService', () => {
     expect(usersService).toBeDefined()
   })
 
-  describe('sign-up', () => {
+  describe('signUp', () => {
     it(`should return a token when correct user info provided.`, async () => {
       const returnedToken = await usersService.signUp(userWithCorrectInfo)
       expect(returnedToken).toEqual(sampleToken)
@@ -83,6 +84,14 @@ describe('UsersService', () => {
       }
     })
   })
+
+  describe('findById', () => {
+    it(`should return a user when correct userId provided.`, async () => {
+      const returnedUser = await usersService.findById(sampleUser().id)
+      expect(returnedUser.id).toEqual(sampleUser().id)
+      expect(returnedUser.username).toEqual(sampleUser().username)
+    })
+  })
 })
 
 /**
@@ -108,6 +117,7 @@ function usersRepositoryMock() {
     useValue: {
       findByEmail: jest.fn().mockResolvedValue(null),
       findByName: jest.fn().mockResolvedValue(null),
+      findById: jest.fn().mockResolvedValue(sampleUser()),
       createAndSave: jest.fn().mockResolvedValue(userWithCorrectInfo)
     }
   }
