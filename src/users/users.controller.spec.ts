@@ -1,5 +1,6 @@
 import { JwtModule } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
+import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import {
   sampleToken,
   userWithCorrectInfo as user
@@ -45,6 +46,14 @@ describe('UsersController', () => {
       const returnedToken = await usersController.signUp(user)
       expect(returnedToken).toEqual(sampleToken)
       expect(usersService.signUp).toBeCalledWith(user)
+    })
+  })
+
+  describe(`findMe`, () => {
+    it(`should return a user.`, async () => {
+      const returnedUser = await usersController.findMe(sampleUser())
+      expect(returnedUser.id).toEqual(sampleUser().id)
+      expect(returnedUser.username).toEqual(sampleUser().username)
     })
   })
 })
