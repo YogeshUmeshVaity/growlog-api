@@ -3,6 +3,9 @@ import { createParamDecorator, ExecutionContext } from '@nestjs/common'
 /**
  * Custom decorator for accessing the object of current user inside the route handlers.
  *
+ * The user object has already been put on the request object from the JwtAuthGuard. We are just
+ * returning that from here.
+ *
  * Instead of the custom decorator, we could directly access the request object in the controller
  * like findMe(@Request request: Request). But then we would have to extract the user from
  * the request in every handler like user = request.currentUser. Custom decorator helps keep the
