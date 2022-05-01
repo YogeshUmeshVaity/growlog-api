@@ -9,12 +9,11 @@ import { JwtService } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
 import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import { sampleToken } from '../../test/users/fixtures/sign-up.fixtures'
-import { User } from '../users/user.entity'
 import { UsersService } from '../users/users.service'
 import { AuthService } from './auth.service'
 import { IS_PUBLIC_ROUTE_KEY, JwtAuthGuard } from './jwt-auth.guard'
 
-describe('AuthService', () => {
+describe('JwtAuthGuard', () => {
   let jwtAuthGuard: JwtAuthGuard
   let jwtService: JwtService
   let usersService: UsersService
