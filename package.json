@@ -86,6 +86,7 @@
     },
     "coveragePathIgnorePatterns": [
       "<rootDir>/main.ts",
+      "<rootDir>/types",
       ".*\\.module\\.ts$"
     ],
     "collectCoverageFrom": [
