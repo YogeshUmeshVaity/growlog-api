@@ -13,7 +13,7 @@ import { UsersService } from '../users/users.service'
 import { AuthService } from './auth.service'
 import { IS_PUBLIC_ROUTE_KEY, JwtAuthGuard } from './jwt-auth.guard'
 
-describe('AuthService', () => {
+describe('JwtAuthGuard', () => {
   let jwtAuthGuard: JwtAuthGuard
   let jwtService: JwtService
   let usersService: UsersService
