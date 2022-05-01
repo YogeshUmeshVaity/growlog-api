@@ -47,7 +47,7 @@ describe('SerializerInterceptor', () => {
     expect(user.email).toEqual(testUser.email)
     expect(user.username).toEqual(testUser.username)
 
-    // test if sensitive properties are stripped off after intercepting
+    // test if sensitive properties are not present after intercepting
     expect(user).not.toHaveProperty('hashedPassword')
     expect(user).not.toHaveProperty('googleId')
     expect(user).not.toHaveProperty('facebookId')
