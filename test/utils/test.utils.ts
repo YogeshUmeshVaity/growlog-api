@@ -2,6 +2,7 @@ import { getConnection } from 'typeorm'
 import { Response } from 'supertest'
 import { ValidationError } from 'class-validator'
 import { ROUTE_ARGS_METADATA } from '@nestjs/common/constants'
+import { CanActivate } from '@nestjs/common'
 
 /**
  * Clears the database by synchronizing.
@@ -104,4 +105,24 @@ export function getParamDecoratorFactory(
 
   const args = Reflect.getMetadata(ROUTE_ARGS_METADATA, Test, 'test')
   return args[Object.keys(args)[0]].factory
+}
+
+/**
+ * Checks whether a route or a Controller is protected with the specified Guard.
+ * @param route is the route or Controller to be checked for the Guard.
+ * @param guardType is the type of the Guard, e.g. JwtAuthGuard.
+ * @returns true if the specified Guard is applied.
+ */
+export function isGuarded(
+  route: ((...args: any[]) => any) | (new (...args: any[]) => unknown),
+  guardType: new (...args: any[]) => CanActivate
+) {
+  const guards = Reflect.getMetadata('__guards__', route)
+  if (!guards) {
+    throw Error(
+      `Expected: ${route.name} to be protected with ${guardType.name}\nReceived: No guard`
+    )
+  }
+  const guard = new guards[0]()
+  return guard instanceof guardType
 }

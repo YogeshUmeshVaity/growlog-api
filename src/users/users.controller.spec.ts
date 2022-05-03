@@ -5,6 +5,7 @@ import {
   sampleToken,
   userWithCorrectInfo as user
 } from '../../test/users/fixtures/sign-up.fixtures'
+import { isGuarded } from '../../test/utils/test.utils'
 import { AuthService } from '../auth/auth.service'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { UsersController } from './users.controller'
@@ -52,12 +53,9 @@ describe('UsersController', () => {
 
   describe(`findMe`, () => {
     it(`should be protected with JwtAuthGuard.`, async () => {
-      const guards = Reflect.getMetadata(
-        '__guards__',
-        UsersController.prototype.findMe
+      expect(isGuarded(UsersController.prototype.findMe, JwtAuthGuard)).toBe(
+        true
       )
-      const jwtAuthGuard = new guards[0]()
-      expect(jwtAuthGuard).toBeInstanceOf(JwtAuthGuard)
     })
 
     it(`should return a user.`, async () => {
