@@ -2,7 +2,6 @@ import { getConnection } from 'typeorm'
 import { Response } from 'supertest'
 import { ValidationError } from 'class-validator'
 import { ROUTE_ARGS_METADATA } from '@nestjs/common/constants'
-import { CanActivate } from '@nestjs/common'
 
 /**
  * Clears the database by synchronizing.
