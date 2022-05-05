@@ -5,7 +5,7 @@ import {
   sampleToken,
   userWithCorrectInfo as user
 } from '../../test/users/fixtures/sign-up.fixtures'
-import { isGuarded } from '../../test/utils/test.utils'
+import { isGuarded } from '../../test/utils/is-guarded'
 import { AuthService } from '../auth/auth.service'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { UsersController } from './users.controller'
