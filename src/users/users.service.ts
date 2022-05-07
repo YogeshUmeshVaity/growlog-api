@@ -25,25 +25,25 @@ export class UsersService {
   }
 
   async loginWithGoogle(googleAccessToken: string) {
-    const userData = await this.googleService.getUserData(googleAccessToken)
-    const existingUser = await this.usersRepo.findByGoogleId(userData.id)
+    const userInfo = await this.googleService.getUserData(googleAccessToken)
+    const existingUser = await this.usersRepo.findByGoogleId(userInfo.id)
 
     if (existingUser) {
-      this.updateEmailIfChanged(existingUser, userData)
+      this.updateEmailIfChanged(existingUser, userInfo)
       return await this.authService.logIn(existingUser)
     } else {
-      const newUser = await this.createGoogleUser(userData)
+      const newUser = await this.createGoogleUser(userInfo)
       return await this.authService.logIn(newUser)
     }
   }
 
-  private async createGoogleUser(googleUser: GoogleUser) {
-    await this.throwIfEmailExists(googleUser.email)
-    const username = await this.generateUniqueUsername(googleUser.name)
+  private async createGoogleUser(userInfo: GoogleUser) {
+    await this.throwIfEmailExists(userInfo.email)
+    const generatedUsername = await this.generateUniqueUsername(userInfo.name)
     return await this.usersRepo.createGoogleUser(
-      googleUser.id,
-      username,
-      googleUser.email
+      userInfo.id,
+      generatedUsername,
+      userInfo.email
     )
   }
 
