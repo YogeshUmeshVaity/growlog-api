@@ -10,7 +10,7 @@ import { User } from './user.entity'
 export class UsersService {
   private readonly logger = new Logger(UsersService.name)
   constructor(
-    private readonly usersRepository: UsersRepository,
+    private readonly usersRepo: UsersRepository,
     private readonly authService: AuthService,
     private readonly googleService: GoogleAuthService
   ) {}
@@ -25,24 +25,22 @@ export class UsersService {
   }
 
   async loginWithGoogle(googleAccessToken: string) {
-    const googleUser = await this.googleService.getUserData(googleAccessToken)
-    const existingUser = await this.usersRepository.findByGoogleId(
-      googleUser.id
-    )
+    const userData = await this.googleService.getUserData(googleAccessToken)
+    const existingUser = await this.usersRepo.findByGoogleId(userData.id)
 
     if (existingUser) {
-      this.updateEmailIfChanged(existingUser, googleUser)
+      this.updateEmailIfChanged(existingUser, userData)
       return await this.authService.logIn(existingUser)
+    } else {
+      const newUser = await this.createGoogleUser(userData)
+      return await this.authService.logIn(newUser)
     }
-
-    const newUser = await this.createNewGoogleUser(googleUser)
-    return await this.authService.logIn(newUser)
   }
 
-  private async createNewGoogleUser(googleUser: GoogleUser) {
+  private async createGoogleUser(googleUser: GoogleUser) {
     await this.throwIfEmailAlreadyExists(googleUser)
     const username = await this.generateUniqueUsername(googleUser.name)
-    return await this.usersRepository.createGoogleUser(
+    return await this.usersRepo.createGoogleUser(
       googleUser.id,
       username,
       googleUser.email
@@ -54,7 +52,7 @@ export class UsersService {
     // Replace all whitespace characters with empty string.
     // \s matches whitespace character. g means instances of all matches, not just the first one.
     const name = googleName.replace(/\s/g, '')
-    if (!(await this.usersRepository.findByName(name))) {
+    if (!(await this.usersRepo.findByName(name))) {
       return name
     }
     this.logger.log('Google username already exists. Generating another name.')
@@ -67,7 +65,7 @@ export class UsersService {
   }
 
   private async throwIfEmailAlreadyExists(googleUser) {
-    if (await this.usersRepository.findByEmail(googleUser.email)) {
+    if (await this.usersRepo.findByEmail(googleUser.email)) {
       throw new BadRequestException('Email already exists.')
     }
   }
@@ -82,18 +80,18 @@ export class UsersService {
   ) {
     if (
       existingUser.email !== googleUser.email &&
-      !(await this.usersRepository.findByEmail(googleUser.email))
+      !(await this.usersRepo.findByEmail(googleUser.email))
     ) {
-      this.usersRepository.updateEmail(existingUser.id, googleUser.email)
+      this.usersRepo.updateEmail(existingUser.id, googleUser.email)
     }
   }
 
   async findById(userId: string) {
-    return await this.usersRepository.findById(userId)
+    return await this.usersRepo.findById(userId)
   }
 
   private async saveToDb(userInfo: SignUpDto) {
-    return await this.usersRepository.createLocalUser(userInfo)
+    return await this.usersRepo.createLocalUser(userInfo)
   }
 
   private async hashThePassword(userInfo: SignUpDto) {
@@ -115,14 +113,14 @@ export class UsersService {
   }
 
   private async throwIfUsernameExists(body: SignUpDto) {
-    const existingUser = await this.usersRepository.findByName(body.username)
+    const existingUser = await this.usersRepo.findByName(body.username)
     if (existingUser) {
       throw new BadRequestException('Username already exists.')
     }
   }
 
   private async throwIfEmailExists(body: SignUpDto) {
-    const existingUser = await this.usersRepository.findByEmail(body.email)
+    const existingUser = await this.usersRepo.findByEmail(body.email)
     if (existingUser) {
       throw new BadRequestException('Email already exists.')
     }
