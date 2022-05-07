@@ -11,6 +11,10 @@ export class UsersRepository extends AbstractRepository<User> {
     return await this.repository.findOne(userId)
   }
 
+  async findByGoogleId(googleId: string): Promise<User> {
+    return await this.repository.findOne({ googleId })
+  }
+
   async findByEmail(email: string): Promise<User> {
     return await this.repository.findOne({ email })
   }
@@ -19,11 +23,29 @@ export class UsersRepository extends AbstractRepository<User> {
     return await this.repository.findOne({ username })
   }
 
+  async updateEmail(userId: string, newEmail: string) {
+    await this.repository.update({ id: userId }, { email: newEmail })
+  }
+
   async createAndSave(userInfo: SignUpDto): Promise<User> {
     const user = this.repository.create({
       username: userInfo.username,
       email: userInfo.email,
       hashedPassword: userInfo.password
+    })
+    user.renewTokenInvalidator()
+    return await this.repository.save(user)
+  }
+
+  async createGoogleUser(
+    googleId: string,
+    username: string,
+    email: string
+  ): Promise<User> {
+    const user = this.repository.create({
+      googleId,
+      username,
+      email
     })
     user.renewTokenInvalidator()
     return await this.repository.save(user)
