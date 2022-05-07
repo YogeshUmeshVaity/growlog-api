@@ -18,7 +18,7 @@ export class UsersService {
   async signUp(userInfo: SignUpDto) {
     this.throwIfConfirmPasswordNotEqual(userInfo)
     await this.throwIfUsernameExists(userInfo)
-    await this.throwIfEmailExists(userInfo)
+    await this.throwIfEmailExists(userInfo.email)
     const hashedUser = await this.hashThePassword(userInfo)
     const newUser = await this.saveToDb(hashedUser)
     return await this.authService.logIn(newUser)
@@ -38,7 +38,7 @@ export class UsersService {
   }
 
   private async createGoogleUser(googleUser: GoogleUser) {
-    await this.throwIfEmailAlreadyExists(googleUser)
+    await this.throwIfEmailExists(googleUser.email)
     const username = await this.generateUniqueUsername(googleUser.name)
     return await this.usersRepo.createGoogleUser(
       googleUser.id,
@@ -62,12 +62,6 @@ export class UsersService {
   /** Returns a 3 digit random number string. */
   private randomDigits() {
     return Math.floor(Math.random() * (999 - 100 + 1) + 100).toString()
-  }
-
-  private async throwIfEmailAlreadyExists(googleUser) {
-    if (await this.usersRepo.findByEmail(googleUser.email)) {
-      throw new BadRequestException('Email already exists.')
-    }
   }
 
   // If the fetched social email doesn't match with the existing email and
@@ -119,8 +113,8 @@ export class UsersService {
     }
   }
 
-  private async throwIfEmailExists(body: SignUpDto) {
-    const existingUser = await this.usersRepo.findByEmail(body.email)
+  private async throwIfEmailExists(email: string) {
+    const existingUser = await this.usersRepo.findByEmail(email)
     if (existingUser) {
       throw new BadRequestException('Email already exists.')
     }
