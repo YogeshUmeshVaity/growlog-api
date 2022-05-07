@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common'
 import { TypeOrmModule } from '@nestjs/typeorm'
 import { AuthModule } from '../auth/auth.module'
 import { AuthService } from '../auth/auth.service'
+import { GoogleAuthService } from '../auth/google-auth.service'
 import { UsersController } from './users.controller'
 import { UsersRepository } from './users.repository'
 import { UsersService } from './users.service'
@@ -9,6 +10,6 @@ import { UsersService } from './users.service'
 @Module({
   imports: [TypeOrmModule.forFeature([UsersRepository]), AuthModule],
   controllers: [UsersController],
-  providers: [UsersService, AuthService]
+  providers: [UsersService, AuthService, GoogleAuthService]
 })
 export class UsersModule {}
