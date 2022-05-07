@@ -7,6 +7,7 @@ import {
   userWithCorrectInfo
 } from '../../test/users/fixtures/sign-up.fixtures'
 import { AuthService } from '../auth/auth.service'
+import { GoogleAuthService } from '../auth/google-auth.service'
 import { User } from './user.entity'
 import { UsersRepository } from './users.repository'
 import { UsersService } from './users.service'
@@ -17,7 +18,12 @@ describe('UsersService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [UsersService, usersRepositoryMock(), authServiceMock()]
+      providers: [
+        UsersService,
+        usersRepositoryMock(),
+        authServiceMock(),
+        googleAuthServiceMock()
+      ]
     }).compile()
 
     usersService = module.get<UsersService>(UsersService)
@@ -35,9 +41,9 @@ describe('UsersService', () => {
     })
 
     it(`should hash the password when correct user info provided.`, async () => {
-      const repositorySpy = jest.spyOn(repository, 'createAndSave')
+      const repositorySpy = jest.spyOn(repository, 'createLocalUser')
       await usersService.signUp(userWithCorrectInfo)
-      // Get the argument that createAndSave() was called with.
+      // Get the argument that createLocalUser() was called with.
       const hashedPassword = repositorySpy.mock.calls[0][0].password
       const providedPassword = userWithCorrectInfo.password
       // Due to random salt, a different hash is generated every time even for the same input.
@@ -118,7 +124,20 @@ function usersRepositoryMock() {
       findByEmail: jest.fn().mockResolvedValue(null),
       findByName: jest.fn().mockResolvedValue(null),
       findById: jest.fn().mockResolvedValue(sampleUser()),
-      createAndSave: jest.fn().mockResolvedValue(userWithCorrectInfo)
+      createLocalUser: jest.fn().mockResolvedValue(userWithCorrectInfo)
+    }
+  }
+}
+
+function googleAuthServiceMock() {
+  return {
+    provide: GoogleAuthService,
+    useValue: {
+      getUserData: jest.fn().mockResolvedValue({
+        id: 'someId',
+        username: 'someUsername',
+        email: 'someone@google.com'
+      })
     }
   }
 }

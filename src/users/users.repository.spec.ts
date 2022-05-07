@@ -32,7 +32,7 @@ describe('UsersRepository', () => {
 
   describe('findById', () => {
     it(`should return the user when the user exists in database.`, async () => {
-      const savedUser = await usersRepository.createAndSave(testUser)
+      const savedUser = await usersRepository.createLocalUser(testUser)
       const fetchedUser = await usersRepository.findById(savedUser.id)
       expect(savedUser.id).toEqual(fetchedUser.id)
     })
@@ -45,7 +45,7 @@ describe('UsersRepository', () => {
 
   describe('findByEmail', () => {
     it(`should return the user when the user exists in database.`, async () => {
-      await usersRepository.createAndSave(testUser)
+      await usersRepository.createLocalUser(testUser)
       const fetchedUser = await usersRepository.findByEmail(testUser.email)
       expect(fetchedUser.email).toEqual(testUser.email)
     })
@@ -58,7 +58,7 @@ describe('UsersRepository', () => {
 
   describe('findByName', () => {
     it(`should return the user when the user exists in database.`, async () => {
-      await usersRepository.createAndSave(testUser)
+      await usersRepository.createLocalUser(testUser)
       const fetchedUser = await usersRepository.findByName(testUser.username)
       expect(fetchedUser.username).toEqual(testUser.username)
     })
@@ -71,7 +71,7 @@ describe('UsersRepository', () => {
 
   describe('createAndSave', () => {
     it(`should create and save the user in database.`, async () => {
-      const savedUser = await usersRepository.createAndSave(testUser)
+      const savedUser = await usersRepository.createLocalUser(testUser)
       const fetchedUser = await usersRepository.findByEmail(testUser.email)
       expect(savedUser.id).toEqual(fetchedUser.id)
     })

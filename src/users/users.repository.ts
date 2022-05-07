@@ -27,7 +27,7 @@ export class UsersRepository extends AbstractRepository<User> {
     await this.repository.update({ id: userId }, { email: newEmail })
   }
 
-  async createAndSave(userInfo: SignUpDto): Promise<User> {
+  async createLocalUser(userInfo: SignUpDto): Promise<User> {
     const user = this.repository.create({
       username: userInfo.username,
       email: userInfo.email,

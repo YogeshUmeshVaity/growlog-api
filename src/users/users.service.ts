@@ -93,7 +93,7 @@ export class UsersService {
   }
 
   private async saveToDb(userInfo: SignUpDto) {
-    return await this.usersRepository.createAndSave(userInfo)
+    return await this.usersRepository.createLocalUser(userInfo)
   }
 
   private async hashThePassword(userInfo: SignUpDto) {
