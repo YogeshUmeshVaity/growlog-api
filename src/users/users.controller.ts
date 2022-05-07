@@ -16,6 +16,11 @@ export class UsersController {
     return await this.usersService.signUp(userInfo)
   }
 
+  @Post('/google-login')
+  async loginWithGoogle(@Body('accessToken') googleAccessToken: string) {
+    return await this.usersService.loginWithGoogle(googleAccessToken)
+  }
+
   @Get('/me')
   @UseGuards(JwtAuthGuard)
   @Serialize(UserDto) // Can be moved to the entire controller, if there are more instances of it.
