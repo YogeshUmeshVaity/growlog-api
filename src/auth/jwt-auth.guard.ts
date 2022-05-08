@@ -10,6 +10,7 @@ import { Reflector } from '@nestjs/core'
 import { JwtService } from '@nestjs/jwt'
 import { Request } from 'express'
 import { UsersService } from '../users/users.service'
+import { extractTokenFrom } from '../utils/token-extractor'
 import { AuthService } from './auth.service'
 
 export const IS_PUBLIC_ROUTE_KEY = 'isPublicRoute'
@@ -39,7 +40,7 @@ export class JwtAuthGuard implements CanActivate {
       return true
     }
 
-    const token = this.extractTokenFrom(request)
+    const token = extractTokenFrom(request)
     const userId = this.getUserIdFrom(token)
     const user = await this.verifyUser(userId)
     await this.authService.verifyTokenFor(user, token)
@@ -63,36 +64,5 @@ export class JwtAuthGuard implements CanActivate {
       throw new UnauthorizedException('Unable to decode the provided token.')
     }
     return decodedToken.userId
-  }
-
-  private extractTokenFrom(request: Request) {
-    const authorizationArray = request.headers.authorization?.split(' ')
-    this.throwIfNoAuthHeader(authorizationArray)
-
-    const tokenPrefix = authorizationArray[0]
-    const token = authorizationArray[1]
-
-    this.throwIfNoBearerPrefix(tokenPrefix)
-    this.throwIfNoToken(token)
-
-    return token
-  }
-
-  private throwIfNoToken(token: string) {
-    if (!token) {
-      throw new UnauthorizedException('Token was not provided.')
-    }
-  }
-
-  private throwIfNoBearerPrefix(tokenPrefix: string) {
-    if (tokenPrefix.toLowerCase() !== 'bearer') {
-      throw new UnauthorizedException('Authorization type is not valid.')
-    }
-  }
-
-  private throwIfNoAuthHeader(authorizationArray: string[]) {
-    if (!authorizationArray) {
-      throw new UnauthorizedException('Token was not found.')
-    }
   }
 }
