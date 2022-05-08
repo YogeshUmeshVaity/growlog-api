@@ -29,7 +29,8 @@ export class GoogleAuthService {
     } catch (error) {
       this.logger.error(error)
       throw new BadRequestException(
-        'Invalid Google OAuth2 access token or scopes.'
+        'Invalid Google OAuth2 access token or scopes.',
+        'Make sure you got the access token using the same scopes you set up in your google cloud console.'
       )
     }
     return userInfo.data
