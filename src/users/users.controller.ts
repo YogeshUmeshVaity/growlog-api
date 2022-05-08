@@ -13,18 +13,18 @@ import { UsersService } from './users.service'
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post('/sign-up')
+  @Post('sign-up')
   async signUp(@Body() userInfo: SignUpDto) {
     return await this.usersService.signUp(userInfo)
   }
 
-  @Post('/google-login')
+  @Post('google-login')
   async loginWithGoogle(@Req() request: Request) {
     const googleAccessToken = extractTokenFrom(request)
     return await this.usersService.loginWithGoogle(googleAccessToken)
   }
 
-  @Get('/me')
+  @Get('me')
   @UseGuards(JwtAuthGuard)
   @Serialize(UserDto) // Can be moved to the entire controller, if there are more instances of it.
   findMe(@CurrentUser() user: User) {
