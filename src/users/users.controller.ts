@@ -1,6 +1,8 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common'
+import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common'
+import { Request } from 'express'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { Serialize } from '../utils/interceptors/serializer.interceptor'
+import { extractTokenFrom } from '../utils/token-extractor'
 import { CurrentUser } from './decorators/current-user.decorator'
 import { SignUpDto } from './dtos/signup-user.dto'
 import { UserDto } from './dtos/user.dto'
@@ -17,7 +19,8 @@ export class UsersController {
   }
 
   @Post('/google-login')
-  async loginWithGoogle(@Body('accessToken') googleAccessToken: string) {
+  async loginWithGoogle(@Req() request: Request) {
+    const googleAccessToken = extractTokenFrom(request)
     return await this.usersService.loginWithGoogle(googleAccessToken)
   }
 
