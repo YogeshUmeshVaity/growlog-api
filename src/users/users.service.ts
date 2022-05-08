@@ -47,10 +47,12 @@ export class UsersService {
     )
   }
 
-  /** Recursive function that ensures the username in the database is unique.  */
+  /**
+   * Recursive function that ensures the username in the database is unique.
+   * It replace all whitespace characters with empty string.
+   * \s matches whitespace character. g means instances of all matches, not just the first one.
+   */
   private async generateUniqueUsername(googleName: string) {
-    // Replace all whitespace characters with empty string.
-    // \s matches whitespace character. g means instances of all matches, not just the first one.
     const name = googleName.replace(/\s/g, '')
     if (!(await this.usersRepo.findByName(name))) {
       return name
@@ -64,10 +66,13 @@ export class UsersService {
     return Math.floor(Math.random() * (999 - 100 + 1) + 100).toString()
   }
 
-  // If the fetched social email doesn't match with the existing email and
-  // if there is no other user with the fetched email, then update the existing email to the
-  // fetched email. This takes care of synchronizing the email in case the user has changed
-  // their email in their OAuth account.
+  /**
+   * If the fetched social email doesn't match with the existing email and if there is no other user
+   * with the fetched email, then update the existing email to the fetched email. This takes care
+   * of synchronizing the email in case the user has changed their email in their OAuth account.
+   *
+   * Users who have emails that end in @gmail.com, can't change it. Others can.
+   */
   private async updateEmailIfChanged(
     existingUser: User,
     googleUser: GoogleUser
