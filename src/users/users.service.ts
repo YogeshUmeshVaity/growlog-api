@@ -12,7 +12,7 @@ export class UsersService {
   constructor(
     private readonly usersRepo: UsersRepository,
     private readonly authService: AuthService,
-    private readonly googleService: GoogleAuthService
+    private readonly googleAuthService: GoogleAuthService
   ) {}
 
   async signUp(userInfo: SignUpDto) {
@@ -25,7 +25,7 @@ export class UsersService {
   }
 
   async loginWithGoogle(googleAccessToken: string) {
-    const userInfo = await this.googleService.getUserData(googleAccessToken)
+    const userInfo = await this.googleAuthService.getUserData(googleAccessToken)
     const existingUser = await this.usersRepo.findByGoogleId(userInfo.id)
 
     if (existingUser) {
