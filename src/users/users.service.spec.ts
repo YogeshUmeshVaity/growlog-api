@@ -14,7 +14,8 @@ import { UsersService } from './users.service'
 
 describe('UsersService', () => {
   let usersService: UsersService
-  let repository: UsersRepository
+  let usersRepo: UsersRepository
+  let googleAuthService: GoogleAuthService
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -27,7 +28,8 @@ describe('UsersService', () => {
     }).compile()
 
     usersService = module.get<UsersService>(UsersService)
-    repository = module.get<UsersRepository>(UsersRepository)
+    usersRepo = module.get<UsersRepository>(UsersRepository)
+    googleAuthService = module.get<GoogleAuthService>(GoogleAuthService)
   })
 
   it('should be defined', () => {
@@ -41,7 +43,7 @@ describe('UsersService', () => {
     })
 
     it(`should hash the password when correct user info provided.`, async () => {
-      const repositorySpy = jest.spyOn(repository, 'createLocalUser')
+      const repositorySpy = jest.spyOn(usersRepo, 'createLocalUser')
       await usersService.signUp(userWithCorrectInfo)
       // Get the argument that createLocalUser() was called with.
       const hashedPassword = repositorySpy.mock.calls[0][0].password
@@ -66,13 +68,13 @@ describe('UsersService', () => {
 
     it(`should throw when username already exists.`, async () => {
       expect.assertions(3)
-      repository.findByName = jest.fn().mockResolvedValue(new User())
+      usersRepo.findByName = jest.fn().mockResolvedValue(new User())
       try {
         await usersService.signUp(userWithCorrectInfo)
       } catch (error) {
         expect(error).toBeInstanceOf(BadRequestException)
         expect(error).toHaveProperty('message', 'Username already exists.')
-        expect(repository.findByName).toBeCalledWith(
+        expect(usersRepo.findByName).toBeCalledWith(
           userWithCorrectInfo.username
         )
       }
@@ -80,14 +82,63 @@ describe('UsersService', () => {
 
     it(`should throw when email already exists.`, async () => {
       expect.assertions(3)
-      repository.findByEmail = jest.fn().mockResolvedValue(new User())
+      usersRepo.findByEmail = jest.fn().mockResolvedValue(new User())
       try {
         await usersService.signUp(userWithCorrectInfo)
       } catch (error) {
         expect(error).toBeInstanceOf(BadRequestException)
         expect(error).toHaveProperty('message', 'Email already exists.')
-        expect(repository.findByEmail).toBeCalledWith(userWithCorrectInfo.email)
+        expect(usersRepo.findByEmail).toBeCalledWith(userWithCorrectInfo.email)
       }
+    })
+  })
+
+  describe('loginWithGoogle', () => {
+    it(`should login when the google user exists.`, async () => {
+      const token = await usersService.loginWithGoogle('google-access-token')
+      expect(token).toEqual(sampleToken)
+      expect(usersRepo.createGoogleUser).not.toHaveBeenCalled() // ensure new user is not created
+    })
+
+    it(`should create user and login when the google user doesn't exist.`, async () => {
+      usersRepo.findByGoogleId = jest.fn().mockResolvedValue(undefined) // user doesn't exist
+      const token = await usersService.loginWithGoogle('google-access-token')
+      expect(token).toEqual(sampleToken)
+      expect(usersRepo.createGoogleUser).toHaveBeenCalled() // ensure new user is created
+    })
+
+    it(`should update email when the google email doesn't match.`, async () => {
+      googleAuthService.getUserData = jest
+        .fn()
+        .mockResolvedValue({ email: 'newEmail@gmail.com' })
+      jest.spyOn(usersRepo, 'findByEmail').mockResolvedValue(undefined) // email doesn't match
+      await usersService.loginWithGoogle('google-access-token')
+      expect(usersRepo.updateEmail).toHaveBeenCalled()
+    })
+
+    it(`should throw error when email exists while creating a new user.`, async () => {
+      expect.assertions(2)
+      usersRepo.findByEmail = jest.fn().mockResolvedValue(new User())
+      usersRepo.findByGoogleId = jest.fn().mockResolvedValue(undefined) // triggers createNewUser()
+      try {
+        const token = await usersService.loginWithGoogle('google-access-token')
+        console.log(token)
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException)
+        expect(error).toHaveProperty('message', 'Email already exists.')
+      }
+    })
+
+    it(`should generate unique username while creating a new user.`, async () => {
+      const createGoogleUserSpy = jest.spyOn(usersRepo, 'createGoogleUser')
+      usersRepo.findByGoogleId = jest.fn().mockResolvedValue(undefined) // triggers createNewUser()
+      // same username once. We use 'once' to prevent the recursive function from running endlessly
+      // because it should not return the same value again and again.
+      usersRepo.findByName = jest.fn().mockResolvedValueOnce(sampleUser()) // same username
+      await usersService.loginWithGoogle('google-access-token')
+      // get the second argument passed to the createGoogleUser() which is username.
+      const generatedUsername = createGoogleUserSpy.mock.calls[0][1]
+      expect(generatedUsername).not.toEqual(sampleUser().username)
     })
   })
 
@@ -124,7 +175,10 @@ function usersRepositoryMock() {
       findByEmail: jest.fn().mockResolvedValue(null),
       findByName: jest.fn().mockResolvedValue(null),
       findById: jest.fn().mockResolvedValue(sampleUser()),
-      createLocalUser: jest.fn().mockResolvedValue(userWithCorrectInfo)
+      findByGoogleId: jest.fn().mockResolvedValue(sampleUser()),
+      createLocalUser: jest.fn().mockResolvedValue(userWithCorrectInfo),
+      createGoogleUser: jest.fn().mockResolvedValue(sampleUser()),
+      updateEmail: jest.fn()
     }
   }
 }
@@ -134,9 +188,9 @@ function googleAuthServiceMock() {
     provide: GoogleAuthService,
     useValue: {
       getUserData: jest.fn().mockResolvedValue({
-        id: 'someId',
-        username: 'someUsername',
-        email: 'someone@google.com'
+        id: sampleUser().googleId,
+        name: sampleUser().username,
+        email: sampleUser().email
       })
     }
   }
