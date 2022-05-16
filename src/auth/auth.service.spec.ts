@@ -51,6 +51,7 @@ describe('AuthService', () => {
   })
 })
 
+// TODO: move duplicate mocks to separate file and remove repeated code
 function configServiceMock() {
   return {
     provide: ConfigService,
