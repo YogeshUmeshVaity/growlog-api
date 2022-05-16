@@ -1,8 +1,8 @@
 import { createMock } from '@golevelup/ts-jest'
 import {
+  Controller,
   ExecutionContext,
   NotFoundException,
-  SetMetadata,
   UnauthorizedException
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
@@ -149,9 +149,21 @@ describe('JwtAuthGuard', () => {
     })
   })
 
-  describe(`PublicRoute`, () => {
-    it(`should set the correct metadata.`, async () => {
-      expect(PublicRoute()).toEqual(SetMetadata(IS_PUBLIC_ROUTE_KEY, true))
+  describe(`PublicRoute decorator`, () => {
+    it(`should set the route as public.`, async () => {
+      @Controller()
+      class TestController {
+        @PublicRoute() // sets the metadata
+        testRoute() {
+          return 'anything'
+        }
+      }
+      // access the metadata
+      const isPublicRoute = Reflect.getMetadata(
+        IS_PUBLIC_ROUTE_KEY,
+        TestController.prototype.testRoute
+      )
+      expect(isPublicRoute).toBeTruthy()
     })
   })
 })
