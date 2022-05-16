@@ -63,7 +63,7 @@ describe('UsersRepository', () => {
       expect(fetchedUser.username).toEqual(testUser.username)
     })
 
-    it(`should return the user when the user exists in database.`, async () => {
+    it(`should return undefined when the user doesn't exist in database.`, async () => {
       const fetchedUser = await usersRepository.findByName(testUser.username)
       expect(fetchedUser).toBeUndefined()
     })
