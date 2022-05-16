@@ -2,6 +2,7 @@ import { createMock } from '@golevelup/ts-jest'
 import {
   ExecutionContext,
   NotFoundException,
+  SetMetadata,
   UnauthorizedException
 } from '@nestjs/common'
 import { Reflector } from '@nestjs/core'
@@ -11,7 +12,11 @@ import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import { sampleToken } from '../../test/users/fixtures/sign-up.fixtures'
 import { UsersService } from '../users/users.service'
 import { AuthService } from './auth.service'
-import { IS_PUBLIC_ROUTE_KEY, JwtAuthGuard } from './jwt-auth.guard'
+import {
+  IS_PUBLIC_ROUTE_KEY,
+  JwtAuthGuard,
+  PublicRoute
+} from './jwt-auth.guard'
 
 describe('JwtAuthGuard', () => {
   let jwtAuthGuard: JwtAuthGuard
@@ -141,6 +146,12 @@ describe('JwtAuthGuard', () => {
         expect(error).toBeInstanceOf(NotFoundException)
         expect(error).toHaveProperty('message', 'User was not found.')
       }
+    })
+  })
+
+  describe(`PublicRoute`, () => {
+    it(`should set the correct metadata.`, async () => {
+      expect(PublicRoute()).toEqual(SetMetadata(IS_PUBLIC_ROUTE_KEY, true))
     })
   })
 })
