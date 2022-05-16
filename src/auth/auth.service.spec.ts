@@ -1,7 +1,7 @@
 import { UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
-import { configServiceMock } from '../../test/mocks/common-mocks'
+import { configServiceMock } from '../../test/common-mocks/config-service.mock'
 import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import { sampleToken } from '../../test/users/fixtures/sign-up.fixtures'
 import { AuthService } from './auth.service'

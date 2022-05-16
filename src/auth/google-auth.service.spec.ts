@@ -4,7 +4,8 @@ import { sampleToken } from '../../test/users/fixtures/sign-up.fixtures'
 import { GoogleAuthService } from './google-auth.service'
 import { google } from 'googleapis'
 import { BadRequestException } from '@nestjs/common'
-import { configServiceMock } from '../../test/mocks/common-mocks'
+import { configServiceMock } from '../../test/common-mocks/config-service.mock'
+import { EmptyLogger } from '../../test/common-mocks/logger.mock'
 
 jest.mock('googleapis', () => {
   const actualGoogleApis = jest.requireActual('googleapis')
@@ -34,6 +35,8 @@ describe('GoogleAuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [GoogleAuthService, configServiceMock()]
     }).compile()
+    // suppresses the log messages created from the code used in tests.
+    module.useLogger(new EmptyLogger())
 
     googleAuthService = module.get<GoogleAuthService>(GoogleAuthService)
   })
