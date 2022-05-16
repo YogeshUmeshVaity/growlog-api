@@ -1,4 +1,5 @@
 import { createConnection, getConnection } from 'typeorm'
+import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import { userWithCorrectInfo as testUser } from '../../test/users/fixtures/sign-up.fixtures'
 import { User } from './user.entity'
 import { UsersRepository } from './users.repository'
@@ -34,11 +35,32 @@ describe('UsersRepository', () => {
     it(`should return the user when the user exists in database.`, async () => {
       const savedUser = await usersRepository.createLocalUser(testUser)
       const fetchedUser = await usersRepository.findById(savedUser.id)
-      expect(savedUser.id).toEqual(fetchedUser.id)
+      expect(fetchedUser.id).toEqual(savedUser.id)
     })
 
     it(`should return undefined when the user doesn't exist in database.`, async () => {
       const fetchedUser = await usersRepository.findById('Some-Non-Existent-Id')
+      expect(fetchedUser).toBeUndefined()
+    })
+  })
+
+  describe('findByGoogleId', () => {
+    it(`should return the user when the user exists in database.`, async () => {
+      const googleUser = await usersRepository.createGoogleUser(
+        sampleUser().googleId,
+        sampleUser().username,
+        sampleUser().email
+      )
+      const fetchedUser = await usersRepository.findByGoogleId(
+        googleUser.googleId
+      )
+      expect(fetchedUser.id).toEqual(googleUser.id)
+    })
+
+    it(`should return undefined when the user doesn't exist in database.`, async () => {
+      const fetchedUser = await usersRepository.findByGoogleId(
+        sampleUser().googleId
+      )
       expect(fetchedUser).toBeUndefined()
     })
   })
