@@ -1,10 +1,10 @@
-import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import { sampleToken } from '../../test/users/fixtures/sign-up.fixtures'
 import { GoogleAuthService } from './google-auth.service'
 import { google } from 'googleapis'
 import { BadRequestException } from '@nestjs/common'
+import { configServiceMock } from '../../test/mocks/common-mocks'
 
 jest.mock('googleapis', () => {
   const actualGoogleApis = jest.requireActual('googleapis')
@@ -87,22 +87,4 @@ function mockGoogleError() {
         )
     }
   })
-}
-
-function configServiceMock() {
-  return {
-    provide: ConfigService,
-    useValue: {
-      get: jest.fn((key: string) => {
-        switch (key) {
-          case 'JWT_SECRET':
-            return 'test_secret'
-          case 'JWT_EXPIRY':
-            return '1y'
-          default:
-            return null
-        }
-      })
-    }
-  }
 }
