@@ -1,5 +1,7 @@
+import { createMock } from '@golevelup/ts-jest'
 import { JwtModule } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
+import { Request } from 'express'
 import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import {
   sampleToken,
@@ -23,7 +25,8 @@ describe('UsersController', () => {
         {
           provide: UsersService,
           useValue: {
-            signUp: jest.fn().mockResolvedValue(sampleToken)
+            signUp: jest.fn().mockResolvedValue(sampleToken),
+            loginWithGoogle: jest.fn().mockResolvedValue(sampleToken)
           }
         },
         {
@@ -44,10 +47,19 @@ describe('UsersController', () => {
   })
 
   describe(`signUp`, () => {
-    it(`should return a token when correct user info provided.`, async () => {
+    it(`should return a token when correct user info is provided.`, async () => {
       const returnedToken = await usersController.signUp(user)
       expect(returnedToken).toEqual(sampleToken)
       expect(usersService.signUp).toBeCalledWith(user)
+    })
+  })
+
+  describe(`loginWithGoogle`, () => {
+    it(`should return a token when correct google access token is provided.`, async () => {
+      const request = createMock<Request>()
+      request.headers = { authorization: `bearer ${sampleToken.token}` }
+      const returnedToken = await usersController.loginWithGoogle(request)
+      expect(returnedToken).toEqual(sampleToken)
     })
   })
 
