@@ -29,7 +29,7 @@ export class UsersService {
     const existingUser = await this.usersRepo.findByGoogleId(userInfo.id)
 
     if (existingUser) {
-      this.updateEmailIfChanged(existingUser, userInfo)
+      await this.updateEmailIfChanged(existingUser, userInfo)
       return await this.authService.logIn(existingUser)
     } else {
       const newUser = await this.createGoogleUser(userInfo)
@@ -81,7 +81,7 @@ export class UsersService {
       existingUser.email !== googleUser.email &&
       !(await this.usersRepo.findByEmail(googleUser.email))
     ) {
-      this.usersRepo.updateEmail(existingUser.id, googleUser.email)
+      await this.usersRepo.updateEmail(existingUser.id, googleUser.email)
     }
   }
 
