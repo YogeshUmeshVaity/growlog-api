@@ -91,11 +91,22 @@ describe('UsersRepository', () => {
     })
   })
 
-  describe('createAndSave', () => {
+  describe('createLocalUser', () => {
     it(`should create and save the user in database.`, async () => {
       const savedUser = await usersRepository.createLocalUser(testUser)
       const fetchedUser = await usersRepository.findByEmail(testUser.email)
       expect(savedUser.id).toEqual(fetchedUser.id)
+    })
+  })
+
+  describe('updateEmail', () => {
+    it(`should update the email in the database.`, async () => {
+      const existingUser = await usersRepository.createLocalUser(testUser)
+      const newEmail = 'new-email@gmail.com'
+      await usersRepository.updateEmail(existingUser.id, newEmail)
+      const updatedUser = await usersRepository.findByEmail(newEmail)
+      expect(updatedUser.email).toEqual(newEmail)
+      expect(updatedUser.email).not.toEqual(testUser.email)
     })
   })
 })
