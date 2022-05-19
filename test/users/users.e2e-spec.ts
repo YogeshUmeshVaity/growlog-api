@@ -1,13 +1,21 @@
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
+import { validate as isUuid } from 'uuid'
+import { AppModule } from '../../src/app.module'
 import {
   MAX_LENGTH_USERNAME,
   MIN_LENGTH_PASSWORD,
   MIN_LENGTH_USERNAME
 } from '../../src/users/dtos/signup-user.dto'
-import { AppModule } from '../../src/app.module'
 import {
+  mockGoogleAuthError,
+  mockGoogleAuthUserData
+} from '../common-mocks/google-auth-service.mock'
+import { clearDb, decodeTokenFrom, messageFrom } from '../utils/test.utils'
+import { sampleUser } from './fixtures/find-me.fixtures'
+import {
+  sampleToken,
   userWithAlreadyExistingName,
   userWithConfirmPasswordEmpty,
   userWithConfirmPasswordNoMatch,
@@ -20,8 +28,6 @@ import {
   userWithUsernameTwentyTwoChars,
   userWithUsernameTwoChars
 } from './fixtures/sign-up.fixtures'
-import { clearDb, messageFrom, decodeTokenFrom } from '../utils/test.utils'
-import { validate as isUuid } from 'uuid'
 
 describe(`UsersModule`, () => {
   let app: INestApplication
@@ -33,8 +39,6 @@ describe(`UsersModule`, () => {
 
     app = moduleFixture.createNestApplication()
     await app.init()
-
-    //await clearDb()
   })
 
   afterAll(async () => {
@@ -174,6 +178,31 @@ describe(`UsersModule`, () => {
     })
 
     //TODO: e2e test to check if spaces in username and email are trimmed.
+  })
+
+  describe(`loginWithGoogle`, () => {
+    it(`should return a token when correct google access token is provided.`, async () => {
+      await mockGoogleAuthUserData(app)
+      const response = await request(app.getHttpServer())
+        .post('/users/google-login')
+        .set('Authorization', `Bearer ${sampleToken.token}`)
+        .expect(201)
+      expect(response.body).toHaveProperty('token')
+      const { username, userId } = decodeTokenFrom(response)
+      expect(username).toEqual(sampleUser().username)
+      expect(isUuid(userId)).toBe(true)
+    })
+
+    it(`should return an error when incorrect google access token is provided.`, async () => {
+      await mockGoogleAuthError(app)
+      const response = await request(app.getHttpServer())
+        .post('/users/google-login')
+        .set('Authorization', `Bearer ${sampleToken.token}`)
+        .expect(400)
+      expect(messageFrom(response)).toEqual(
+        `Invalid Google OAuth2 access token or scopes.`
+      )
+    })
   })
 
   describe(`findMe`, () => {
