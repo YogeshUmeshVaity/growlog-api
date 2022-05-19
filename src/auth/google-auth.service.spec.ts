@@ -80,14 +80,7 @@ describe('GoogleAuthService', () => {
 function mockGoogleError() {
   google.oauth2 = jest.fn().mockReturnValue({
     userinfo: {
-      get: jest
-        .fn()
-        .mockRejectedValue(
-          new BadRequestException(
-            'Invalid Google OAuth2 access token or scopes.',
-            'Make sure you got the access token using the same scopes set up in google cloud console.'
-          )
-        )
+      get: jest.fn().mockRejectedValue(new Error())
     }
   })
 }
