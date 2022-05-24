@@ -221,6 +221,78 @@ describe(`UsersModule`, () => {
     })
   })
 
+  describe(`login`, () => {
+    it(`should return a valid token.`, async () => {
+      // create new user
+      const signUpResponse = await request(app.getHttpServer())
+        .post('/users/sign-up')
+        .send(userWithCorrectInfo)
+        .expect(201)
+      const existingToken = signUpResponse.body.token
+
+      // ensure new user is authenticated(findMe)
+      await request(app.getHttpServer())
+        .get('/users/me')
+        .set('Authorization', `Bearer ${existingToken}`)
+        .expect(200)
+
+      // logout other devices
+      await request(app.getHttpServer())
+        .post('/users/logout-other-devices')
+        .set('Authorization', `Bearer ${existingToken}`)
+        .expect(201)
+
+      // login user
+      const loginResponse = await request(app.getHttpServer())
+        .post('/users/login')
+        .send({
+          username: userWithCorrectInfo.username,
+          password: userWithCorrectInfo.password
+        })
+        .expect(201)
+
+      // ensure user is authenticated
+      await request(app.getHttpServer())
+        .get('/users/me')
+        .set('Authorization', `Bearer ${loginResponse.body.token}`)
+        .expect(200)
+    })
+
+    it(`should throw when user is not found.`, async () => {
+      // login without creating the user
+      const response = await request(app.getHttpServer())
+        .post('/users/login')
+        .send({
+          username: userWithCorrectInfo.username,
+          password: userWithCorrectInfo.password
+        })
+        .expect(401)
+
+      expect(messageFrom(response)).toEqual(
+        `User ${userWithCorrectInfo.username} doesn't exist.`
+      )
+    })
+
+    it(`should throw when password doesn't match.`, async () => {
+      // create new user
+      await request(app.getHttpServer())
+        .post('/users/sign-up')
+        .send(userWithCorrectInfo)
+        .expect(201)
+
+      // login with incorrect password
+      const loginResponse = await request(app.getHttpServer())
+        .post('/users/login')
+        .send({
+          username: userWithCorrectInfo.username,
+          password: 'incorrectPassword4$'
+        })
+        .expect(401)
+
+      expect(messageFrom(loginResponse)).toEqual(`Incorrect password.`)
+    })
+  })
+
   describe(`logout-other-devices`, () => {
     it(`should invalidate the existing tokens from all devices.`, async () => {
       // create new user
