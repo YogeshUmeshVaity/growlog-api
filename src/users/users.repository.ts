@@ -37,7 +37,7 @@ export class UsersRepository extends AbstractRepository<User> {
       email: userInfo.email,
       hashedPassword: userInfo.password
     })
-    user.renewTokenInvalidator()
+    user.invalidateAllTokens()
     return await this.repository.save(user)
   }
 
@@ -51,7 +51,7 @@ export class UsersRepository extends AbstractRepository<User> {
       username,
       email
     })
-    user.renewTokenInvalidator()
+    user.invalidateAllTokens()
     return await this.repository.save(user)
   }
 }

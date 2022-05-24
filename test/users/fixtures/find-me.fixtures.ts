@@ -9,6 +9,6 @@ export function sampleUser(): User {
   user.username = 'abcabc123'
   user.email = 'abc@gmail.com'
   user.googleId = '111295779375838005922'
-  user.renewTokenInvalidator()
+  user.invalidateAllTokens()
   return user
 }

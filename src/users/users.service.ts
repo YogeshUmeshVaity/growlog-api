@@ -38,7 +38,7 @@ export class UsersService {
   }
 
   async logoutOtherDevices(user: User) {
-    user.renewTokenInvalidator()
+    user.invalidateAllTokens()
     await this.usersRepo.updateUser(user)
     return await this.authService.logIn(user)
   }

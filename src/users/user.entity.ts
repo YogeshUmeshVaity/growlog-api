@@ -81,7 +81,7 @@ export class User {
    * Generates a new tokenInvalidator. This logs the user out of all devices as tokens signed with
    * JWT secret + tokenInvalidator will change.
    */
-  renewTokenInvalidator() {
+  invalidateAllTokens() {
     this.tokenInvalidator = uuid()
   }
 }
