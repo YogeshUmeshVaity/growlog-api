@@ -4,13 +4,12 @@ import {
   Logger,
   UnauthorizedException
 } from '@nestjs/common'
-import { SignUpDto } from './dtos/signup-user.dto'
-import { UsersRepository } from './users.repository'
 import * as bcrypt from 'bcrypt'
 import { AuthService } from '../auth/auth.service'
 import { GoogleAuthService, GoogleUser } from '../auth/google-auth.service'
+import { SignUpDto } from './dtos/signup-user.dto'
 import { User } from './user.entity'
-import { LoginDto } from './dtos/login.dto'
+import { UsersRepository } from './users.repository'
 
 @Injectable()
 export class UsersService {
