@@ -220,4 +220,37 @@ describe(`UsersModule`, () => {
       expect(findMeResponse.body).not.toHaveProperty('hashedPassword')
     })
   })
+
+  describe(`logout-other-devices`, () => {
+    it(`should invalidate the existing tokens from all devices.`, async () => {
+      // create new user
+      const signUpResponse = await request(app.getHttpServer())
+        .post('/users/sign-up')
+        .send(userWithCorrectInfo)
+        .expect(201)
+
+      // ensure new user is authenticated(findMe)
+      await request(app.getHttpServer())
+        .get('/users/me')
+        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+        .expect(200)
+      // expect(findMeResponse.status).toEqual(200)
+
+      // logout other devices
+      await request(app.getHttpServer())
+        .post('/users/logout-other-devices')
+        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+        .expect(201)
+
+      // ensure user is not authenticated(findMe)
+      await request(app.getHttpServer())
+        .get('/users/me')
+        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+        .expect(401)
+
+      // TODO: login with returned token
+
+      // TODO: ensure user is authenticated
+    })
+  })
 })
