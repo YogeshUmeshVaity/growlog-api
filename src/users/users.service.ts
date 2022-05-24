@@ -37,6 +37,12 @@ export class UsersService {
     }
   }
 
+  async logoutOtherDevices(user: User) {
+    user.renewTokenInvalidator()
+    await this.usersRepo.updateUser(user)
+    return await this.authService.logIn(user)
+  }
+
   private async createGoogleUser(userInfo: GoogleUser) {
     await this.throwIfEmailExists(userInfo.email)
     const generatedUsername = await this.generateUniqueUsername(userInfo.name)

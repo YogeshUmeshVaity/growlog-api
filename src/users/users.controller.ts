@@ -24,6 +24,12 @@ export class UsersController {
     return await this.usersService.loginWithGoogle(googleAccessToken)
   }
 
+  @Post('logout-other-devices')
+  @UseGuards(JwtAuthGuard)
+  async logoutOtherDevices(@CurrentUser() user: User) {
+    return await this.usersService.logoutOtherDevices(user)
+  }
+
   @Get('me')
   @UseGuards(JwtAuthGuard)
   @Serialize(UserDto) // Can be moved to the entire controller, if there are more instances of it.
