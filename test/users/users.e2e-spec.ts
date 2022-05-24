@@ -228,27 +228,27 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(userWithCorrectInfo)
         .expect(201)
+      const existingToken = signUpResponse.body.token
 
       // ensure new user is authenticated(findMe)
       await request(app.getHttpServer())
         .get('/users/me')
-        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+        .set('Authorization', `Bearer ${existingToken}`)
         .expect(200)
-      // expect(findMeResponse.status).toEqual(200)
 
       // logout other devices
       await request(app.getHttpServer())
         .post('/users/logout-other-devices')
-        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+        .set('Authorization', `Bearer ${existingToken}`)
         .expect(201)
 
       // ensure user is not authenticated(findMe)
       await request(app.getHttpServer())
         .get('/users/me')
-        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+        .set('Authorization', `Bearer ${existingToken}`)
         .expect(401)
 
-      // TODO: login with returned token
+      // TODO: login user on current device
 
       // TODO: ensure user is authenticated
     })
