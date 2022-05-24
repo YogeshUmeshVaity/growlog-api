@@ -26,7 +26,8 @@ describe('UsersController', () => {
           provide: UsersService,
           useValue: {
             signUp: jest.fn().mockResolvedValue(sampleToken),
-            loginWithGoogle: jest.fn().mockResolvedValue(sampleToken)
+            loginWithGoogle: jest.fn().mockResolvedValue(sampleToken),
+            logoutOtherDevices: jest.fn().mockResolvedValue(sampleToken)
           }
         },
         {
@@ -74,6 +75,15 @@ describe('UsersController', () => {
       const returnedUser = usersController.findMe(sampleUser())
       expect(returnedUser.id).toEqual(sampleUser().id)
       expect(returnedUser.username).toEqual(sampleUser().username)
+    })
+  })
+
+  describe(`logoutOtherDevices`, () => {
+    it(`should invalidate the existing tokens from all devices.`, async () => {
+      const user = sampleUser()
+      const returnedToken = await usersController.logoutOtherDevices(user)
+      expect(returnedToken).toEqual(sampleToken)
+      expect(usersService.logoutOtherDevices).toBeCalledWith(user)
     })
   })
 })
