@@ -109,4 +109,20 @@ describe('UsersRepository', () => {
       expect(updatedUser.email).not.toEqual(testUser.email)
     })
   })
+
+  describe('updateUser', () => {
+    it(`should update the given user in the database.`, async () => {
+      // add new user
+      const userToUpdate = await usersRepository.createLocalUser(testUser)
+
+      // update user
+      userToUpdate.username = 'newUserName'
+      userToUpdate.email = 'new@email.com'
+      await usersRepository.updateUser(userToUpdate)
+
+      const updatedUser = await usersRepository.findById(userToUpdate.id)
+      expect(updatedUser.username).toEqual('newUserName')
+      expect(updatedUser.email).toEqual('new@email.com')
+    })
+  })
 })
