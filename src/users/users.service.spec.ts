@@ -149,6 +149,22 @@ describe('UsersService', () => {
       expect(returnedUser.username).toEqual(sampleUser().username)
     })
   })
+
+  describe(`logoutOtherDevices`, () => {
+    it(`should change the tokenInvalidator of the user.`, async () => {
+      const user = sampleUser()
+      const previousTokenInvalidator = user.tokenInvalidator
+      await usersService.logoutOtherDevices(user)
+      const currentTokenInvalidator = user.tokenInvalidator
+      expect(previousTokenInvalidator).not.toEqual(currentTokenInvalidator)
+    })
+
+    it(`should return a token for current device.`, async () => {
+      const user = sampleUser()
+      const returnedToken = await usersService.logoutOtherDevices(user)
+      expect(returnedToken).toEqual(sampleToken)
+    })
+  })
 })
 
 /**
@@ -178,7 +194,8 @@ function usersRepositoryMock() {
       findByGoogleId: jest.fn().mockResolvedValue(sampleUser()),
       createLocalUser: jest.fn().mockResolvedValue(userWithCorrectInfo),
       createGoogleUser: jest.fn().mockResolvedValue(sampleUser()),
-      updateEmail: jest.fn()
+      updateEmail: jest.fn(),
+      updateUser: jest.fn()
     }
   }
 }
