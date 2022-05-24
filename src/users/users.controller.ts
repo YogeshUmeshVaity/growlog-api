@@ -4,6 +4,7 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { Serialize } from '../utils/interceptors/serializer.interceptor'
 import { extractTokenFrom } from '../utils/token-extractor'
 import { CurrentUser } from './decorators/current-user.decorator'
+import { LoginDto } from './dtos/login.dto'
 import { SignUpDto } from './dtos/signup-user.dto'
 import { UserDto } from './dtos/user.dto'
 import { User } from './user.entity'
@@ -16,6 +17,14 @@ export class UsersController {
   @Post('sign-up')
   async signUp(@Body() userInfo: SignUpDto) {
     return await this.usersService.signUp(userInfo)
+  }
+
+  @Post('login')
+  async login(@Body() credentials: LoginDto) {
+    return await this.usersService.login(
+      credentials.username,
+      credentials.password
+    )
   }
 
   @Post('google-login')

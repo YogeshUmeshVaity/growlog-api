@@ -67,7 +67,7 @@ export class SignUpDto {
   readonly confirmPassword: string
 }
 
-function UsernameValidations() {
+export function UsernameValidations() {
   return applyDecorators(
     IsString(),
 
@@ -95,7 +95,7 @@ function EmailValidations() {
   )
 }
 
-function PasswordValidations() {
+export function PasswordValidations() {
   return applyDecorators(
     MinLength(MIN_LENGTH_PASSWORD, {
       message: `Password must be at least ${MIN_LENGTH_PASSWORD} characters long.`

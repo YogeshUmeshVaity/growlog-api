@@ -1,10 +1,16 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common'
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  UnauthorizedException
+} from '@nestjs/common'
 import { SignUpDto } from './dtos/signup-user.dto'
 import { UsersRepository } from './users.repository'
 import * as bcrypt from 'bcrypt'
 import { AuthService } from '../auth/auth.service'
 import { GoogleAuthService, GoogleUser } from '../auth/google-auth.service'
 import { User } from './user.entity'
+import { LoginDto } from './dtos/login.dto'
 
 @Injectable()
 export class UsersService {
@@ -22,6 +28,26 @@ export class UsersService {
     const hashedUser = await this.hashThePassword(userInfo)
     const newUser = await this.saveToDb(hashedUser)
     return await this.authService.logIn(newUser)
+  }
+
+  async login(username: string, password: string) {
+    const user = await this.usersRepo.findByName(username)
+    this.throwIfUserNotFound(user, username)
+    await this.throwIfPasswordNoMatch(user, password)
+    return this.authService.logIn(user)
+  }
+
+  private throwIfUserNotFound(user: User, username: string) {
+    if (!user) {
+      throw new UnauthorizedException(`User ${username} doesn't exist.`)
+    }
+  }
+
+  private async throwIfPasswordNoMatch(user: User, password: string) {
+    const isMatch = await bcrypt.compare(password, user.hashedPassword)
+    if (!isMatch) {
+      throw new UnauthorizedException('Incorrect password.')
+    }
   }
 
   async loginWithGoogle(googleAccessToken: string) {
