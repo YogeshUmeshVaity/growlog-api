@@ -239,7 +239,7 @@ function usersRepositoryMock() {
       createLocalUser: jest.fn().mockResolvedValue(userWithCorrectInfo),
       createGoogleUser: jest.fn().mockResolvedValue(sampleUser()),
       updateEmail: jest.fn(),
-      updateUser: jest.fn()
+      update: jest.fn()
     }
   }
 }
