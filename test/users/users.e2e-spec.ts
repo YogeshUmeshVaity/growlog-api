@@ -325,4 +325,45 @@ describe(`UsersModule`, () => {
       // TODO: ensure user is authenticated
     })
   })
+
+  describe(`update-username`, () => {
+    it(`should update the username when the name doesn't already exist.`, async () => {
+      // create user
+      const signUpResponse = await request(app.getHttpServer())
+        .post('/users/sign-up')
+        .send(userWithCorrectInfo)
+        .expect(201)
+
+      // change username
+      const newUsername = 'someNewUsername'
+      await request(app.getHttpServer())
+        .put('/users/update-username')
+        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+        .send({ username: newUsername })
+        .expect(200)
+
+      // ensure username has changed
+      const findMeResponse = await request(app.getHttpServer())
+        .get('/users/me')
+        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+      expect(findMeResponse.body.username).toEqual(newUsername)
+    })
+
+    it(`should throw error when username already exists.`, async () => {
+      // create user
+      const signUpResponse = await request(app.getHttpServer())
+        .post('/users/sign-up')
+        .send(userWithCorrectInfo)
+        .expect(201)
+
+      // change username with the same name
+      const newUsername = userWithCorrectInfo.username
+      const response = await request(app.getHttpServer())
+        .put('/users/update-username')
+        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+        .send({ username: newUsername })
+        .expect(400)
+      expect(messageFrom(response)).toEqual(`Username already exists.`)
+    })
+  })
 })
