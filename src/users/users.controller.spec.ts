@@ -26,6 +26,7 @@ describe('UsersController', () => {
           provide: UsersService,
           useValue: {
             signUp: jest.fn().mockResolvedValue(sampleToken),
+            login: jest.fn().mockResolvedValue(sampleToken),
             loginWithGoogle: jest.fn().mockResolvedValue(sampleToken),
             logoutOtherDevices: jest.fn().mockResolvedValue(sampleToken)
           }
@@ -52,6 +53,17 @@ describe('UsersController', () => {
       const returnedToken = await usersController.signUp(user)
       expect(returnedToken).toEqual(sampleToken)
       expect(usersService.signUp).toBeCalledWith(user)
+    })
+  })
+
+  describe(`login`, () => {
+    it(`should return a token when correct credentials are provided.`, async () => {
+      const returnedToken = await usersController.login({
+        username: user.username,
+        password: user.password
+      })
+      expect(returnedToken).toEqual(sampleToken)
+      expect(usersService.login).toBeCalledWith(user.username, user.password)
     })
   })
 
