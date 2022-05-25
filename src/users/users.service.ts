@@ -22,7 +22,7 @@ export class UsersService {
 
   async signUp(userInfo: SignUpDto) {
     this.throwIfConfirmPasswordNotEqual(userInfo)
-    await this.throwIfUsernameExists(userInfo)
+    await this.throwIfUsernameExists(userInfo.username)
     await this.throwIfEmailExists(userInfo.email)
     const hashedUser = await this.hashThePassword(userInfo)
     const newUser = await this.saveToDb(hashedUser)
@@ -64,8 +64,14 @@ export class UsersService {
 
   async logoutOtherDevices(user: User) {
     user.invalidateAllTokens()
-    await this.usersRepo.updateUser(user)
+    await this.usersRepo.update(user)
     return await this.authService.logIn(user)
+  }
+
+  async updateUsername(user: User, username: string) {
+    await this.throwIfUsernameExists(username)
+    user.username = username
+    await this.usersRepo.update(user)
   }
 
   private async createGoogleUser(userInfo: GoogleUser) {
@@ -142,8 +148,8 @@ export class UsersService {
     }
   }
 
-  private async throwIfUsernameExists(body: SignUpDto) {
-    const existingUser = await this.usersRepo.findByName(body.username)
+  private async throwIfUsernameExists(username: string) {
+    const existingUser = await this.usersRepo.findByName(username)
     if (existingUser) {
       throw new BadRequestException('Username already exists.')
     }

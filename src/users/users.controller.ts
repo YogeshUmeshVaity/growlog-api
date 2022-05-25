@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common'
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Req,
+  UseGuards
+} from '@nestjs/common'
 import { Request } from 'express'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { Serialize } from '../utils/interceptors/serializer.interceptor'
@@ -44,5 +52,14 @@ export class UsersController {
   @Serialize(UserDto) // Can be moved to the entire controller, if there are more instances of it.
   findMe(@CurrentUser() user: User) {
     return user
+  }
+
+  @Put('update-username')
+  @UseGuards(JwtAuthGuard)
+  updateUsername(
+    @CurrentUser() user: User,
+    @Body('username') username: string
+  ) {
+    return this.usersService.updateUsername(user, username)
   }
 }

@@ -118,7 +118,7 @@ describe('UsersRepository', () => {
       // update user
       userToUpdate.username = 'newUserName'
       userToUpdate.email = 'new@email.com'
-      await usersRepository.updateUser(userToUpdate)
+      await usersRepository.update(userToUpdate)
 
       const updatedUser = await usersRepository.findById(userToUpdate.id)
       expect(updatedUser.username).toEqual('newUserName')
