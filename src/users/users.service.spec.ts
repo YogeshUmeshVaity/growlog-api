@@ -1,4 +1,4 @@
-import { BadRequestException } from '@nestjs/common'
+import { BadRequestException, UnauthorizedException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import {
@@ -11,6 +11,7 @@ import { GoogleAuthService } from '../auth/google-auth.service'
 import { User } from './user.entity'
 import { UsersRepository } from './users.repository'
 import { UsersService } from './users.service'
+import * as bcrypt from 'bcrypt'
 
 describe('UsersService', () => {
   let usersService: UsersService
@@ -89,6 +90,49 @@ describe('UsersService', () => {
         expect(error).toBeInstanceOf(BadRequestException)
         expect(error).toHaveProperty('message', 'Email already exists.')
         expect(usersRepo.findByEmail).toBeCalledWith(userWithCorrectInfo.email)
+      }
+    })
+  })
+
+  describe(`login`, () => {
+    it(`should return a token when correct credentials are provided.`, async () => {
+      usersRepo.findByName = jest.fn().mockResolvedValue(new User())
+      jest.spyOn(bcrypt, 'compare').mockImplementation(() => true)
+      const returnedToken = await usersService.login(
+        userWithCorrectInfo.username,
+        userWithCorrectInfo.password
+      )
+      expect(returnedToken).toEqual(sampleToken)
+    })
+
+    it(`should throw error when user doesn't exist.`, async () => {
+      expect.assertions(2)
+      try {
+        await usersService.login(
+          userWithCorrectInfo.username,
+          userWithCorrectInfo.password
+        )
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnauthorizedException)
+        expect(error).toHaveProperty(
+          'message',
+          `User ${userWithCorrectInfo.username} doesn't exist.`
+        )
+      }
+    })
+
+    it(`should throw error when password doesn't match.`, async () => {
+      usersRepo.findByName = jest.fn().mockResolvedValue(new User())
+      jest.spyOn(bcrypt, 'compare').mockImplementation(() => false)
+      expect.assertions(2)
+      try {
+        await usersService.login(
+          userWithCorrectInfo.username,
+          userWithCorrectInfo.password
+        )
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnauthorizedException)
+        expect(error).toHaveProperty('message', `Incorrect password.`)
       }
     })
   })
