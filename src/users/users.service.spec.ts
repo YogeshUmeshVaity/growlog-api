@@ -209,6 +209,30 @@ describe('UsersService', () => {
       expect(returnedToken).toEqual(sampleToken)
     })
   })
+
+  describe(`updateUsername`, () => {
+    it(`should update the username when it doesn't already exist.`, async () => {
+      const user = sampleUser()
+      const newUsername = 'SomeNewName'
+      await expect(
+        usersService.updateUsername(user, newUsername)
+      ).resolves.not.toThrowError()
+      expect(usersRepo.update).toBeCalled()
+    })
+
+    it(`should update the username when it doesn't already exist.`, async () => {
+      expect.assertions(2)
+      usersRepo.findByName = jest.fn().mockResolvedValue(sampleUser())
+      const user = sampleUser()
+      const newUsername = 'SomeNewName'
+      try {
+        await usersService.updateUsername(user, newUsername)
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException)
+        expect(error).toHaveProperty('message', 'Username already exists.')
+      }
+    })
+  })
 })
 
 /**
@@ -232,8 +256,8 @@ function usersRepositoryMock() {
   return {
     provide: UsersRepository,
     useValue: {
-      findByEmail: jest.fn().mockResolvedValue(null),
-      findByName: jest.fn().mockResolvedValue(null),
+      findByEmail: jest.fn().mockResolvedValue(undefined),
+      findByName: jest.fn().mockResolvedValue(undefined),
       findById: jest.fn().mockResolvedValue(sampleUser()),
       findByGoogleId: jest.fn().mockResolvedValue(sampleUser()),
       createLocalUser: jest.fn().mockResolvedValue(userWithCorrectInfo),
