@@ -28,7 +28,8 @@ describe('UsersController', () => {
             signUp: jest.fn().mockResolvedValue(sampleToken),
             login: jest.fn().mockResolvedValue(sampleToken),
             loginWithGoogle: jest.fn().mockResolvedValue(sampleToken),
-            logoutOtherDevices: jest.fn().mockResolvedValue(sampleToken)
+            logoutOtherDevices: jest.fn().mockResolvedValue(sampleToken),
+            updateUsername: jest.fn()
           }
         },
         {
@@ -96,6 +97,15 @@ describe('UsersController', () => {
       const returnedToken = await usersController.logoutOtherDevices(user)
       expect(returnedToken).toEqual(sampleToken)
       expect(usersService.logoutOtherDevices).toBeCalledWith(user)
+    })
+  })
+
+  describe(`updateUsername`, () => {
+    it(`should update the username when it doesn't already exist.`, async () => {
+      const user = sampleUser()
+      const newUsername = 'SomeNewName'
+      await usersController.updateUsername(user, newUsername)
+      expect(usersService.updateUsername).toBeCalledWith(user, newUsername)
     })
   })
 })
