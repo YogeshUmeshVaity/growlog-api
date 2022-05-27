@@ -62,4 +62,10 @@ export class UsersController {
   ) {
     return this.usersService.updateUsername(user, username)
   }
+
+  @Put('update-email')
+  @UseGuards(JwtAuthGuard)
+  updateEmail(@CurrentUser() user: User, @Body('email') email: string) {
+    return this.usersService.updateEmail(user, email)
+  }
 }

@@ -73,6 +73,11 @@ export class UsersService {
     await this.usersRepo.updateUsername(user.id, username)
   }
 
+  async updateEmail(user: User, email: string) {
+    await this.throwIfEmailExists(email)
+    await this.usersRepo.updateEmail(user.id, email)
+  }
+
   private async createGoogleUser(userInfo: GoogleUser) {
     await this.throwIfEmailExists(userInfo.email)
     const generatedUsername = await this.generateUniqueUsername(userInfo.name)
