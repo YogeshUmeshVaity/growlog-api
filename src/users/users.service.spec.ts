@@ -233,6 +233,30 @@ describe('UsersService', () => {
       }
     })
   })
+
+  describe(`updateEmail`, () => {
+    it(`should update the email when it doesn't already exist.`, async () => {
+      const user = sampleUser()
+      const newEmail = 'newEmail@gmail.com'
+      await expect(
+        usersService.updateEmail(user, newEmail)
+      ).resolves.not.toThrowError()
+      expect(usersRepo.updateEmail).toBeCalled()
+    })
+
+    it(`should throw error when email already exists.`, async () => {
+      expect.assertions(2)
+      usersRepo.findByEmail = jest.fn().mockResolvedValue(sampleUser())
+      const user = sampleUser()
+      const newEmail = 'newEmail@gmail.com'
+      try {
+        await usersService.updateEmail(user, newEmail)
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException)
+        expect(error).toHaveProperty('message', 'Email already exists.')
+      }
+    })
+  })
 })
 
 /**
