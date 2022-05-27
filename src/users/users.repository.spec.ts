@@ -110,6 +110,17 @@ describe('UsersRepository', () => {
     })
   })
 
+  describe('updateUsername', () => {
+    it(`should update the username in the database.`, async () => {
+      const existingUser = await usersRepository.createLocalUser(testUser)
+      const newUsername = 'someNewUsername'
+      await usersRepository.updateUsername(existingUser.id, newUsername)
+      const updatedUser = await usersRepository.findByName(newUsername)
+      expect(updatedUser.username).toEqual(newUsername)
+      expect(updatedUser.username).not.toEqual(testUser.username)
+    })
+  })
+
   describe('updateUser', () => {
     it(`should update the given user in the database.`, async () => {
       // add new user
