@@ -366,4 +366,45 @@ describe(`UsersModule`, () => {
       expect(messageFrom(response)).toEqual(`Username already exists.`)
     })
   })
+
+  describe(`update-email`, () => {
+    it(`should update the email when the email doesn't already exist.`, async () => {
+      // create user
+      const signUpResponse = await request(app.getHttpServer())
+        .post('/users/sign-up')
+        .send(userWithCorrectInfo)
+        .expect(201)
+
+      // change email
+      const newEmail = 'newEmail@gmail.com'
+      await request(app.getHttpServer())
+        .put('/users/update-email')
+        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+        .send({ email: newEmail })
+        .expect(200)
+
+      // ensure email has changed
+      const findMeResponse = await request(app.getHttpServer())
+        .get('/users/me')
+        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+      expect(findMeResponse.body.email).toEqual(newEmail)
+    })
+
+    it(`should throw error when email already exists.`, async () => {
+      // create user
+      const signUpResponse = await request(app.getHttpServer())
+        .post('/users/sign-up')
+        .send(userWithCorrectInfo)
+        .expect(201)
+
+      // change email with the same email address
+      const newEmail = userWithCorrectInfo.email
+      const response = await request(app.getHttpServer())
+        .put('/users/update-email')
+        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+        .send({ email: newEmail })
+        .expect(400)
+      expect(messageFrom(response)).toEqual(`Email already exists.`)
+    })
+  })
 })
