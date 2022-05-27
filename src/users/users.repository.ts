@@ -27,6 +27,10 @@ export class UsersRepository extends AbstractRepository<User> {
     await this.repository.update({ id: userId }, { email: newEmail })
   }
 
+  async updateUsername(userId: string, username: string) {
+    await this.repository.update({ id: userId }, { username: username })
+  }
+
   async update(user: User) {
     await this.repository.update({ id: user.id }, user)
   }

@@ -70,8 +70,7 @@ export class UsersService {
 
   async updateUsername(user: User, username: string) {
     await this.throwIfUsernameExists(username)
-    user.username = username
-    await this.usersRepo.update(user)
+    await this.usersRepo.updateUsername(user.id, username)
   }
 
   private async createGoogleUser(userInfo: GoogleUser) {
