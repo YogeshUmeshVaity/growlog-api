@@ -29,7 +29,8 @@ describe('UsersController', () => {
             login: jest.fn().mockResolvedValue(sampleToken),
             loginWithGoogle: jest.fn().mockResolvedValue(sampleToken),
             logoutOtherDevices: jest.fn().mockResolvedValue(sampleToken),
-            updateUsername: jest.fn()
+            updateUsername: jest.fn(),
+            updateEmail: jest.fn()
           }
         },
         {
@@ -106,6 +107,15 @@ describe('UsersController', () => {
       const newUsername = 'SomeNewName'
       await usersController.updateUsername(user, newUsername)
       expect(usersService.updateUsername).toBeCalledWith(user, newUsername)
+    })
+  })
+
+  describe(`updateEmail`, () => {
+    it(`should update the email when it doesn't already exist.`, async () => {
+      const user = sampleUser()
+      const newEmail = 'newEmail@gmail.com'
+      await usersController.updateEmail(user, newEmail)
+      expect(usersService.updateEmail).toBeCalledWith(user, newEmail)
     })
   })
 })
