@@ -28,6 +28,7 @@ import {
   userWithUsernameTwentyTwoChars,
   userWithUsernameTwoChars
 } from './fixtures/sign-up.fixtures'
+import { correctPasswords } from './fixtures/update-password.fixtures'
 
 describe(`UsersModule`, () => {
   let app: INestApplication
@@ -146,9 +147,7 @@ describe(`UsersModule`, () => {
         .post('/users/sign-up')
         .send(userWithConfirmPasswordNoMatch)
         .expect(400)
-      expect(messageFrom(response)).toEqual(
-        `Confirm Password must match with Password.`
-      )
+      expect(messageFrom(response)).toEqual(`Confirm Password must match.`)
     })
 
     it(`should throw when username already exists.`, async () => {
@@ -405,6 +404,37 @@ describe(`UsersModule`, () => {
         .send({ email: newEmail })
         .expect(400)
       expect(messageFrom(response)).toEqual(`Email already exists.`)
+    })
+  })
+
+  describe(`update-password`, () => {
+    it(`should update the password.`, async () => {
+      // create user
+      const user = userWithCorrectInfo
+      const signUpResponse = await request(app.getHttpServer())
+        .post('/users/sign-up')
+        .send(user)
+        .expect(201)
+
+      // change password
+      await request(app.getHttpServer())
+        .put('/users/update-password')
+        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+        .send(correctPasswords)
+        .expect(200)
+
+      // ensure password has changed
+      const loginResponse = await request(app.getHttpServer())
+        .post('/users/login')
+        .send({
+          username: user.username,
+          password: correctPasswords.newPassword
+        })
+        .expect(201)
+
+      // ensure password has been changed for the correct user
+      const { username } = decodeTokenFrom(loginResponse)
+      expect(username).toEqual(user.username)
     })
   })
 })
