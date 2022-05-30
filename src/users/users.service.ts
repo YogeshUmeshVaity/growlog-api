@@ -105,8 +105,8 @@ export class UsersService {
   private throwIfSocialUser(user: User) {
     if (user.isSocial()) {
       throw new BadRequestException(
-        'You have logged in using a social network.' +
-          +'Password can be changed from the social network only.'
+        'You have logged in using a third party. ' +
+          +'Password can be changed from the third party website only.'
       )
     }
   }
