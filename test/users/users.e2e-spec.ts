@@ -30,6 +30,7 @@ import {
 } from './fixtures/sign-up.fixtures'
 import {
   correctPasswords,
+  sameNewPassword,
   wrongConfirmPassword,
   wrongCurrentPassword
 } from './fixtures/update-password.fixtures'
@@ -497,7 +498,7 @@ describe(`UsersModule`, () => {
       expect(messageFrom(passwordResponse)).toEqual(`Incorrect password.`)
     })
 
-    it(`should throw error when current-password is incorrect.`, async () => {
+    it(`should throw error when new-password is same as existing password.`, async () => {
       // create user
       const user = userWithCorrectInfo
       const signUpResponse = await request(app.getHttpServer())
@@ -509,9 +510,11 @@ describe(`UsersModule`, () => {
       const passwordResponse = await request(app.getHttpServer())
         .put('/users/update-password')
         .set('Authorization', `Bearer ${signUpResponse.body.token}`)
-        .send(wrongCurrentPassword)
-        .expect(401)
-      expect(messageFrom(passwordResponse)).toEqual(`Incorrect password.`)
+        .send(sameNewPassword)
+        .expect(400)
+      expect(messageFrom(passwordResponse)).toEqual(
+        `New password and existing password cannot be the same.`
+      )
     })
   })
 })

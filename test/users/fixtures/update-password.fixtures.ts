@@ -18,3 +18,9 @@ export const wrongCurrentPassword: UpdatePasswordDto = {
   newPassword: correctPasswords.newPassword,
   confirmPassword: correctPasswords.confirmPassword
 }
+
+export const sameNewPassword: UpdatePasswordDto = {
+  currentPassword: correctPasswords.currentPassword,
+  newPassword: correctPasswords.currentPassword,
+  confirmPassword: correctPasswords.currentPassword
+}
