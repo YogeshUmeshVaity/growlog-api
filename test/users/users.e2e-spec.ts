@@ -436,5 +436,25 @@ describe(`UsersModule`, () => {
       const { username } = decodeTokenFrom(loginResponse)
       expect(username).toEqual(user.username)
     })
+
+    it(`should throw error when user is logged-in using third party.`, async () => {
+      // login with google
+      await mockGoogleAuthUserData(app)
+      const signUpResponse = await request(app.getHttpServer())
+        .post('/users/google-login')
+        .set('Authorization', `Bearer ${sampleToken.token}`)
+        .expect(201)
+
+      // try to change password
+      const passwordResponse = await request(app.getHttpServer())
+        .put('/users/update-password')
+        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+        .send(correctPasswords)
+        .expect(400)
+      expect(messageFrom(passwordResponse)).toEqual(
+        'You have logged in using a third party. ' +
+          +'Password can be changed from the third party website only.'
+      )
+    })
   })
 })
