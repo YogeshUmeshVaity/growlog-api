@@ -28,7 +28,10 @@ import {
   userWithUsernameTwentyTwoChars,
   userWithUsernameTwoChars
 } from './fixtures/sign-up.fixtures'
-import { correctPasswords } from './fixtures/update-password.fixtures'
+import {
+  correctPasswords,
+  wrongConfirmPassword
+} from './fixtures/update-password.fixtures'
 
 describe(`UsersModule`, () => {
   let app: INestApplication
@@ -454,6 +457,25 @@ describe(`UsersModule`, () => {
       expect(messageFrom(passwordResponse)).toEqual(
         'You have logged in using a third party. ' +
           +'Password can be changed from the third party website only.'
+      )
+    })
+
+    it(`should throw error when confirm-password doesn't match the new-password.`, async () => {
+      // create user
+      const user = userWithCorrectInfo
+      const signUpResponse = await request(app.getHttpServer())
+        .post('/users/sign-up')
+        .send(user)
+        .expect(201)
+
+      // try with wrong confirm-password
+      const passwordResponse = await request(app.getHttpServer())
+        .put('/users/update-password')
+        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+        .send(wrongConfirmPassword)
+        .expect(400)
+      expect(messageFrom(passwordResponse)).toEqual(
+        `Confirm Password must match.`
       )
     })
   })

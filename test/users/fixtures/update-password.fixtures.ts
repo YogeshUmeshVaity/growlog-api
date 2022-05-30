@@ -6,3 +6,9 @@ export const correctPasswords: UpdatePasswordDto = {
   newPassword: 'newPass123#',
   confirmPassword: 'newPass123#'
 }
+
+export const wrongConfirmPassword: UpdatePasswordDto = {
+  currentPassword: userWithCorrectInfo.password,
+  newPassword: 'newPass123#',
+  confirmPassword: 'newPass124#'
+}
