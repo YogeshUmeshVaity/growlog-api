@@ -14,6 +14,7 @@ import { extractTokenFrom } from '../utils/token-extractor'
 import { CurrentUser } from './decorators/current-user.decorator'
 import { LoginDto } from './dtos/login.dto'
 import { SignUpDto } from './dtos/signup-user.dto'
+import { UpdatePasswordDto } from './dtos/update-password.dto'
 import { UserDto } from './dtos/user.dto'
 import { User } from './user.entity'
 import { UsersService } from './users.service'
@@ -67,5 +68,14 @@ export class UsersController {
   @UseGuards(JwtAuthGuard)
   updateEmail(@CurrentUser() user: User, @Body('email') email: string) {
     return this.usersService.updateEmail(user, email)
+  }
+
+  @Put('update-password')
+  @UseGuards(JwtAuthGuard)
+  updatePassword(
+    @CurrentUser() user: User,
+    @Body() passwordDto: UpdatePasswordDto
+  ) {
+    return this.usersService.updatePassword(user, passwordDto)
   }
 }

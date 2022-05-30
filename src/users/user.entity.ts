@@ -84,4 +84,8 @@ export class User {
   invalidateAllTokens() {
     this.tokenInvalidator = uuid()
   }
+
+  isSocial(): boolean {
+    return !!(this.googleId || this.appleId || this.facebookId)
+  }
 }

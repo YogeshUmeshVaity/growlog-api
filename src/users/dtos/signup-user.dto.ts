@@ -107,7 +107,7 @@ export function PasswordValidations() {
   )
 }
 
-function ConfirmPasswordValidations() {
+export function ConfirmPasswordValidations() {
   return applyDecorators(
     IsString(),
 

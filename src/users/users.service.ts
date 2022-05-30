@@ -8,6 +8,7 @@ import * as bcrypt from 'bcrypt'
 import { AuthService } from '../auth/auth.service'
 import { GoogleAuthService, GoogleUser } from '../auth/google-auth.service'
 import { SignUpDto } from './dtos/signup-user.dto'
+import { UpdatePasswordDto } from './dtos/update-password.dto'
 import { User } from './user.entity'
 import { UsersRepository } from './users.repository'
 
@@ -21,15 +22,18 @@ export class UsersService {
   ) {}
 
   async signUp(userInfo: SignUpDto) {
-    this.throwIfConfirmPasswordNotEqual(userInfo)
+    // TODO: use destructuring to extract userinfo variables
+    this.throwIfPasswordsNotEqual(userInfo.password, userInfo.confirmPassword)
     await this.throwIfUsernameExists(userInfo.username)
     await this.throwIfEmailExists(userInfo.email)
+    // TODO: Break this statement into two: hash() and createUser()
     const hashedUser = await this.hashThePassword(userInfo)
     const newUser = await this.saveToDb(hashedUser)
     return await this.authService.logIn(newUser)
   }
 
   async login(username: string, password: string) {
+    // TODO: move this first statement to throwIfUserNotFound()
     const user = await this.usersRepo.findByName(username)
     this.throwIfUserNotFound(user, username)
     await this.throwIfPasswordNoMatch(user, password)
@@ -46,6 +50,15 @@ export class UsersService {
     const isMatch = await bcrypt.compare(password, user.hashedPassword)
     if (!isMatch) {
       throw new UnauthorizedException('Incorrect password.')
+    }
+  }
+
+  private async throwIfNewPasswordIsSame(user: User, newPassword: string) {
+    const isMatch = await bcrypt.compare(newPassword, user.hashedPassword)
+    if (isMatch) {
+      throw new BadRequestException(
+        'New password and current password cannot be the same.'
+      )
     }
   }
 
@@ -76,6 +89,26 @@ export class UsersService {
   async updateEmail(user: User, email: string) {
     await this.throwIfEmailExists(email)
     await this.usersRepo.updateEmail(user.id, email)
+  }
+
+  async updatePassword(user: User, passwordDto: UpdatePasswordDto) {
+    const { newPassword, confirmPassword, currentPassword } = passwordDto
+
+    this.throwIfSocialUser(user)
+    this.throwIfPasswordsNotEqual(newPassword, confirmPassword)
+    await this.throwIfPasswordNoMatch(user, currentPassword)
+    await this.throwIfNewPasswordIsSame(user, newPassword)
+    const hashedPassword = await this.hashPassword(newPassword)
+    await this.usersRepo.updatePassword(user.id, hashedPassword)
+  }
+
+  private throwIfSocialUser(user: User) {
+    if (user.isSocial()) {
+      throw new BadRequestException(
+        'You have logged in using a social network.' +
+          +'Password can be changed from the social network only.'
+      )
+    }
   }
 
   private async createGoogleUser(userInfo: GoogleUser) {
@@ -135,8 +168,7 @@ export class UsersService {
   }
 
   private async hashThePassword(userInfo: SignUpDto) {
-    const salt = await bcrypt.genSalt()
-    const hashedPassword = await bcrypt.hash(userInfo.password, salt)
+    const hashedPassword = await this.hashPassword(userInfo.password)
     const hashedUser: SignUpDto = {
       ...userInfo,
       password: hashedPassword
@@ -144,11 +176,15 @@ export class UsersService {
     return hashedUser
   }
 
-  private throwIfConfirmPasswordNotEqual(body: SignUpDto) {
-    if (body.password.trim() !== body.confirmPassword.trim()) {
-      throw new BadRequestException(
-        'Confirm Password must match with Password.'
-      )
+  private async hashPassword(password: string) {
+    const salt = await bcrypt.genSalt()
+    const hashedPassword = await bcrypt.hash(password, salt)
+    return hashedPassword
+  }
+
+  private throwIfPasswordsNotEqual(password: string, confirmPassword: string) {
+    if (password.trim() !== confirmPassword.trim()) {
+      throw new BadRequestException('Confirm Password must match.')
     }
   }
 
