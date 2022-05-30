@@ -57,7 +57,7 @@ export class UsersService {
     const isMatch = await bcrypt.compare(newPassword, user.hashedPassword)
     if (isMatch) {
       throw new BadRequestException(
-        'New password and current password cannot be the same.'
+        'New password and existing password cannot be the same.'
       )
     }
   }
