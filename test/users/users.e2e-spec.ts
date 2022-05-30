@@ -30,7 +30,8 @@ import {
 } from './fixtures/sign-up.fixtures'
 import {
   correctPasswords,
-  wrongConfirmPassword
+  wrongConfirmPassword,
+  wrongCurrentPassword
 } from './fixtures/update-password.fixtures'
 
 describe(`UsersModule`, () => {
@@ -477,6 +478,40 @@ describe(`UsersModule`, () => {
       expect(messageFrom(passwordResponse)).toEqual(
         `Confirm Password must match.`
       )
+    })
+
+    it(`should throw error when current-password is incorrect.`, async () => {
+      // create user
+      const user = userWithCorrectInfo
+      const signUpResponse = await request(app.getHttpServer())
+        .post('/users/sign-up')
+        .send(user)
+        .expect(201)
+
+      // try with wrong current-password
+      const passwordResponse = await request(app.getHttpServer())
+        .put('/users/update-password')
+        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+        .send(wrongCurrentPassword)
+        .expect(401)
+      expect(messageFrom(passwordResponse)).toEqual(`Incorrect password.`)
+    })
+
+    it(`should throw error when current-password is incorrect.`, async () => {
+      // create user
+      const user = userWithCorrectInfo
+      const signUpResponse = await request(app.getHttpServer())
+        .post('/users/sign-up')
+        .send(user)
+        .expect(201)
+
+      // try with wrong current-password
+      const passwordResponse = await request(app.getHttpServer())
+        .put('/users/update-password')
+        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+        .send(wrongCurrentPassword)
+        .expect(401)
+      expect(messageFrom(passwordResponse)).toEqual(`Incorrect password.`)
     })
   })
 })
