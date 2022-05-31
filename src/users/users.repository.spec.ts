@@ -4,7 +4,6 @@ import { userWithCorrectInfo as testUser } from '../../test/users/fixtures/sign-
 import { correctPasswords } from '../../test/users/fixtures/update-password.fixtures'
 import { User } from './user.entity'
 import { UsersRepository } from './users.repository'
-import * as bcrypt from 'bcrypt'
 
 const testConnection = 'testConnection'
 
