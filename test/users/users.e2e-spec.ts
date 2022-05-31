@@ -413,7 +413,7 @@ describe(`UsersModule`, () => {
   })
 
   describe(`update-password`, () => {
-    it(`should update the password.`, async () => {
+    it(`should update the password when valid info is provided.`, async () => {
       // create user
       const user = userWithCorrectInfo
       const signUpResponse = await request(app.getHttpServer())
