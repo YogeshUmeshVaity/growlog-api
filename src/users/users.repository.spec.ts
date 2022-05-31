@@ -1,8 +1,10 @@
 import { createConnection, getConnection } from 'typeorm'
 import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import { userWithCorrectInfo as testUser } from '../../test/users/fixtures/sign-up.fixtures'
+import { correctPasswords } from '../../test/users/fixtures/update-password.fixtures'
 import { User } from './user.entity'
 import { UsersRepository } from './users.repository'
+import * as bcrypt from 'bcrypt'
 
 const testConnection = 'testConnection'
 
@@ -118,6 +120,20 @@ describe('UsersRepository', () => {
       const updatedUser = await usersRepository.findByName(newUsername)
       expect(updatedUser.username).toEqual(newUsername)
       expect(updatedUser.username).not.toEqual(testUser.username)
+    })
+  })
+
+  describe('updatePassword', () => {
+    it(`should update the password in the database.`, async () => {
+      const existingUser = await usersRepository.createLocalUser(testUser)
+      const oldPassword = testUser.password
+      const newPassword = correctPasswords.newPassword
+      await usersRepository.updatePassword(existingUser.id, newPassword)
+      const updatedUser = await usersRepository.findByName(
+        existingUser.username
+      )
+      expect(updatedUser.hashedPassword).toEqual(newPassword)
+      expect(updatedUser.hashedPassword).not.toEqual(oldPassword)
     })
   })
 
