@@ -175,8 +175,7 @@ export class UsersService {
 
   private async hash(password: string) {
     const salt = await bcrypt.genSalt()
-    const hashedPassword = await bcrypt.hash(password, salt)
-    return hashedPassword
+    return await bcrypt.hash(password, salt)
   }
 
   private throwIfPasswordsNotEqual(password: string, confirmPassword: string) {
