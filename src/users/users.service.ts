@@ -33,7 +33,6 @@ export class UsersService {
   }
 
   async login(username: string, password: string) {
-    // TODO: move this first statement to throwIfUserNotFound()
     const user = await this.usersRepo.findByName(username)
     this.throwIfUserNotFound(user, username)
     await this.throwIfPasswordNoMatch(user, password)
@@ -93,7 +92,6 @@ export class UsersService {
 
   async updatePassword(user: User, passwordDto: UpdatePasswordDto) {
     const { newPassword, confirmPassword, currentPassword } = passwordDto
-
     this.throwIfSocialUser(user)
     this.throwIfPasswordsNotEqual(newPassword, confirmPassword)
     await this.throwIfPasswordNoMatch(user, currentPassword)
