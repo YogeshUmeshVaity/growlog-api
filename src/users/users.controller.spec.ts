@@ -7,6 +7,7 @@ import {
   sampleToken,
   userWithCorrectInfo as user
 } from '../../test/users/fixtures/sign-up.fixtures'
+import { correctPasswords } from '../../test/users/fixtures/update-password.fixtures'
 import { isGuarded } from '../../test/utils/is-guarded'
 import { AuthService } from '../auth/auth.service'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
@@ -30,7 +31,8 @@ describe('UsersController', () => {
             loginWithGoogle: jest.fn().mockResolvedValue(sampleToken),
             logoutOtherDevices: jest.fn().mockResolvedValue(sampleToken),
             updateUsername: jest.fn(),
-            updateEmail: jest.fn()
+            updateEmail: jest.fn(),
+            updatePassword: jest.fn()
           }
         },
         {
@@ -116,6 +118,14 @@ describe('UsersController', () => {
       const newEmail = 'newEmail@gmail.com'
       await usersController.updateEmail(user, newEmail)
       expect(usersService.updateEmail).toBeCalledWith(user, newEmail)
+    })
+  })
+
+  describe(`updatePassword`, () => {
+    it(`should update the password when valid info is provided.`, async () => {
+      const user = sampleUser()
+      await usersController.updatePassword(user, correctPasswords)
+      expect(usersService.updatePassword).toBeCalledWith(user, correctPasswords)
     })
   })
 })
