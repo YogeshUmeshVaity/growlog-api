@@ -12,6 +12,12 @@ import { User } from './user.entity'
 import { UsersRepository } from './users.repository'
 import { UsersService } from './users.service'
 import * as bcrypt from 'bcrypt'
+import {
+  correctPasswords,
+  sameNewPassword,
+  wrongConfirmPassword,
+  wrongCurrentPassword
+} from '../../test/users/fixtures/update-password.fixtures'
 
 describe('UsersService', () => {
   let usersService: UsersService
@@ -254,6 +260,100 @@ describe('UsersService', () => {
       }
     })
   })
+
+  describe(`update-password`, () => {
+    it(`should throw error when user is logged-in using third party.`, async () => {
+      expect.assertions(2)
+      const user = sampleUser()
+      try {
+        await usersService.updatePassword(user, correctPasswords)
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException)
+        expect(error).toHaveProperty(
+          'message',
+          'You have logged in using a third party. ' +
+            +'Password can be changed from the third party website only.'
+        )
+      }
+    })
+
+    it(`should throw error when confirm-password doesn't match the new-password.`, async () => {
+      expect.assertions(2)
+      const user = sampleUser()
+      user.googleId = undefined // mock user not to be social
+      try {
+        await usersService.updatePassword(user, wrongConfirmPassword)
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException)
+        expect(error).toHaveProperty('message', 'Confirm Password must match.')
+      }
+    })
+
+    it(`should throw error when current-password is incorrect.`, async () => {
+      expect.assertions(2)
+      const user = sampleUser()
+      user.googleId = undefined // mock user not to be social
+      // mock currentPassword === existingPassword
+      jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => false)
+
+      try {
+        await usersService.updatePassword(user, wrongCurrentPassword)
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnauthorizedException)
+        expect(error).toHaveProperty('message', 'Incorrect password.')
+      }
+    })
+
+    it(`should throw error when new-password is same as existing password.`, async () => {
+      expect.assertions(2)
+      const user = sampleUser()
+      user.googleId = undefined // mock user not to be social
+      jest.spyOn(bcrypt, 'compare').mockImplementation(() => true)
+
+      try {
+        await usersService.updatePassword(user, sameNewPassword)
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException)
+        expect(error).toHaveProperty(
+          'message',
+          'New password and existing password cannot be the same.'
+        )
+      }
+    })
+
+    it(`should hash the password before updating.`, async () => {
+      const user = sampleUser()
+      user.googleId = undefined // mock user not to be social
+      jest
+        .spyOn(bcrypt, 'compare')
+        .mockImplementationOnce(() => true) // currentPassword === existingPassword
+        .mockImplementationOnce(() => false) // newPassword !== existingPassword
+
+      const repositorySpy = jest.spyOn(usersRepo, 'updatePassword')
+      await usersService.updatePassword(user, correctPasswords)
+
+      // Get the argument that updatePassword() was called with.
+      const hashedPassword = repositorySpy.mock.calls[0][1]
+      const newPassword = correctPasswords.newPassword
+      // Due to random salt, a different hash is generated every time even for the same input.
+      // So, we can only check for inequality.
+      expect(hashedPassword).not.toEqual(newPassword)
+    })
+
+    it(`should update the password when valid info is provided.`, async () => {
+      const user = sampleUser()
+      user.googleId = undefined // mock user not to be social
+      jest
+        .spyOn(bcrypt, 'compare')
+        .mockImplementationOnce(() => true) // currentPassword === existingPassword
+        .mockImplementationOnce(() => false) // newPassword !== existingPassword
+
+      await expect(
+        usersService.updatePassword(user, correctPasswords)
+      ).resolves.not.toThrowError()
+      expect(usersRepo.updatePassword).toBeCalled()
+    })
+  })
 })
 
 /**
@@ -285,6 +385,7 @@ function usersRepositoryMock() {
       createGoogleUser: jest.fn().mockResolvedValue(sampleUser()),
       updateEmail: jest.fn(),
       updateUsername: jest.fn().mockResolvedValue({}),
+      updatePassword: jest.fn().mockResolvedValue({}),
       update: jest.fn()
     }
   }
