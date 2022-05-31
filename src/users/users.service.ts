@@ -22,10 +22,10 @@ export class UsersService {
   ) {}
 
   async signUp(userInfo: SignUpDto) {
-    // TODO: use destructuring to extract userinfo variables
-    this.throwIfPasswordsNotEqual(userInfo.password, userInfo.confirmPassword)
-    await this.throwIfUsernameExists(userInfo.username)
-    await this.throwIfEmailExists(userInfo.email)
+    const { password, confirmPassword, username, email } = userInfo
+    this.throwIfPasswordsNotEqual(password, confirmPassword)
+    await this.throwIfUsernameExists(username)
+    await this.throwIfEmailExists(email)
     // TODO: Break this statement into two: hash() and createUser()
     const hashedUser = await this.hashThePassword(userInfo)
     const newUser = await this.saveToDb(hashedUser)
