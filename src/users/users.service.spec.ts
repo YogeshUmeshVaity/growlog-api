@@ -60,10 +60,7 @@ describe('UsersService', () => {
         await usersService.signUp(userWithConfirmPasswordNoMatch)
       } catch (error) {
         expect(error).toBeInstanceOf(BadRequestException)
-        expect(error).toHaveProperty(
-          'message',
-          'Confirm Password must match with Password.'
-        )
+        expect(error).toHaveProperty('message', 'Confirm Password must match.')
       }
     })
 
