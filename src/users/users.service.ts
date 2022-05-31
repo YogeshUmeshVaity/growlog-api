@@ -26,8 +26,8 @@ export class UsersService {
     this.throwIfPasswordsNotEqual(password, confirmPassword)
     await this.throwIfUsernameExists(username)
     await this.throwIfEmailExists(email)
-    // TODO: Break this statement into two: hash() and createUser()
-    const hashedUser = await this.hashThePassword(userInfo)
+    const hashedPassword = await this.hash(password)
+    const hashedUser = await this.createHashedUser(userInfo, hashedPassword)
     const newUser = await this.saveToDb(hashedUser)
     return await this.authService.logIn(newUser)
   }
@@ -98,7 +98,7 @@ export class UsersService {
     this.throwIfPasswordsNotEqual(newPassword, confirmPassword)
     await this.throwIfPasswordNoMatch(user, currentPassword)
     await this.throwIfNewPasswordIsSame(user, newPassword)
-    const hashedPassword = await this.hashPassword(newPassword)
+    const hashedPassword = await this.hash(newPassword)
     await this.usersRepo.updatePassword(user.id, hashedPassword)
   }
 
@@ -167,8 +167,7 @@ export class UsersService {
     return await this.usersRepo.createLocalUser(userInfo)
   }
 
-  private async hashThePassword(userInfo: SignUpDto) {
-    const hashedPassword = await this.hashPassword(userInfo.password)
+  private async createHashedUser(userInfo: SignUpDto, hashedPassword: string) {
     const hashedUser: SignUpDto = {
       ...userInfo,
       password: hashedPassword
@@ -176,7 +175,7 @@ export class UsersService {
     return hashedUser
   }
 
-  private async hashPassword(password: string) {
+  private async hash(password: string) {
     const salt = await bcrypt.genSalt()
     const hashedPassword = await bcrypt.hash(password, salt)
     return hashedPassword
