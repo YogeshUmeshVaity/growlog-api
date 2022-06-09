@@ -19,6 +19,7 @@ import { UserDto } from './dtos/user.dto'
 import { User } from './user.entity'
 import { UsersService } from './users.service'
 
+// TODO: Move auth related routes to auth.controller
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
