@@ -11,7 +11,7 @@ export function extractTokenFrom(request: Request) {
   const authorizationArray = request.headers.authorization?.split(' ')
   throwIfNoAuthHeader(authorizationArray)
 
-  const tokenPrefix = authorizationArray[0]
+  const tokenPrefix = authorizationArray[0] // these lines cannot be moved up, order is important
   const token = authorizationArray[1]
 
   throwIfNoBearerPrefix(tokenPrefix)
