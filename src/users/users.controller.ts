@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  NotImplementedException,
+  Param,
   Post,
   Put,
   Req,
@@ -79,4 +81,22 @@ export class UsersController {
   ) {
     return this.usersService.updatePassword(user, passwordDto)
   }
+
+  // @Post('recover-password')
+  // recoverPassword(@Body() email: RecoverPasswordDto) {
+  //   throw new NotImplementedException()
+  // }
+
+  // @Get(':recoveryCode')
+  // validateRecoveryLink(@Param() recoveryCode: string) {
+  //   throw new NotImplementedException()
+  // }
+
+  // @Post('change-password')
+  // changePassword(
+  //   @Param() recoveryCode: string,
+  //   @Body() passwords: UpdatePasswordDto
+  // ) {
+  //   throw new NotImplementedException()
+  // }
 }
