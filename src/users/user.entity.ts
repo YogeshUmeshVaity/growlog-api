@@ -2,13 +2,16 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  JoinColumn,
+  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn
 } from 'typeorm'
 import { v4 as uuid } from 'uuid'
+import { PasswordRecovery } from './password-recovery.entity'
 
 /**
- * Represents a currently logged in user in the app.
+ * Represents the currently logged in user in the app.
  */
 @Entity({ name: 'users' })
 export class User {
@@ -76,6 +79,20 @@ export class User {
    */
   @UpdateDateColumn()
   updatedAt: Date
+
+  /**
+   * Represents the recovery code used for resetting the password.
+   *
+   * The 'cascade: true' is a typeorm feature and not a database feature unlike onDelete. It allows
+   * us to save the entity along with its related entity in just one save() call.
+   */
+  @OneToOne(
+    () => PasswordRecovery,
+    (passwordRecovery) => passwordRecovery.user,
+    { cascade: true }
+  )
+  @JoinColumn()
+  passwordRecovery?: PasswordRecovery
 
   /**
    * Generates a new tokenInvalidator. This logs the user out of all devices as tokens signed with

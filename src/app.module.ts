@@ -7,6 +7,7 @@ import { User } from './users/user.entity'
 import { UsersModule } from './users/users.module'
 import { AuthModule } from './auth/auth.module'
 import { APP_PIPE } from '@nestjs/core'
+import { PasswordRecovery } from './users/password-recovery.entity'
 
 /**
  * The forRoot() method registers the ConfigService provider. During this step, environment variable
@@ -45,7 +46,7 @@ const typeOrmModule = TypeOrmModule.forRootAsync({
       username: config.get<string>('POSTGRES_USER_NAME'),
       password: config.get<string>('POSTGRES_PASSWORD'),
       synchronize: true,
-      entities: [User]
+      entities: [User, PasswordRecovery]
     }
   }
 })
