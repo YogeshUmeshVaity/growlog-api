@@ -87,7 +87,7 @@ export function UsernameValidations() {
   )
 }
 
-function EmailValidations() {
+export function EmailValidations() {
   return applyDecorators(
     IsEmail({}, { message: 'Please enter a valid email address.' }),
 
