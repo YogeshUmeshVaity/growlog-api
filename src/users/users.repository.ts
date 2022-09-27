@@ -19,6 +19,13 @@ export class UsersRepository extends AbstractRepository<User> {
     return await this.repository.findOne({ email })
   }
 
+  async findByEmailWithRecovery(email: string): Promise<User> {
+    return await this.repository.findOne({
+      where: { email: email },
+      relations: ['passwordRecovery']
+    })
+  }
+
   async findByName(username: string): Promise<User> {
     return await this.repository.findOne({ username })
   }
