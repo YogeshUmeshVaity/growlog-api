@@ -18,6 +18,10 @@ import {
   wrongConfirmPassword,
   wrongCurrentPassword
 } from '../../test/users/fixtures/update-password.fixtures'
+import { PasswordRecoveryRepository } from './password-recovery.repository'
+import { PasswordRecovery } from './password-recovery.entity'
+import { EmailService } from './email.service'
+import { configServiceMock } from '../../test/common-mocks/config-service.mock'
 
 describe('UsersService', () => {
   let usersService: UsersService
@@ -30,7 +34,10 @@ describe('UsersService', () => {
         UsersService,
         usersRepositoryMock(),
         authServiceMock(),
-        googleAuthServiceMock()
+        googleAuthServiceMock(),
+        passwordRecoveryRepositoryMock(),
+        emailServiceMock(),
+        configServiceMock()
       ]
     }).compile()
 
@@ -400,6 +407,25 @@ function googleAuthServiceMock() {
         name: sampleUser().username,
         email: sampleUser().email
       })
+    }
+  }
+}
+
+function passwordRecoveryRepositoryMock() {
+  return {
+    provide: PasswordRecoveryRepository,
+    useValue: {
+      delete: jest.fn().mockResolvedValue({}),
+      create: jest.fn().mockResolvedValue(new PasswordRecovery())
+    }
+  }
+}
+
+function emailServiceMock() {
+  return {
+    provide: EmailService,
+    useValue: {
+      sendEmail: jest.fn().mockResolvedValue({})
     }
   }
 }
