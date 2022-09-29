@@ -2,6 +2,7 @@ import { createConnection, getConnection } from 'typeorm'
 import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import { userWithCorrectInfo as testUser } from '../../test/users/fixtures/sign-up.fixtures'
 import { correctPasswords } from '../../test/users/fixtures/update-password.fixtures'
+import { PasswordRecovery } from './password-recovery.entity'
 import { User } from './user.entity'
 import { UsersRepository } from './users.repository'
 
@@ -15,7 +16,7 @@ describe('UsersRepository', () => {
       type: 'sqlite',
       database: ':memory:',
       dropSchema: true,
-      entities: [User],
+      entities: [User, PasswordRecovery],
       synchronize: true,
       logging: false,
       name: testConnection
