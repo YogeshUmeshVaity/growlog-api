@@ -1,6 +1,7 @@
 import { INestApplication } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as request from 'supertest'
+import { DataSource } from 'typeorm'
 import { validate as isUuid } from 'uuid'
 import { AppModule } from '../../src/app.module'
 import {
@@ -37,14 +38,17 @@ import {
 
 describe(`UsersModule`, () => {
   let app: INestApplication
+  let dataSource: DataSource
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+    const testingModule: TestingModule = await Test.createTestingModule({
       imports: [AppModule]
     }).compile()
 
-    app = moduleFixture.createNestApplication()
+    app = testingModule.createNestApplication()
     await app.init()
+    // We can get any dependency this way, because we have specified it in AppModule.
+    dataSource = testingModule.get<DataSource>(DataSource)
   })
 
   afterAll(async () => {
@@ -52,7 +56,7 @@ describe(`UsersModule`, () => {
   })
 
   beforeEach(async () => {
-    await clearDb()
+    await clearDb(dataSource)
   })
 
   describe(`sign-up`, () => {
@@ -156,7 +160,7 @@ describe(`UsersModule`, () => {
     })
 
     it(`should throw when username already exists.`, async () => {
-      await clearDb()
+      await clearDb(dataSource)
       await request(app.getHttpServer())
         .post('/users/sign-up')
         .send(userWithCorrectInfo)
@@ -169,7 +173,7 @@ describe(`UsersModule`, () => {
     })
 
     it(`should throw when email already exists.`, async () => {
-      await clearDb()
+      await clearDb(dataSource)
       await request(app.getHttpServer())
         .post('/users/sign-up')
         .send(userWithCorrectInfo)

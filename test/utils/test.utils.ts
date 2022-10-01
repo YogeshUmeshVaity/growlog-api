@@ -1,19 +1,20 @@
-import { getConnection } from 'typeorm'
-import { Response } from 'supertest'
-import { ValidationError } from 'class-validator'
 import { ROUTE_ARGS_METADATA } from '@nestjs/common/constants'
+import { ValidationError } from 'class-validator'
+import { Response } from 'supertest'
+import { DataSource } from 'typeorm'
 
 /**
  * Clears the database by synchronizing.
  * More ideas: https://github.com/nestjs/nest/issues/409#issue-295989413
  */
-export const clearDb = async () => {
+
+export const clearDb = async (dataSource: DataSource) => {
   if (process.env.NODE_ENV !== 'test') {
     throw new Error('This function can only be used in tests.')
   }
-  // Here the true is for `dropBeforeSync`
+  // Here the true is for `dropBeforeSync` which is what causes the db to be wiped
   try {
-    await getConnection().synchronize(true)
+    await dataSource.synchronize(true)
   } catch (err) {
     throw new Error('Unable to clear the database.')
   }
