@@ -1,22 +1,32 @@
-import { Logger } from '@nestjs/common'
-import { AbstractRepository, EntityRepository } from 'typeorm'
+import { Injectable, Logger } from '@nestjs/common'
+import { DataSource, Repository } from 'typeorm'
 import { SignUpDto } from './dtos/signup-user.dto'
 import { User } from './user.entity'
 
-@EntityRepository(User)
-export class UsersRepository extends AbstractRepository<User> {
+/**
+ * Performs queries on database for the User entity.
+ */
+@Injectable()
+// We avoid extending from Repository<User>, because we want to avoid all the unnecessary methods
+// that come from the Repository<User>. We prefer composition over inheritance.
+export class UsersRepository {
   private readonly logger = new Logger(UsersRepository.name)
+  private readonly repository: Repository<User>
+
+  constructor(private readonly dataSource: DataSource) {
+    this.repository = dataSource.getRepository(User)
+  }
 
   async findById(userId: string): Promise<User> {
-    return await this.repository.findOne(userId)
+    return await this.repository.findOne({ where: { id: userId } })
   }
 
   async findByGoogleId(googleId: string): Promise<User> {
-    return await this.repository.findOne({ googleId })
+    return await this.repository.findOne({ where: { googleId } })
   }
 
   async findByEmail(email: string): Promise<User> {
-    return await this.repository.findOne({ email })
+    return await this.repository.findOne({ where: { email } })
   }
 
   async findByEmailWithRecovery(email: string): Promise<User> {
@@ -27,7 +37,7 @@ export class UsersRepository extends AbstractRepository<User> {
   }
 
   async findByName(username: string): Promise<User> {
-    return await this.repository.findOne({ username })
+    return await this.repository.findOne({ where: { username } })
   }
 
   async updateEmail(userId: string, newEmail: string) {

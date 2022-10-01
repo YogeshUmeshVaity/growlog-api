@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common'
-import { TypeOrmModule } from '@nestjs/typeorm'
 import { AuthModule } from '../auth/auth.module'
 import { AuthService } from '../auth/auth.service'
 import { GoogleAuthService } from '../auth/google-auth.service'
@@ -10,11 +9,15 @@ import { UsersRepository } from './users.repository'
 import { UsersService } from './users.service'
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([UsersRepository, PasswordRecoveryRepository]),
-    AuthModule
-  ],
+  imports: [AuthModule],
   controllers: [UsersController],
-  providers: [UsersService, AuthService, GoogleAuthService, EmailService]
+  providers: [
+    UsersService,
+    AuthService,
+    GoogleAuthService,
+    EmailService,
+    UsersRepository,
+    PasswordRecoveryRepository
+  ]
 })
 export class UsersModule {}
