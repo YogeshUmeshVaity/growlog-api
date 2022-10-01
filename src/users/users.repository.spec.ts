@@ -1,32 +1,22 @@
-import { createConnection, getConnection } from 'typeorm'
+import { DataSource } from 'typeorm'
 import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import { userWithCorrectInfo as testUser } from '../../test/users/fixtures/sign-up.fixtures'
 import { correctPasswords } from '../../test/users/fixtures/update-password.fixtures'
-import { PasswordRecovery } from './password-recovery.entity'
-import { User } from './user.entity'
+import { createInMemoryDataSource } from '../../test/utils/in-memory-database'
 import { UsersRepository } from './users.repository'
-
-const testConnection = 'testConnection'
 
 describe('UsersRepository', () => {
   let usersRepository: UsersRepository
+  let dataSource: DataSource
 
   beforeEach(async () => {
-    const connection = await createConnection({
-      type: 'sqlite',
-      database: ':memory:',
-      dropSchema: true,
-      entities: [User, PasswordRecovery],
-      synchronize: true,
-      logging: false,
-      name: testConnection
-    })
-
-    usersRepository = connection.getCustomRepository(UsersRepository)
+    dataSource = createInMemoryDataSource()
+    await dataSource.initialize()
+    usersRepository = new UsersRepository(dataSource)
   })
 
   afterEach(async () => {
-    await getConnection(testConnection).close()
+    await dataSource.destroy()
   })
 
   it('should be defined.', () => {
@@ -42,7 +32,7 @@ describe('UsersRepository', () => {
 
     it(`should return undefined when the user doesn't exist in database.`, async () => {
       const fetchedUser = await usersRepository.findById('Some-Non-Existent-Id')
-      expect(fetchedUser).toBeUndefined()
+      expect(fetchedUser).toBeNull()
     })
   })
 
@@ -63,7 +53,7 @@ describe('UsersRepository', () => {
       const fetchedUser = await usersRepository.findByGoogleId(
         sampleUser().googleId
       )
-      expect(fetchedUser).toBeUndefined()
+      expect(fetchedUser).toBeNull()
     })
   })
 
@@ -76,7 +66,7 @@ describe('UsersRepository', () => {
 
     it(`should return undefined when the user doesn't exist in database.`, async () => {
       const fetchedUser = await usersRepository.findByEmail(testUser.email)
-      expect(fetchedUser).toBeUndefined()
+      expect(fetchedUser).toBeNull()
     })
   })
 
@@ -89,7 +79,7 @@ describe('UsersRepository', () => {
 
     it(`should return undefined when the user doesn't exist in database.`, async () => {
       const fetchedUser = await usersRepository.findByName(testUser.username)
-      expect(fetchedUser).toBeUndefined()
+      expect(fetchedUser).toBeNull()
     })
   })
 
