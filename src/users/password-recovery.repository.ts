@@ -18,6 +18,6 @@ export class PasswordRecoveryRepository {
   }
 
   async delete(recovery: PasswordRecovery) {
-    await this.repository.remove(recovery)
+    return await this.repository.remove(recovery)
   }
 }
