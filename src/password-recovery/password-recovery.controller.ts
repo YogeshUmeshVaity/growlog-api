@@ -1,14 +1,16 @@
 import { Body, Controller, Post } from '@nestjs/common'
 import { RecoverPasswordDto } from './dtos/recover-password.dto'
-import { RecoveryService } from './recovery.service'
+import { PasswordRecoveryService } from './password-recovery.service'
 
 @Controller('recovery')
 export class RecoveryController {
-  constructor(private readonly recoveryService: RecoveryService) {}
+  constructor(
+    private readonly passwordRecoveryService: PasswordRecoveryService
+  ) {}
 
   @Post('recover-password')
   recoverPassword(@Body() recoverDto: RecoverPasswordDto) {
-    return this.recoveryService.recoverPassword(recoverDto.email)
+    return this.passwordRecoveryService.recover(recoverDto.email)
   }
 
   // @Get(':recoveryCode')

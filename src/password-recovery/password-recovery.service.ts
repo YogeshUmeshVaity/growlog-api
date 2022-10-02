@@ -9,8 +9,8 @@ import { PasswordRecoveryRepository } from './password-recovery.repository'
 import * as crypto from 'crypto'
 
 @Injectable()
-export class RecoveryService {
-  private readonly logger = new Logger(RecoveryService.name)
+export class PasswordRecoveryService {
+  private readonly logger = new Logger(PasswordRecoveryService.name)
   constructor(
     private readonly usersRepo: UsersRepository,
     private readonly passwordRecoveryRepo: PasswordRecoveryRepository,
@@ -18,7 +18,7 @@ export class RecoveryService {
     private readonly configService: ConfigService
   ) {}
 
-  async recoverPassword(email: string) {
+  async recover(email: string) {
     const user = await this.usersRepo.findByEmailWithRecovery(email)
     this.logger.debug('User for recovering password: ', JSON.stringify(user))
     this.throwIfNoUserByEmail(user)

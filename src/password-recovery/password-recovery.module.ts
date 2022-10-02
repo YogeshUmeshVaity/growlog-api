@@ -5,13 +5,13 @@ import { UsersModule } from '../users/users.module'
 import { UsersRepository } from '../users/users.repository'
 import { RecoveryController } from './password-recovery.controller'
 import { PasswordRecoveryRepository } from './password-recovery.repository'
-import { RecoveryService } from './recovery.service'
+import { PasswordRecoveryService } from './password-recovery.service'
 
 @Module({
   imports: [UsersModule, EmailServiceModule],
   controllers: [RecoveryController],
   providers: [
-    RecoveryService,
+    PasswordRecoveryService,
     PasswordRecoveryRepository,
     UsersRepository,
     EmailService
