@@ -142,7 +142,8 @@ export class UsersService {
 
   private async deleteExistingRecovery(user: User) {
     if (user.passwordRecovery) {
-      // copy the recovery to delete and set it to null
+      // need to set the foreign key to null otherwise we'll get the foreign key constrain error
+      // so, copy the recovery to delete and set it to null
       const recoveryToDelete = user.passwordRecovery
       user.passwordRecovery = null
       await this.usersRepo.update(user)
