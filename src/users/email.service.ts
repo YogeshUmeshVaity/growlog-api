@@ -12,6 +12,7 @@ export class EmailService {
       this.configService.get<string>('POSTMARK_SERVER_TOKEN')
     )
   }
+
   async sendEmail(message: EmailMessage) {
     await this.emailClient.sendEmail({
       From: message.fromEmail,
