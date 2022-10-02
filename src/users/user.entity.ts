@@ -8,7 +8,7 @@ import {
   UpdateDateColumn
 } from 'typeorm'
 import { v4 as uuid } from 'uuid'
-import { PasswordRecovery } from './password-recovery.entity'
+import { PasswordRecovery } from '../password-recovery/password-recovery.entity'
 
 /**
  * Represents the currently logged in user in the app.

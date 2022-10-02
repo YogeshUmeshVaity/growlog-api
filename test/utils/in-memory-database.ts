@@ -1,5 +1,5 @@
 import { DataSource } from 'typeorm'
-import { PasswordRecovery } from '../../src/users/password-recovery.entity'
+import { PasswordRecovery } from '../../src/password-recovery/password-recovery.entity'
 import { User } from '../../src/users/user.entity'
 
 const testConnection = 'testConnection'

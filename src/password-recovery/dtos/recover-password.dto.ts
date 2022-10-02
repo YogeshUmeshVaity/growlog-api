@@ -1,4 +1,4 @@
-import { EmailValidations } from './signup-user.dto'
+import { EmailValidations } from '../../users/dtos/signup-user.dto'
 
 export class RecoverPasswordDto {
   @EmailValidations()

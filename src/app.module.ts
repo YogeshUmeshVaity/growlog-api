@@ -7,7 +7,9 @@ import { User } from './users/user.entity'
 import { UsersModule } from './users/users.module'
 import { AuthModule } from './auth/auth.module'
 import { APP_PIPE } from '@nestjs/core'
-import { PasswordRecovery } from './users/password-recovery.entity'
+import { PasswordRecovery } from './password-recovery/password-recovery.entity'
+import { PasswordRecoveryModule } from './password-recovery/password-recovery.module'
+import { EmailServiceModule } from './email-service/email-service.module'
 
 /**
  * The forRoot() method registers the ConfigService provider. During this step, environment variable
@@ -64,7 +66,14 @@ const globalValidationPipe = {
 }
 
 @Module({
-  imports: [globalConfigModule, typeOrmModule, UsersModule, AuthModule],
+  imports: [
+    globalConfigModule,
+    typeOrmModule,
+    UsersModule,
+    AuthModule,
+    PasswordRecoveryModule,
+    EmailServiceModule
+  ],
   controllers: [AppController],
   providers: [AppService, globalValidationPipe]
 })

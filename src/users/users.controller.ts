@@ -13,7 +13,6 @@ import { Serialize } from '../utils/interceptors/serializer.interceptor'
 import { extractTokenFrom } from '../utils/token-extractor'
 import { CurrentUser } from './decorators/current-user.decorator'
 import { LoginDto } from './dtos/login.dto'
-import { RecoverPasswordDto } from './dtos/recover-password.dto'
 import { SignUpDto } from './dtos/signup-user.dto'
 import { UpdatePasswordDto } from './dtos/update-password.dto'
 import { UserDto } from './dtos/user.dto'
@@ -80,22 +79,4 @@ export class UsersController {
   ) {
     return this.usersService.updatePassword(user, passwordDto)
   }
-
-  @Post('recover-password')
-  recoverPassword(@Body() recoverDto: RecoverPasswordDto) {
-    return this.usersService.recoverPassword(recoverDto.email)
-  }
-
-  // @Get(':recoveryCode')
-  // validateRecoveryLink(@Param() recoveryCode: string) {
-  //   throw new NotImplementedException()
-  // }
-
-  // @Post('change-password')
-  // changePassword(
-  //   @Param() recoveryCode: string,
-  //   @Body() passwords: UpdatePasswordDto
-  // ) {
-  //   throw new NotImplementedException()
-  // }
 }

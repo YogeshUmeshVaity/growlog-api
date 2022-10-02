@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common'
 import { DataSource, Repository } from 'typeorm'
 import { PasswordRecovery } from './password-recovery.entity'
-import { User } from './user.entity'
+import { User } from '../users/user.entity'
 
 @Injectable()
 export class PasswordRecoveryRepository {

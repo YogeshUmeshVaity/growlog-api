@@ -18,9 +18,9 @@ import {
   wrongConfirmPassword,
   wrongCurrentPassword
 } from '../../test/users/fixtures/update-password.fixtures'
-import { PasswordRecoveryRepository } from './password-recovery.repository'
-import { PasswordRecovery } from './password-recovery.entity'
-import { EmailService } from './email.service'
+import { PasswordRecoveryRepository } from '../password-recovery/password-recovery.repository'
+import { PasswordRecovery } from '../password-recovery/password-recovery.entity'
+import { EmailService } from '../email-service/email.service'
 import { configServiceMock } from '../../test/common-mocks/config-service.mock'
 
 describe('UsersService', () => {

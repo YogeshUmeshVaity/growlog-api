@@ -1,5 +1,5 @@
 import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
-import { User } from './user.entity'
+import { User } from '../users/user.entity'
 
 /**
  * Represents the recovery code used for resetting the password.

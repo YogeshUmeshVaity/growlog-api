@@ -2,7 +2,6 @@ import {
   BadRequestException,
   Injectable,
   Logger,
-  NotFoundException,
   UnauthorizedException
 } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
@@ -12,12 +11,6 @@ import { SignUpDto } from './dtos/signup-user.dto'
 import { UpdatePasswordDto } from './dtos/update-password.dto'
 import { User } from './user.entity'
 import { UsersRepository } from './users.repository'
-import { PasswordRecovery } from './password-recovery.entity'
-import { ConfigService } from '@nestjs/config'
-import { EmailMessage } from './dtos/email-message.dto'
-import { EmailService } from './email.service'
-import { PasswordRecoveryRepository } from './password-recovery.repository'
-import * as crypto from 'crypto'
 
 @Injectable()
 export class UsersService {
@@ -25,10 +18,7 @@ export class UsersService {
   constructor(
     private readonly usersRepo: UsersRepository,
     private readonly authService: AuthService,
-    private readonly googleAuthService: GoogleAuthService,
-    private readonly passwordRecoveryRepo: PasswordRecoveryRepository,
-    private readonly emailService: EmailService,
-    private readonly configService: ConfigService
+    private readonly googleAuthService: GoogleAuthService
   ) {}
 
   async signUp(userInfo: SignUpDto) {
@@ -108,65 +98,6 @@ export class UsersService {
     await this.throwIfNewPasswordIsSame(user, newPassword)
     const hashedPassword = await this.hash(newPassword)
     await this.usersRepo.updatePassword(user.id, hashedPassword)
-  }
-
-  async recoverPassword(email: string) {
-    const user = await this.usersRepo.findByEmailWithRecovery(email)
-    this.logger.debug('User for recovering password: ', JSON.stringify(user))
-    this.throwIfNoUserByEmail(user)
-    const passwordRecovery = await this.createPasswordRecovery(user)
-    const recoveryMessage = this.prepareRecoveryMessage(passwordRecovery, email)
-    // must set email provider settings in env variables for this to work.
-    await this.emailService.sendEmail(recoveryMessage)
-    return 'A password reset link has been sent to your email.'
-  }
-
-  private prepareRecoveryMessage(
-    passwordRecovery: PasswordRecovery,
-    toEmail: string
-  ) {
-    const baseUrl = this.configService.get<string>('BASE_URL')
-    const companyName = this.configService.get<string>('COMPANY_NAME')
-    const passwordResetLink = `${baseUrl}/recover-password/${passwordRecovery.code}`
-    const fromEmail = this.configService.get<string>('FROM_EMAIL')
-    const subject = `Password reset at ${companyName}`
-    const body = passwordResetLink
-    const emailMessage: EmailMessage = { fromEmail, toEmail, subject, body }
-    return emailMessage
-  }
-
-  private async createPasswordRecovery(user: User) {
-    await this.deleteExistingRecovery(user)
-    return this.createNewRecovery(user)
-  }
-
-  private async deleteExistingRecovery(user: User) {
-    if (user.passwordRecovery) {
-      // need to set the foreign key to null otherwise we'll get the foreign key constrain error
-      // so, copy the recovery to delete and set it to null
-      const recoveryToDelete = user.passwordRecovery
-      user.passwordRecovery = null
-      await this.usersRepo.update(user)
-      await this.passwordRecoveryRepo.delete(recoveryToDelete)
-    }
-  }
-
-  private async createNewRecovery(user: User) {
-    // could be made async
-    const code = crypto.randomBytes(48).toString('base64')
-    const expiration = this.prepareExpiryDate()
-    return await this.passwordRecoveryRepo.create(code, user, expiration)
-  }
-
-  private prepareExpiryDate() {
-    const expiryPeriod = this.configService.get<number>('RECOVERY_CODE_EXPIRY')
-    return new Date(Date.now() + expiryPeriod * 1000)
-  }
-
-  private throwIfNoUserByEmail(user: User) {
-    if (!user) {
-      throw new NotFoundException(`There's no user by this email`)
-    }
   }
 
   private throwIfSocialUser(user: User) {

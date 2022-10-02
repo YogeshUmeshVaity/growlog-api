@@ -5,6 +5,6 @@ import { AuthService } from './auth.service'
 @Module({
   imports: [JwtModule.register(null) /**, UsersModule  */],
   providers: [AuthService /**, JwtAuthGuard, UsersService */],
-  exports: [JwtModule]
+  exports: [JwtModule, AuthService]
 })
 export class AuthModule {}
