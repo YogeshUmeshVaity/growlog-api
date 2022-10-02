@@ -116,7 +116,7 @@ export class UsersService {
     this.throwIfNoUserByEmail(user)
     const passwordRecovery = await this.createPasswordRecovery(user)
     const recoveryMessage = this.prepareRecoveryMessage(passwordRecovery, email)
-    // TODO: must set email provider settings in env variables for this to work.
+    // must set email provider settings in env variables for this to work.
     await this.emailService.sendEmail(recoveryMessage)
     return 'A password reset link has been sent to your email.'
   }
