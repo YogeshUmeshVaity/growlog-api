@@ -73,7 +73,7 @@ export class PasswordRecoveryService {
 
   private throwIfNoUserByEmail(user: User) {
     if (!user) {
-      throw new NotFoundException(`There's no user by this email`)
+      throw new NotFoundException(`There's no user by this email.`)
     }
   }
 }
