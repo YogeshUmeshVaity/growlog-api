@@ -26,7 +26,7 @@ describe('PasswordRecoveryRepository', () => {
     expect(passwordRecoveryRepository).toBeDefined()
   })
 
-  describe('createRecovery', () => {
+  describe('create', () => {
     it(`should create and save the password recovery in the database.`, async () => {
       const passwordRecovery = await passwordRecoveryRepository.create(
         recoveryCode,
@@ -37,7 +37,7 @@ describe('PasswordRecoveryRepository', () => {
     })
   })
 
-  describe('DeleteRecovery', () => {
+  describe('delete', () => {
     it(`should delete the password recovery in the database.`, async () => {
       const createdRecovery = await passwordRecoveryRepository.create(
         recoveryCode,
