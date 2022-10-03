@@ -268,7 +268,7 @@ describe('UsersService', () => {
     })
   })
 
-  describe(`update-password`, () => {
+  describe(`updatePassword`, () => {
     it(`should throw error when user is logged-in using third party.`, async () => {
       expect.assertions(2)
       const user = sampleUser()
