@@ -1,14 +1,13 @@
-import { EmailMessage } from '../users/dtos/email-message.dto'
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ServerClient } from 'postmark'
+import { EmailMessage } from '../users/dtos/email-message.dto'
 
 /**
  * Sends emails using the Postmark email provider.
  */
 @Injectable()
 export class EmailService {
-  private readonly logger = new Logger(EmailService.name)
   private emailClient: ServerClient
   constructor(private readonly configService: ConfigService) {
     this.emailClient = new ServerClient(
