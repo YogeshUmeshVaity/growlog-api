@@ -3,7 +3,7 @@ import { RecoverPasswordDto } from './dtos/recover-password.dto'
 import { PasswordRecoveryService } from './password-recovery.service'
 
 @Controller('recovery')
-export class RecoveryController {
+export class PasswordRecoveryController {
   constructor(
     private readonly passwordRecoveryService: PasswordRecoveryService
   ) {}
