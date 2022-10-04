@@ -1,18 +1,25 @@
 import { DataSource } from 'typeorm'
 import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
+import {
+  expiration,
+  recoveryCode
+} from '../../test/users/fixtures/recover-password.fixtures'
 import { userWithCorrectInfo as testUser } from '../../test/users/fixtures/sign-up.fixtures'
 import { correctPasswords } from '../../test/users/fixtures/update-password.fixtures'
 import { createInMemoryDataSource } from '../../test/utils/in-memory-database'
+import { PasswordRecoveryRepository } from '../password-recovery/password-recovery.repository'
 import { UsersRepository } from './users.repository'
 
 describe('UsersRepository', () => {
   let usersRepository: UsersRepository
+  let passwordRecoveryRepository: PasswordRecoveryRepository
   let dataSource: DataSource
 
   beforeEach(async () => {
     dataSource = createInMemoryDataSource()
     await dataSource.initialize()
     usersRepository = new UsersRepository(dataSource)
+    passwordRecoveryRepository = new PasswordRecoveryRepository(dataSource)
   })
 
   afterEach(async () => {
@@ -30,7 +37,7 @@ describe('UsersRepository', () => {
       expect(fetchedUser.id).toEqual(savedUser.id)
     })
 
-    it(`should return undefined when the user doesn't exist in database.`, async () => {
+    it(`should return null when the user doesn't exist in database.`, async () => {
       const fetchedUser = await usersRepository.findById('Some-Non-Existent-Id')
       expect(fetchedUser).toBeNull()
     })
@@ -49,7 +56,7 @@ describe('UsersRepository', () => {
       expect(fetchedUser.id).toEqual(googleUser.id)
     })
 
-    it(`should return undefined when the user doesn't exist in database.`, async () => {
+    it(`should return null when the user doesn't exist in database.`, async () => {
       const fetchedUser = await usersRepository.findByGoogleId(
         sampleUser().googleId
       )
@@ -64,8 +71,32 @@ describe('UsersRepository', () => {
       expect(fetchedUser.email).toEqual(testUser.email)
     })
 
-    it(`should return undefined when the user doesn't exist in database.`, async () => {
+    it(`should return null when the user doesn't exist in database.`, async () => {
       const fetchedUser = await usersRepository.findByEmail(testUser.email)
+      expect(fetchedUser).toBeNull()
+    })
+  })
+
+  describe('findByEmailWithRecovery', () => {
+    it(`should return the user with password recovery object.`, async () => {
+      const existingUser = await usersRepository.createLocalUser(testUser)
+      const inputRecovery = await passwordRecoveryRepository.create(
+        recoveryCode,
+        existingUser,
+        expiration
+      )
+      const userWithRecovery = await usersRepository.findByEmailWithRecovery(
+        testUser.email
+      )
+      expect(inputRecovery).toEqual(
+        expect.objectContaining(userWithRecovery.passwordRecovery)
+      )
+    })
+
+    it(`should return null when the user doesn't exist in database.`, async () => {
+      const fetchedUser = await usersRepository.findByEmailWithRecovery(
+        testUser.email
+      )
       expect(fetchedUser).toBeNull()
     })
   })
@@ -77,7 +108,7 @@ describe('UsersRepository', () => {
       expect(fetchedUser.username).toEqual(testUser.username)
     })
 
-    it(`should return undefined when the user doesn't exist in database.`, async () => {
+    it(`should return null when the user doesn't exist in database.`, async () => {
       const fetchedUser = await usersRepository.findByName(testUser.username)
       expect(fetchedUser).toBeNull()
     })
