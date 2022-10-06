@@ -70,7 +70,7 @@ describe('GoogleAuthService', () => {
 })
 
 /**
- * Mocks errors message from google. We need to import 'googleapis', because we cannot call
+ * Mocks an error from google. We need to import 'googleapis', because we cannot call
  * jest.mock() inside the it() function. The reason is that when we import GoogleAuthService at the
  * top and call jest.mock() in inside the it(), the real googleapis are used instead of mocks. The
  * behavior is the same whether we mock using jest.mock(), jest.doMock() or jest.setMock().
