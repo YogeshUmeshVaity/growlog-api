@@ -11,7 +11,7 @@ import { EmptyLogger } from '../../test/common-mocks/logger.mock'
  * The jest.mock() statement at this code level is hoisted even before the import statements.
  * If we write this inside the it(), the real googleapis will be used and not the mocks.
  * If we want to test for a different condition, for example, an error for the get function below,
- * we need to import real googleapis and mock that as shown at the end of this file.
+ * we need to import real googleapis and mock that as shown in the mockGoogleError() function below.
  */
 jest.mock('googleapis', () => {
   const actualGoogleApis = jest.requireActual('googleapis')
