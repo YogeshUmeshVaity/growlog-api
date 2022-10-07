@@ -70,12 +70,16 @@ describe('GoogleAuthService', () => {
 })
 
 /**
- * Mocks an error from google. We need to import from 'googleapis', because we cannot call
- * jest.mock() inside the it() function. The reason is that when we import GoogleAuthService at the
- * top and call jest.mock() in inside the it(), the real googleapis are used instead of mocks. The
- * behavior is the same whether we mock using jest.mock(), jest.doMock() or jest.setMock().
- * So to solve this, we use the pattern explained here in the GitHub issue:
- * https://github.com/facebook/jest/issues/2582#issuecomment-378677440
+ * Mocks an error from google. Here, we need to test for a different condition that is for an error
+ * as opposed to the normal behavior mocked in the jest.mock() above. For that, we need to import
+ * from 'googleapis', because we cannot call jest.mock() inside the it() function. The reason is
+ * that when we import GoogleAuthService at the top and call jest.mock() in inside the it(), the
+ * real googleapis are used instead of mocks. The behavior is the same whether we mock using
+ * jest.mock(), jest.doMock() or jest.setMock(). So to solve this, we use the pattern explained here
+ * in the GitHub issue: https://github.com/facebook/jest/issues/2582#issuecomment-378677440
+ *
+ * We need to use this pattern for all other various conditions that require different value to be
+ * return or different behavior than the one mocked in jest.mock().
  */
 function mockGoogleError() {
   google.oauth2 = jest.fn().mockReturnValue({
