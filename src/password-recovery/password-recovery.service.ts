@@ -23,13 +23,13 @@ export class PasswordRecoveryService {
     this.logger.debug('User for recovering password: ', JSON.stringify(user))
     this.throwIfNoUserByEmail(user)
     const passwordRecovery = await this.createPasswordRecovery(user)
-    const recoveryMessage = this.prepareRecoveryMessage(passwordRecovery, email)
+    const recoveryMessage = this.prepareEmailMessage(passwordRecovery, email)
     // must set email provider settings in env variables for this to work.
     await this.emailService.sendEmail(recoveryMessage)
     return 'A password reset link has been sent to your email.'
   }
 
-  private prepareRecoveryMessage(
+  private prepareEmailMessage(
     passwordRecovery: PasswordRecovery,
     toEmail: string
   ) {
