@@ -13,13 +13,14 @@ export class PasswordRecovery {
   id: string
 
   /**
-   * The code that is sent to user via email.
+   * The recovery code that is sent to user via email.
    */
-  @Column()
+  @Column({ unique: true })
   code: string
 
   /**
    * Date and time of the expiry of the code. The code is invalid if it exceeds the expiration.
+   * TODO: rename to expiryTime
    */
   @Column()
   expiration: Date
@@ -29,9 +30,12 @@ export class PasswordRecovery {
    *
    * 'onDelete' sets the userId foreign key to CASCADE. This means that when the User is deleted,
    * the PasswordRecovery is also deleted.
+   *
+   * 'eager' will make sure that the find operation always includes the user object.
    */
   @OneToOne(() => User, (user) => user.passwordRecovery, {
-    onDelete: 'CASCADE'
+    onDelete: 'CASCADE',
+    eager: true
   })
   user: User
 }
