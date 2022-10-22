@@ -23,7 +23,7 @@ export class UsersService {
 
   async signUp(userInfo: SignUpDto) {
     const { password, confirmPassword, username, email } = userInfo
-    this.throwIfPasswordsNotEqual(password, confirmPassword)
+    this.throwIfPasswordsMismatch(password, confirmPassword)
     await this.throwIfUsernameExists(username)
     await this.throwIfEmailExists(email)
     const hashedPassword = await this.hash(password)
@@ -35,7 +35,7 @@ export class UsersService {
   async login(username: string, password: string) {
     const user = await this.usersRepo.findByName(username)
     this.throwIfUserNotFound(user, username)
-    await this.throwIfPasswordNoMatch(user, password)
+    await this.throwIfIncorrectPassword(user, password)
     return this.authService.logIn(user)
   }
 
@@ -45,7 +45,7 @@ export class UsersService {
     }
   }
 
-  private async throwIfPasswordNoMatch(user: User, password: string) {
+  private async throwIfIncorrectPassword(user: User, password: string) {
     const isMatch = await bcrypt.compare(password, user.hashedPassword)
     if (!isMatch) {
       throw new UnauthorizedException('Incorrect password.')
@@ -93,8 +93,8 @@ export class UsersService {
   async updatePassword(user: User, passwordDto: UpdatePasswordDto) {
     const { newPassword, confirmPassword, currentPassword } = passwordDto
     this.throwIfSocialUser(user)
-    this.throwIfPasswordsNotEqual(newPassword, confirmPassword)
-    await this.throwIfPasswordNoMatch(user, currentPassword)
+    this.throwIfPasswordsMismatch(newPassword, confirmPassword)
+    await this.throwIfIncorrectPassword(user, currentPassword)
     await this.throwIfNewPasswordIsSame(user, newPassword)
     const hashedPassword = await this.hash(newPassword)
     await this.usersRepo.updatePassword(user.id, hashedPassword)
@@ -178,7 +178,7 @@ export class UsersService {
     return await bcrypt.hash(password, salt)
   }
 
-  private throwIfPasswordsNotEqual(password: string, confirmPassword: string) {
+  private throwIfPasswordsMismatch(password: string, confirmPassword: string) {
     if (password.trim() !== confirmPassword.trim()) {
       throw new BadRequestException('Confirm Password must match.')
     }
