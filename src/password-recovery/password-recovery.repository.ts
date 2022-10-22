@@ -12,12 +12,22 @@ export class PasswordRecoveryRepository {
     this.repository = dataSource.getRepository(PasswordRecovery)
   }
 
-  async create(code: string, user: User, expiration: Date) {
-    const passwordRecovery = this.repository.create({ code, expiration, user })
+  async create(code: string, user: User, expiryTime: Date) {
+    const passwordRecovery = this.repository.create({
+      code,
+      expiration: expiryTime,
+      user
+    })
     return await this.repository.save(passwordRecovery)
   }
 
   async delete(recovery: PasswordRecovery) {
     return await this.repository.remove(recovery)
+  }
+
+  async findByCode(code: string) {
+    return await this.repository.findOne({
+      where: { code: code }
+    })
   }
 }
