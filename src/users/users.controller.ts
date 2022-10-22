@@ -58,25 +58,25 @@ export class UsersController {
 
   @Put('update-username')
   @UseGuards(JwtAuthGuard)
-  updateUsername(
+  async updateUsername(
     @CurrentUser() user: User,
     @Body('username') username: string
   ) {
-    return this.usersService.updateUsername(user, username)
+    return await this.usersService.updateUsername(user, username)
   }
 
   @Put('update-email')
   @UseGuards(JwtAuthGuard)
-  updateEmail(@CurrentUser() user: User, @Body('email') email: string) {
-    return this.usersService.updateEmail(user, email)
+  async updateEmail(@CurrentUser() user: User, @Body('email') email: string) {
+    return await this.usersService.updateEmail(user, email)
   }
 
   @Put('update-password')
   @UseGuards(JwtAuthGuard)
-  updatePassword(
+  async updatePassword(
     @CurrentUser() user: User,
     @Body() passwordDto: UpdatePasswordDto
   ) {
-    return this.usersService.updatePassword(user, passwordDto)
+    return await this.usersService.updatePassword(user, passwordDto)
   }
 }
