@@ -1,23 +1,22 @@
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
-  Logger,
   NotFoundException
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
-import { EmailMessage } from '../users/dtos/email-message.dto'
-import { EmailService } from '../email-service/email.service'
-import { User } from '../users/user.entity'
-import { UsersRepository } from '../users/users.repository'
-import { PasswordRecovery } from './password-recovery.entity'
-import { PasswordRecoveryRepository } from './password-recovery.repository'
-import { ValidateCodeDto } from './dtos/validate-recovery-code.dto'
 import * as crypto from 'crypto'
 import { QueryFailedError } from 'typeorm'
+import { EmailService } from '../email-service/email.service'
+import { EmailMessage } from '../users/dtos/email-message.dto'
+import { User } from '../users/user.entity'
+import { UsersRepository } from '../users/users.repository'
+import { ValidateCodeDto } from './dtos/validate-recovery-code.dto'
+import { PasswordRecovery } from './password-recovery.entity'
+import { PasswordRecoveryRepository } from './password-recovery.repository'
 
 @Injectable()
 export class PasswordRecoveryService {
-  private readonly logger = new Logger(PasswordRecoveryService.name)
   constructor(
     private readonly usersRepo: UsersRepository,
     private readonly passwordRecoveryRepo: PasswordRecoveryRepository,
@@ -27,22 +26,20 @@ export class PasswordRecoveryService {
 
   async recover(email: string) {
     const user = await this.usersRepo.findByEmailWithRecovery(email)
-    this.logger.debug('User for recovering password: ', JSON.stringify(user))
     this.throwIfNoUserByEmail(user)
+    this.throwIfSocialUser(user)
     const passwordRecovery = await this.createPasswordRecovery(user)
     const recoveryMessage = this.prepareEmailMessage(
       user.username,
       passwordRecovery,
       email
     )
-    // must set email provider settings in env variables for this to work.
-    await this.emailService.sendEmail(recoveryMessage)
+    await this.emailService.sendEmail(recoveryMessage) // need email ENVs for this.
     return 'A password reset link has been sent to your email.'
   }
 
   async validateCode(validateCodeDto: ValidateCodeDto) {
     const { username, recoveryCode } = validateCodeDto
-    this.logger.debug(`recoveryCode: ${recoveryCode}`)
     const passwordRecovery = await this.passwordRecoveryRepo.findByCode(
       recoveryCode
     )
@@ -64,7 +61,6 @@ export class PasswordRecoveryService {
   private async throwAndDeleteIfCodeExpired(
     passwordRecovery: PasswordRecovery
   ) {
-    this.logger.debug('user for recovery: ', JSON.stringify(passwordRecovery))
     const expiryTime = passwordRecovery.expiration.getTime()
     const currentTime = Date.now()
     if (expiryTime < currentTime) {
@@ -158,10 +154,6 @@ export class PasswordRecoveryService {
     }
   }
 
-  private randomSixDigits() {
-    return Math.floor(100000 + Math.random() * 900000).toString()
-  }
-
   /**
    * 60000 milliseconds = 1 minute. So, we multiply the given minutes by 60000.
    */
@@ -178,5 +170,13 @@ export class PasswordRecoveryService {
     if (!user) {
       throw new NotFoundException(`There's no user by this email.`)
     }
+  }
+
+  private throwIfSocialUser(user: User) {
+    if (user.googleId) {
+      throw new BadRequestException(
+        `Your account was created using Google. Please login using Google.`
+      )
+    } // else if { } here, if you add support for more third party logins.
   }
 }
