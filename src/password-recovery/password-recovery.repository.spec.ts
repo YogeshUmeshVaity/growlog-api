@@ -5,17 +5,21 @@ import {
   recoveryCode
 } from '../../test/users/fixtures/recover-password.fixtures'
 import { createInMemoryDataSource } from '../../test/utils/in-memory-database'
+import { UsersRepository } from '../users/users.repository'
 import { PasswordRecovery } from './password-recovery.entity'
 import { PasswordRecoveryRepository } from './password-recovery.repository'
+import { userWithCorrectInfo as testUser } from '../../test/users/fixtures/sign-up.fixtures'
 
 describe('PasswordRecoveryRepository', () => {
   let passwordRecoveryRepository: PasswordRecoveryRepository
+  let usersRepository: UsersRepository
   let dataSource: DataSource
 
   beforeEach(async () => {
     dataSource = createInMemoryDataSource()
     await dataSource.initialize()
     passwordRecoveryRepository = new PasswordRecoveryRepository(dataSource)
+    usersRepository = new UsersRepository(dataSource)
   })
 
   afterEach(async () => {
@@ -48,6 +52,21 @@ describe('PasswordRecoveryRepository', () => {
         createdRecovery
       )
       expect(deletedRecovery).toEqual(createdRecovery)
+    })
+  })
+
+  describe('findByCode', () => {
+    it(`should find a password recovery by the given recovery code.`, async () => {
+      const createdUser = await usersRepository.createLocalUser(testUser)
+      const createdRecovery = await passwordRecoveryRepository.create(
+        recoveryCode,
+        createdUser,
+        expiration
+      )
+      const foundRecovery = await passwordRecoveryRepository.findByCode(
+        recoveryCode
+      )
+      expect(foundRecovery).toEqual(createdRecovery)
     })
   })
 })
