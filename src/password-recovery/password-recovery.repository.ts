@@ -1,12 +1,11 @@
-import { Injectable, Logger } from '@nestjs/common'
+import { Injectable } from '@nestjs/common'
 import { DataSource, Repository } from 'typeorm'
-import { PasswordRecovery } from './password-recovery.entity'
 import { User } from '../users/user.entity'
+import { PasswordRecovery } from './password-recovery.entity'
 
 @Injectable()
 export class PasswordRecoveryRepository {
   private readonly repository: Repository<PasswordRecovery>
-  private readonly logger = new Logger(PasswordRecoveryRepository.name)
 
   constructor(private readonly dataSource: DataSource) {
     this.repository = dataSource.getRepository(PasswordRecovery)
