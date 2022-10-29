@@ -1,11 +1,19 @@
-import { NotFoundException } from '@nestjs/common'
+import { BadRequestException, NotFoundException } from '@nestjs/common'
+import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
-import { configServiceMock } from '../../test/common-mocks/config-service.mock'
-import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
-import { userWithRecovery } from '../../test/users/fixtures/recover-password.fixtures'
+import {
+  validCode as validCode,
+  validRecovery,
+  codeWithInvalidUsername,
+  expiredRecovery
+} from '../../test/password-recovery/fixtures/validate-code.fixtures'
+import {
+  googleUserWithRecovery,
+  sampleRecoveryEmail as sampleEmail,
+  userWithRecovery
+} from '../../test/users/fixtures/recover-password.fixtures'
 import { userWithCorrectInfo } from '../../test/users/fixtures/sign-up.fixtures'
 import { EmailService } from '../email-service/email.service'
-import { PasswordRecovery } from '../password-recovery/password-recovery.entity'
 import { PasswordRecoveryRepository } from '../password-recovery/password-recovery.repository'
 import { UsersRepository } from '../users/users.repository'
 import { PasswordRecoveryService } from './password-recovery.service'
@@ -23,7 +31,7 @@ describe('PasswordRecoveryService', () => {
         usersRepositoryMock(),
         passwordRecoveryRepositoryMock(),
         emailServiceMock(),
-        configServiceMock()
+        ConfigService
       ]
     }).compile()
 
@@ -43,12 +51,12 @@ describe('PasswordRecoveryService', () => {
 
   describe(`recover`, () => {
     it(`should send a recovery email.`, async () => {
-      await passwordRecoveryService.recover(sampleUser().email)
+      await passwordRecoveryService.recover(sampleEmail)
       expect(emailService.sendEmail).toBeCalled()
     })
 
     it(`should notify the user that an email has been sent.`, async () => {
-      const response = await passwordRecoveryService.recover(sampleUser().email)
+      const response = await passwordRecoveryService.recover(sampleEmail)
       expect(response).toEqual(
         'A password reset link has been sent to your email.'
       )
@@ -60,7 +68,7 @@ describe('PasswordRecoveryService', () => {
         .mockResolvedValue(null)
       expect.assertions(2)
       try {
-        await passwordRecoveryService.recover(sampleUser().email)
+        await passwordRecoveryService.recover(sampleEmail)
       } catch (error) {
         expect(error).toBeInstanceOf(NotFoundException)
         expect(error).toHaveProperty(
@@ -70,12 +78,102 @@ describe('PasswordRecoveryService', () => {
       }
     })
 
+    it(`should throw when the user was logged in using their Google account.`, async () => {
+      // mock a Google user
+      usersRepository.findByEmailWithRecovery = jest
+        .fn()
+        .mockResolvedValue(googleUserWithRecovery())
+
+      expect.assertions(2)
+      try {
+        await passwordRecoveryService.recover(sampleEmail)
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException)
+        expect(error).toHaveProperty(
+          'message',
+          `You had previously logged in using Google. Please login using Google.`
+        )
+      }
+    })
+
     it(`should delete the previous recovery when it exists.`, async () => {
       usersRepository.findByEmailWithRecovery = jest
         .fn()
         .mockResolvedValue(userWithRecovery())
-      await passwordRecoveryService.recover(sampleUser().email)
+      await passwordRecoveryService.recover(sampleEmail)
       expect(passwordRecoveryRepository.delete).toBeCalled()
+    })
+  })
+
+  describe(`validateCode`, () => {
+    it(`should return the same username and recovery code when code is valid.`, async () => {
+      const validatedCode = await passwordRecoveryService.validateCode(
+        validCode
+      )
+      expect(validatedCode.username).toEqual(validCode.username)
+      expect(validatedCode.recoveryCode).toEqual(validCode.recoveryCode)
+    })
+
+    it(`should throw when the given recovery code is not found in database.`, async () => {
+      passwordRecoveryRepository.findByCode = jest.fn().mockResolvedValue(null) // code not found
+      expect.assertions(2)
+      try {
+        await passwordRecoveryService.validateCode(validCode)
+      } catch (error) {
+        expect(error).toBeInstanceOf(NotFoundException)
+        expect(error).toHaveProperty('message', `Code not found.`)
+      }
+    })
+
+    it(`should throw when the username doesn't match the one in the database.`, async () => {
+      expect.assertions(2)
+      try {
+        await passwordRecoveryService.validateCode(codeWithInvalidUsername)
+      } catch (error) {
+        expect(error).toBeInstanceOf(NotFoundException)
+        expect(error).toHaveProperty('message', `Code not found.`)
+      }
+    })
+
+    it(`should throw when the given recovery code is expired.`, async () => {
+      passwordRecoveryRepository.findByCode = jest
+        .fn()
+        .mockResolvedValue(expiredRecovery())
+
+      expect.assertions(2)
+      try {
+        await passwordRecoveryService.validateCode(validCode)
+      } catch (error) {
+        expect(error).toBeInstanceOf(NotFoundException)
+        expect(error).toHaveProperty(
+          'message',
+          `The recovery code has expired.`
+        )
+      }
+    })
+
+    it(`should delete the given recovery code when it is expired.`, async () => {
+      const expiredPasswordRecovery = expiredRecovery()
+      // must copy object, otherwise tokenInvalidator on the user object will be different
+      const userWithDeletedRecovery = { ...expiredPasswordRecovery.user }
+      // backup recovery object from user object before deleting
+      const recoveryToDelete = userWithDeletedRecovery.passwordRecovery
+      // now delete the recovery object from user object
+      userWithDeletedRecovery.passwordRecovery = null
+
+      passwordRecoveryRepository.findByCode = jest
+        .fn()
+        .mockResolvedValue(expiredPasswordRecovery)
+
+      expect.assertions(2)
+      try {
+        await passwordRecoveryService.validateCode(validCode)
+      } catch (error) {
+        expect(usersRepository.update).toBeCalledWith(userWithDeletedRecovery)
+        expect(passwordRecoveryRepository.delete).toBeCalledWith(
+          recoveryToDelete
+        )
+      }
     })
   })
 })
@@ -85,7 +183,8 @@ function passwordRecoveryRepositoryMock() {
     provide: PasswordRecoveryRepository,
     useValue: {
       delete: jest.fn().mockResolvedValue({}),
-      create: jest.fn().mockResolvedValue(new PasswordRecovery())
+      create: jest.fn().mockResolvedValue(validRecovery()),
+      findByCode: jest.fn().mockResolvedValue(validRecovery())
     }
   }
 }
@@ -104,12 +203,12 @@ function usersRepositoryMock() {
     provide: UsersRepository,
     useValue: {
       findByEmail: jest.fn().mockResolvedValue(undefined),
-      findByEmailWithRecovery: jest.fn().mockResolvedValue(sampleUser),
+      findByEmailWithRecovery: jest.fn().mockResolvedValue(userWithRecovery()),
       findByName: jest.fn().mockResolvedValue(undefined),
-      findById: jest.fn().mockResolvedValue(sampleUser()),
-      findByGoogleId: jest.fn().mockResolvedValue(sampleUser()),
+      findById: jest.fn().mockResolvedValue(userWithRecovery()),
+      findByGoogleId: jest.fn().mockResolvedValue(userWithRecovery()),
       createLocalUser: jest.fn().mockResolvedValue(userWithCorrectInfo),
-      createGoogleUser: jest.fn().mockResolvedValue(sampleUser()),
+      createGoogleUser: jest.fn().mockResolvedValue(userWithRecovery()),
       updateEmail: jest.fn(),
       updateUsername: jest.fn().mockResolvedValue({}),
       updatePassword: jest.fn().mockResolvedValue({}),

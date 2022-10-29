@@ -175,7 +175,7 @@ export class PasswordRecoveryService {
   private throwIfSocialUser(user: User) {
     if (user.googleId) {
       throw new BadRequestException(
-        `Your account was created using Google. Please login using Google.`
+        `You had previously logged in using Google. Please login using Google.`
       )
     } // else if { } here, if you add support for more third party logins.
   }
