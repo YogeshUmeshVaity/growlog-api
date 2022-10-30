@@ -1,6 +1,11 @@
-import { BadRequestException, NotFoundException } from '@nestjs/common'
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException
+} from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import { QueryFailedError } from 'typeorm'
 import {
   validCode as validCode,
   validRecovery,
@@ -102,6 +107,26 @@ describe('PasswordRecoveryService', () => {
         .mockResolvedValue(userWithRecovery())
       await passwordRecoveryService.recover(sampleEmail)
       expect(passwordRecoveryRepository.delete).toBeCalled()
+    })
+
+    it(`should throw when some other user already has the newly generated code.`, async () => {
+      // We are concerned only with the type of error, so we pass any parameters to it.
+      passwordRecoveryRepository.create = jest
+        .fn()
+        .mockRejectedValue(
+          new QueryFailedError('SomeQuery', ['SomeParams'], 'SomeDriverError')
+        )
+
+      expect.assertions(2)
+      try {
+        await passwordRecoveryService.recover(sampleEmail)
+      } catch (error) {
+        expect(error).toBeInstanceOf(ConflictException)
+        expect(error).toHaveProperty(
+          'message',
+          `Something went wrong. Please try again.`
+        )
+      }
     })
   })
 

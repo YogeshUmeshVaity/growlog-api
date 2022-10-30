@@ -139,6 +139,9 @@ export class PasswordRecoveryService {
    * unique constraints error kicks in. We don't want to check the database if someone else already
    * has the same recovery code, because this is very rare. So we simply tell the user to try
    * again, if such rare situation arises.
+   *
+   * This design enables us to allow the user to recover the account even when they forgot
+   * or don't have their username.
    */
   private async createNewRecovery(user: User) {
     const code = crypto.randomBytes(48).toString('base64url') // this could be made async
