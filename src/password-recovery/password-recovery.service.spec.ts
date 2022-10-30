@@ -128,6 +128,20 @@ describe('PasswordRecoveryService', () => {
         )
       }
     })
+
+    it(`should rethrow when it's not due to already existing recovery code.`, async () => {
+      passwordRecoveryRepository.create = jest
+        .fn()
+        .mockRejectedValue(new Error('Any error other error.'))
+
+      expect.assertions(2)
+      try {
+        await passwordRecoveryService.recover(sampleEmail)
+      } catch (error) {
+        expect(error).not.toBeInstanceOf(ConflictException)
+        expect(error).toHaveProperty('message', `Any error other error.`)
+      }
+    })
   })
 
   describe(`validateCode`, () => {
