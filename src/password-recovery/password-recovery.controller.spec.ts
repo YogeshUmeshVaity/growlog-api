@@ -1,5 +1,6 @@
 import { JwtModule } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
+import { validCode } from '../../test/password-recovery/fixtures/validate-code.fixtures'
 import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import { PasswordRecoveryController } from './password-recovery.controller'
 import { PasswordRecoveryService } from './password-recovery.service'
@@ -23,14 +24,22 @@ describe('UsersController', () => {
     expect(passwordRecoveryController).toBeDefined()
   })
 
-  describe(`updatePassword`, () => {
-    it(`should notify the user that an email has been sent.`, async () => {
+  describe(`recoverPassword`, () => {
+    it(`should send the password recovery code via email.`, async () => {
       const response = await passwordRecoveryController.recoverPassword({
         email: sampleUser().email
       })
       expect(response).toEqual(
         `A password reset link has been sent to your email.`
       )
+    })
+  })
+
+  describe(`validateCode`, () => {
+    it(`should check if the recovery code provided by user is valid.`, async () => {
+      const response = await passwordRecoveryController.validateCode(validCode)
+      expect(response.recoveryCode).toEqual(validCode.recoveryCode)
+      expect(response.username).toEqual(validCode.username)
     })
   })
 })
@@ -41,7 +50,10 @@ function passwordRecoveryServiceMock() {
     useValue: {
       recover: jest
         .fn()
-        .mockResolvedValue('A password reset link has been sent to your email.')
+        .mockResolvedValue(
+          'A password reset link has been sent to your email.'
+        ),
+      validateCode: jest.fn().mockResolvedValue(validCode)
     }
   }
 }
