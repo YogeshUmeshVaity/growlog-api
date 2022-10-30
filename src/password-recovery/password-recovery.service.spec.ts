@@ -16,7 +16,7 @@ import {
   googleUserWithRecovery,
   sampleRecoveryEmail as sampleEmail,
   userWithRecovery
-} from '../../test/password-recovery/recover-password.fixtures'
+} from '../../test/password-recovery/fixtures/recover-password.fixtures'
 import { userWithCorrectInfo } from '../../test/users/fixtures/sign-up.fixtures'
 import { EmailService } from '../email-service/email.service'
 import { PasswordRecoveryRepository } from '../password-recovery/password-recovery.repository'

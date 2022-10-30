@@ -3,7 +3,7 @@ import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import {
   expiration,
   recoveryCode
-} from '../../test/password-recovery/recover-password.fixtures'
+} from '../../test/password-recovery/fixtures/recover-password.fixtures'
 import { userWithCorrectInfo as testUser } from '../../test/users/fixtures/sign-up.fixtures'
 import { correctPasswords } from '../../test/users/fixtures/update-password.fixtures'
 import { createInMemoryDataSource } from '../../test/utils/in-memory-database'

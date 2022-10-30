@@ -3,7 +3,7 @@ import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import {
   expiration,
   recoveryCode
-} from '../../test/password-recovery/recover-password.fixtures'
+} from '../../test/password-recovery/fixtures/recover-password.fixtures'
 import { createInMemoryDataSource } from '../../test/utils/in-memory-database'
 import { UsersRepository } from '../users/users.repository'
 import { PasswordRecovery } from './password-recovery.entity'
