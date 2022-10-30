@@ -11,7 +11,7 @@ import { EmailService } from '../email-service/email.service'
 import { EmailMessage } from '../users/dtos/email-message.dto'
 import { User } from '../users/user.entity'
 import { UsersRepository } from '../users/users.repository'
-import { ValidateCodeDto } from './dtos/validate-recovery-code.dto'
+import { ValidateCodeDto } from './dtos/validate-code.dto'
 import { PasswordRecovery } from './password-recovery.entity'
 import { PasswordRecoveryRepository } from './password-recovery.repository'
 

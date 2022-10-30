@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common'
 import { RecoverPasswordDto } from './dtos/recover-password.dto'
-import { ValidateCodeDto } from './dtos/validate-recovery-code.dto'
+import { ValidateCodeDto } from './dtos/validate-code.dto'
 import { PasswordRecoveryService } from './password-recovery.service'
 
 /**
