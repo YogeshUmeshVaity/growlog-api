@@ -1,6 +1,6 @@
-import { PasswordRecovery } from '../../../src/password-recovery/password-recovery.entity'
-import { User } from '../../../src/users/user.entity'
-import { sampleUser } from './find-me.fixtures'
+import { PasswordRecovery } from '../../src/password-recovery/password-recovery.entity'
+import { User } from '../../src/users/user.entity'
+import { sampleUser } from '../users/fixtures/find-me.fixtures'
 
 //TODO: move this file to test/password-recovery/fixtures
 

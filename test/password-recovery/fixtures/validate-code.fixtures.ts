@@ -4,7 +4,7 @@ import {
   recoveryCode,
   sampleRecoveryUsername,
   userWithRecovery
-} from '../../users/fixtures/recover-password.fixtures'
+} from '../recover-password.fixtures'
 import * as dotenv from 'dotenv'
 
 /**
