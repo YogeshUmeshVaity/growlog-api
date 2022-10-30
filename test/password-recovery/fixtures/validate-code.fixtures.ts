@@ -1,4 +1,4 @@
-import { ValidateCodeDto } from '../../../src/password-recovery/dtos/validate-recovery-code.dto'
+import { ValidateCodeDto } from '../../../src/password-recovery/dtos/validate-code.dto'
 import { PasswordRecovery } from '../../../src/password-recovery/password-recovery.entity'
 import {
   recoveryCode,
@@ -26,6 +26,12 @@ export const invalidCode: ValidateCodeDto = {
   username: sampleRecoveryUsername,
   recoveryCode:
     'Some-Other-64-Characters-Long-Code-With-Any-Characters-You-Want-'
+}
+
+// Used for testing the sanitation related to trimming the spaces.
+export const codeWithSpaces: ValidateCodeDto = {
+  username: ' ' + sampleRecoveryUsername + ' ',
+  recoveryCode: ' ' + recoveryCode + ' '
 }
 
 export const codeWithInvalidUsername: ValidateCodeDto = {
