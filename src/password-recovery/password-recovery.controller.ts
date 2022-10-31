@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common'
 import { RecoverPasswordDto } from './dtos/recover-password.dto'
+import { SetNewPasswordDto } from './dtos/set-new-password.dto'
 import { ValidateCodeDto } from './dtos/validate-code.dto'
 import { PasswordRecoveryService } from './password-recovery.service'
 
@@ -32,11 +33,8 @@ export class PasswordRecoveryController {
     return await this.passwordRecoveryService.validateCode(validateCodeDto)
   }
 
-  // @Post('change-password')
-  // changePassword(
-  //   @Param() recoveryCode: string,
-  //   @Body() passwords: UpdatePasswordDto
-  // ) {
-  //   throw new NotImplementedException()
-  // }
+  @Post('set-new-password')
+  setNewPassword(@Body() passwords: SetNewPasswordDto) {
+    return await this.passwordRecoveryService.setNewPassword(passwords)
+  }
 }

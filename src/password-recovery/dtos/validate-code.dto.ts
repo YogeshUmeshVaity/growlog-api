@@ -13,7 +13,7 @@ export class ValidateCodeDto {
   readonly recoveryCode: string
 }
 
-function RecoveryCodeValidations() {
+export function RecoveryCodeValidations() {
   return applyDecorators(
     // Without these constraints, the incoming dto doesn't include the recoveryCode property
     MinLength(RECOVERY_CODE_LENGTH, {

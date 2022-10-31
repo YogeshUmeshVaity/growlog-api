@@ -2,7 +2,8 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
-  NotFoundException
+  NotFoundException,
+  NotImplementedException
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import * as crypto from 'crypto'
@@ -11,6 +12,7 @@ import { EmailService } from '../email-service/email.service'
 import { EmailMessage } from '../users/dtos/email-message.dto'
 import { User } from '../users/user.entity'
 import { UsersRepository } from '../users/users.repository'
+import { SetNewPasswordDto } from './dtos/set-new-password.dto'
 import { ValidateCodeDto } from './dtos/validate-code.dto'
 import { PasswordRecovery } from './password-recovery.entity'
 import { PasswordRecoveryRepository } from './password-recovery.repository'
@@ -47,6 +49,23 @@ export class PasswordRecoveryService {
     this.throwIfUsernameMismatch(passwordRecovery, username)
     await this.throwAndDeleteIfCodeExpired(passwordRecovery)
     return validateCodeDto
+  }
+
+  async setNewPassword(passwords: SetNewPasswordDto) {
+    const { recoveryCode, newPassword, confirmPassword } = passwords
+    // const passwordRecovery = this.validateCodeForNewPassword({ recoveryCode, username })
+    throw new NotImplementedException() // TODO:
+  }
+
+  private async validateCodeForNewPassword(validateCodeDto: ValidateCodeDto) {
+    const { username, recoveryCode } = validateCodeDto
+    const passwordRecovery = await this.passwordRecoveryRepo.findByCode(
+      recoveryCode
+    )
+    this.throwIfCodeNotFound(passwordRecovery)
+    this.throwIfUsernameMismatch(passwordRecovery, username)
+    await this.throwAndDeleteIfCodeExpired(passwordRecovery)
+    return passwordRecovery
   }
 
   private throwIfUsernameMismatch(
