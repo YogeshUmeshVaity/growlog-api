@@ -1,11 +1,7 @@
+import * as dotenv from 'dotenv'
 import { ValidateCodeDto } from '../../../src/password-recovery/dtos/validate-code.dto'
 import { PasswordRecovery } from '../../../src/password-recovery/password-recovery.entity'
-import {
-  recoveryCode,
-  sampleRecoveryUsername,
-  userWithRecovery
-} from './recover-password.fixtures'
-import * as dotenv from 'dotenv'
+import { recoveryCode, userWithRecovery } from './recover-password.fixtures'
 
 /**
  * Tells the TypeScript that we have RECOVERY_CODE_EXPIRY_MINUTES variable as a 'number'
@@ -18,25 +14,17 @@ declare let process: {
 }
 
 export const validCode: ValidateCodeDto = {
-  username: sampleRecoveryUsername,
   recoveryCode: recoveryCode
 }
 
 export const invalidCode: ValidateCodeDto = {
-  username: sampleRecoveryUsername,
   recoveryCode:
     'Some-Other-64-Characters-Long-Code-With-Any-Characters-You-Want-'
 }
 
 // Used for testing the sanitation related to trimming the spaces.
 export const codeWithSpaces: ValidateCodeDto = {
-  username: ' ' + sampleRecoveryUsername + ' ',
   recoveryCode: ' ' + recoveryCode + ' '
-}
-
-export const codeWithInvalidUsername: ValidateCodeDto = {
-  username: 'SomeOtherUser',
-  recoveryCode: recoveryCode
 }
 
 export function validRecovery(): PasswordRecovery {

@@ -39,7 +39,6 @@ describe('UsersController', () => {
     it(`should check if the recovery code provided by user is valid.`, async () => {
       const response = await passwordRecoveryController.validateCode(validCode)
       expect(response.recoveryCode).toEqual(validCode.recoveryCode)
-      expect(response.username).toEqual(validCode.username)
     })
   })
 })

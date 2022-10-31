@@ -34,7 +34,7 @@ export class PasswordRecoveryController {
   }
 
   @Post('set-new-password')
-  setNewPassword(@Body() passwords: SetNewPasswordDto) {
+  async setNewPassword(@Body() passwords: SetNewPasswordDto) {
     return await this.passwordRecoveryService.setNewPassword(passwords)
   }
 }

@@ -9,7 +9,6 @@ import { QueryFailedError } from 'typeorm'
 import {
   validCode as validCode,
   validRecovery,
-  codeWithInvalidUsername,
   expiredRecovery
 } from '../../test/password-recovery/fixtures/validate-code.fixtures'
 import {
@@ -129,7 +128,7 @@ describe('PasswordRecoveryService', () => {
       }
     })
 
-    it(`should rethrow when it's not due to already existing recovery code.`, async () => {
+    it(`should rethrow the error when it's not due to already existing recovery code.`, async () => {
       passwordRecoveryRepository.create = jest
         .fn()
         .mockRejectedValue(new Error('Any error other error.'))
@@ -145,11 +144,10 @@ describe('PasswordRecoveryService', () => {
   })
 
   describe(`validateCode`, () => {
-    it(`should return the same username and recovery code when code is valid.`, async () => {
+    it(`should return the same recovery code when the code is valid.`, async () => {
       const validatedCode = await passwordRecoveryService.validateCode(
         validCode
       )
-      expect(validatedCode.username).toEqual(validCode.username)
       expect(validatedCode.recoveryCode).toEqual(validCode.recoveryCode)
     })
 
@@ -158,16 +156,6 @@ describe('PasswordRecoveryService', () => {
       expect.assertions(2)
       try {
         await passwordRecoveryService.validateCode(validCode)
-      } catch (error) {
-        expect(error).toBeInstanceOf(NotFoundException)
-        expect(error).toHaveProperty('message', `Code not found.`)
-      }
-    })
-
-    it(`should throw when the username doesn't match the one in the database.`, async () => {
-      expect.assertions(2)
-      try {
-        await passwordRecoveryService.validateCode(codeWithInvalidUsername)
       } catch (error) {
         expect(error).toBeInstanceOf(NotFoundException)
         expect(error).toHaveProperty('message', `Code not found.`)

@@ -31,50 +31,34 @@ export class PasswordRecoveryService {
     this.throwIfNoUserByEmail(user)
     this.throwIfSocialUser(user)
     const passwordRecovery = await this.createPasswordRecovery(user)
-    const recoveryMessage = this.prepareEmailMessage(
-      user.username,
-      passwordRecovery,
-      email
-    )
+    const recoveryMessage = this.prepareEmailMessage(passwordRecovery, email)
     await this.emailService.sendEmail(recoveryMessage) // need email ENVs for this.
     return 'A password reset link has been sent to your email.'
   }
 
   async validateCode(validateCodeDto: ValidateCodeDto) {
-    const { username, recoveryCode } = validateCodeDto
+    const { recoveryCode } = validateCodeDto
     const passwordRecovery = await this.passwordRecoveryRepo.findByCode(
       recoveryCode
     )
     this.throwIfCodeNotFound(passwordRecovery)
-    this.throwIfUsernameMismatch(passwordRecovery, username)
     await this.throwAndDeleteIfCodeExpired(passwordRecovery)
     return validateCodeDto
   }
 
   async setNewPassword(passwords: SetNewPasswordDto) {
     const { recoveryCode, newPassword, confirmPassword } = passwords
-    // const passwordRecovery = this.validateCodeForNewPassword({ recoveryCode, username })
+    // const passwordRecovery = this.findAndValidate(recoveryCode)
     throw new NotImplementedException() // TODO:
   }
 
-  private async validateCodeForNewPassword(validateCodeDto: ValidateCodeDto) {
-    const { username, recoveryCode } = validateCodeDto
+  private async findAndValidate(recoveryCode: string) {
     const passwordRecovery = await this.passwordRecoveryRepo.findByCode(
       recoveryCode
     )
     this.throwIfCodeNotFound(passwordRecovery)
-    this.throwIfUsernameMismatch(passwordRecovery, username)
     await this.throwAndDeleteIfCodeExpired(passwordRecovery)
     return passwordRecovery
-  }
-
-  private throwIfUsernameMismatch(
-    passwordRecovery: PasswordRecovery,
-    username: string
-  ) {
-    if (passwordRecovery.user.username != username) {
-      throw new NotFoundException(`Code not found.`)
-    }
   }
 
   private async throwAndDeleteIfCodeExpired(
@@ -100,7 +84,6 @@ export class PasswordRecoveryService {
    * const passwordResetLink = `${baseUrl}/${username}/recover-password/${passwordRecovery.code}`
    */
   private prepareEmailMessage(
-    username: string,
     passwordRecovery: PasswordRecovery,
     toEmail: string
   ) {
@@ -108,7 +91,7 @@ export class PasswordRecoveryService {
       fromEmail: this.prepareFromEmail(),
       toEmail: toEmail,
       subject: this.prepareRecoveryEmailSubject(),
-      body: this.prepareRecoveryEmailBody(username, passwordRecovery)
+      body: this.prepareRecoveryEmailBody(passwordRecovery)
     }
     return emailMessage
   }
@@ -117,12 +100,8 @@ export class PasswordRecoveryService {
     return this.configService.get<string>('FROM_EMAIL')
   }
 
-  private prepareRecoveryEmailBody(
-    username: string,
-    passwordRecovery: PasswordRecovery
-  ) {
+  private prepareRecoveryEmailBody(passwordRecovery: PasswordRecovery) {
     return `
-    Username: ${username}
     Recovery code: ${passwordRecovery.code}
     The recovery code expires in ${this.getExpiryMinutes()} minutes.
     If it wasn't you who requested this password recovery, worry not, no changes will be made to your account.

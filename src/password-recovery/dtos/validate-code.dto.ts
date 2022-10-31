@@ -1,14 +1,10 @@
 import { applyDecorators } from '@nestjs/common'
 import { Transform, TransformFnParams } from 'class-transformer'
 import { MaxLength, MinLength } from 'class-validator'
-import { UsernameValidations } from '../../users/dtos/signup-user.dto'
 
 export const RECOVERY_CODE_LENGTH = 64
 
 export class ValidateCodeDto {
-  @UsernameValidations()
-  readonly username: string
-
   @RecoveryCodeValidations()
   readonly recoveryCode: string
 }
