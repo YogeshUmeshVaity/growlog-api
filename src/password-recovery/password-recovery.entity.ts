@@ -1,4 +1,10 @@
-import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  OneToOne,
+  PrimaryGeneratedColumn
+} from 'typeorm'
 import { User } from '../users/user.entity'
 
 /**
@@ -28,14 +34,20 @@ export class PasswordRecovery {
   /**
    * The user associate with this password-recovery.
    *
-   * 'onDelete' sets the userId foreign key to CASCADE. This means that when the User is deleted,
-   * the PasswordRecovery is also deleted.
+   * 'onDelete' means that when the User is deleted, the PasswordRecovery is also deleted.
    *
    * 'eager' will make sure that the find operation always includes the user object.
+   *
+   * We want to the userId field to be on the PasswordRecovery table, so we use @JoinColumn() on
+   * this side instead of User. Because of this, we don't have to have the passwordRecoveryId on the
+   * User table. As a result we don't have to delete the reference passwordRecoveryId when we delete
+   * the PasswordRecovery. Without the @JoinColumn() decorator, onDelete: 'CASCADE' doesn't
+   * work.
    */
   @OneToOne(() => User, (user) => user.passwordRecovery, {
     onDelete: 'CASCADE',
     eager: true
   })
+  @JoinColumn()
   user: User
 }

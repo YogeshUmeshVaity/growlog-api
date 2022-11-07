@@ -2,7 +2,6 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn
@@ -83,15 +82,14 @@ export class User {
   /**
    * Represents the recovery code used for resetting the password.
    *
+   * onDelete: specifies how foreign key should behave when referenced object is deleted. We don't
+   * use it here, because we don't need the passwordRecoveryId field on this side. We manage the
+   * relation from the PasswordRecovery entity.
+   *
    * The 'cascade: true' is a typeorm feature and not a database feature unlike onDelete. It allows
    * us to save the entity along with its related entity in just one save() call.
    */
-  @OneToOne(
-    () => PasswordRecovery,
-    (passwordRecovery) => passwordRecovery.user,
-    { cascade: true }
-  )
-  @JoinColumn()
+  @OneToOne(() => PasswordRecovery, (passwordRecovery) => passwordRecovery.user)
   passwordRecovery?: PasswordRecovery
 
   /**
