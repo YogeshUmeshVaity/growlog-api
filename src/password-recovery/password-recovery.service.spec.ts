@@ -1,7 +1,8 @@
 import {
   BadRequestException,
   ConflictException,
-  NotFoundException
+  NotFoundException,
+  UnauthorizedException
 } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
@@ -171,7 +172,7 @@ describe('PasswordRecoveryService', () => {
       try {
         await passwordRecoveryService.validateCode(validCode)
       } catch (error) {
-        expect(error).toBeInstanceOf(NotFoundException)
+        expect(error).toBeInstanceOf(UnauthorizedException)
         expect(error).toHaveProperty(
           'message',
           `The recovery code has expired.`
@@ -181,24 +182,15 @@ describe('PasswordRecoveryService', () => {
 
     it(`should delete the given recovery code when it is expired.`, async () => {
       const expiredPasswordRecovery = expiredRecovery()
-      // must copy object, otherwise tokenInvalidator on the user object will be different
-      const userWithDeletedRecovery = { ...expiredPasswordRecovery.user }
-      // backup recovery object from user object before deleting
-      const recoveryToDelete = userWithDeletedRecovery.passwordRecovery
-      // now delete the recovery object from user object
-      userWithDeletedRecovery.passwordRecovery = null
-
       passwordRecoveryRepository.findByCode = jest
         .fn()
         .mockResolvedValue(expiredPasswordRecovery)
-
-      expect.assertions(2)
+      expect.assertions(1)
       try {
         await passwordRecoveryService.validateCode(validCode)
       } catch (error) {
-        expect(usersRepository.update).toBeCalledWith(userWithDeletedRecovery)
         expect(passwordRecoveryRepository.delete).toBeCalledWith(
-          recoveryToDelete
+          expiredPasswordRecovery
         )
       }
     })
