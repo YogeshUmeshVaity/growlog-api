@@ -4,6 +4,9 @@ import { MaxLength, MinLength } from 'class-validator'
 
 export const RECOVERY_CODE_LENGTH = 64
 
+/**
+ * Validating the length beforehand will save us trips to the database.
+ */
 export class ValidateCodeDto {
   @RecoveryCodeValidations()
   readonly recoveryCode: string
