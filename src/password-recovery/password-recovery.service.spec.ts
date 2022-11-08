@@ -22,6 +22,7 @@ import { EmailService } from '../email-service/email.service'
 import { PasswordRecoveryRepository } from '../password-recovery/password-recovery.repository'
 import { UsersRepository } from '../users/users.repository'
 import { PasswordRecoveryService } from './password-recovery.service'
+import { EmptyLogger } from '../../test/common-mocks/logger.mock'
 
 describe('PasswordRecoveryService', () => {
   let passwordRecoveryService: PasswordRecoveryService
@@ -39,6 +40,7 @@ describe('PasswordRecoveryService', () => {
         ConfigService
       ]
     }).compile()
+    module.useLogger(new EmptyLogger())
 
     usersRepository = module.get<UsersRepository>(UsersRepository)
     emailService = module.get<EmailService>(EmailService)
