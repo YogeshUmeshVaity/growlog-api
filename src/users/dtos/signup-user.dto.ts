@@ -34,7 +34,7 @@ export const MIN_LENGTH_PASSWORD = 8
  * and the star means at least 0 times so .* accepts any sequence of characters, including an empty
  * string. Emptiness is checked separately using a decorator.
  */
-const regexOneDigitOneSpecialChar = /^(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).*$/
+export const regexOneDigitOneSpecialChar = /^(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).*$/
 
 /**
  * For medium scale apps, use letters and numbers username regex: /^[a-zA-Z0-9]+$/

@@ -2,9 +2,11 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
-  NotImplementedException
+  UnauthorizedException
 } from '@nestjs/common'
+import * as bcrypt from 'bcrypt'
 import { ConfigService } from '@nestjs/config'
 import * as crypto from 'crypto'
 import { QueryFailedError } from 'typeorm'
@@ -19,6 +21,7 @@ import { PasswordRecoveryRepository } from './password-recovery.repository'
 
 @Injectable()
 export class PasswordRecoveryService {
+  private readonly logger = new Logger(PasswordRecoveryService.name)
   constructor(
     private readonly usersRepo: UsersRepository,
     private readonly passwordRecoveryRepo: PasswordRecoveryRepository,
@@ -38,18 +41,45 @@ export class PasswordRecoveryService {
 
   async validateCode(validateCodeDto: ValidateCodeDto) {
     const { recoveryCode } = validateCodeDto
-    const passwordRecovery = await this.passwordRecoveryRepo.findByCode(
-      recoveryCode
-    )
-    this.throwIfCodeNotFound(passwordRecovery)
-    await this.throwAndDeleteIfCodeExpired(passwordRecovery)
-    return validateCodeDto
+    const passwordRecovery = await this.findAndValidate(recoveryCode)
+    return {
+      username: passwordRecovery.user.username,
+      recoveryCode: recoveryCode
+    }
   }
 
   async setNewPassword(passwords: SetNewPasswordDto) {
     const { recoveryCode, newPassword, confirmPassword } = passwords
-    // const passwordRecovery = this.findAndValidate(recoveryCode)
-    throw new NotImplementedException() // TODO:
+    const passwordRecovery = await this.findAndValidate(recoveryCode)
+    const user = passwordRecovery.user
+    this.throwIfPasswordsMismatch(newPassword, confirmPassword)
+    await this.throwIfNewPasswordIsCurrentPassword(newPassword, user)
+    const hashedPassword = await this.hash(newPassword)
+    await this.usersRepo.updatePassword(user.id, hashedPassword)
+    await this.passwordRecoveryRepo.delete(passwordRecovery)
+  }
+
+  private throwIfPasswordsMismatch(password: string, confirmPassword: string) {
+    if (password.trim() !== confirmPassword.trim()) {
+      throw new BadRequestException('Confirm Password must match.')
+    }
+  }
+
+  private async throwIfNewPasswordIsCurrentPassword(
+    newPassword: string,
+    user: User
+  ) {
+    const isMatch = await bcrypt.compare(newPassword, user.hashedPassword)
+    if (isMatch) {
+      throw new BadRequestException(
+        'Do not use your old password as the new password.'
+      )
+    }
+  }
+
+  private async hash(password: string) {
+    const salt = await bcrypt.genSalt()
+    return await bcrypt.hash(password, salt)
   }
 
   private async findAndValidate(recoveryCode: string) {
@@ -67,8 +97,8 @@ export class PasswordRecoveryService {
     const expiryTime = passwordRecovery.expiration.getTime()
     const currentTime = Date.now()
     if (expiryTime < currentTime) {
-      await this.deleteExistingRecovery(passwordRecovery.user)
-      throw new NotFoundException(`The recovery code has expired.`)
+      await this.passwordRecoveryRepo.delete(passwordRecovery)
+      throw new UnauthorizedException(`The recovery code has expired.`)
     }
   }
 
@@ -117,18 +147,13 @@ export class PasswordRecoveryService {
   }
 
   private async createPasswordRecovery(user: User) {
-    await this.deleteExistingRecovery(user)
+    await this.deleteExistingRecoveryIfAny(user)
     return this.createNewRecovery(user)
   }
 
-  private async deleteExistingRecovery(user: User) {
+  private async deleteExistingRecoveryIfAny(user: User) {
     if (user.passwordRecovery) {
-      // need to set the foreign key to null otherwise we'll get the foreign key constrain error
-      // so, copy the recovery to delete and set it to null
-      const recoveryToDelete = user.passwordRecovery
-      user.passwordRecovery = null
-      await this.usersRepo.update(user)
-      await this.passwordRecoveryRepo.delete(recoveryToDelete)
+      await this.passwordRecoveryRepo.delete(user.passwordRecovery)
     }
   }
 
@@ -148,6 +173,8 @@ export class PasswordRecoveryService {
       return await this.passwordRecoveryRepo.create(code, user, expiryDate)
     } catch (error) {
       if (error instanceof QueryFailedError) {
+        this.logger.error(`Maybe two users had the same account recovery code.`)
+        this.logger.error(error)
         throw new ConflictException('Something went wrong. Please try again.')
       } else {
         throw error
