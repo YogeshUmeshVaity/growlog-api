@@ -7,24 +7,23 @@ import {
 import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
 import { QueryFailedError } from 'typeorm'
-import {
-  validCode as validCode,
-  validRecovery,
-  expiredRecovery,
-  forwardSystemTimeOnceBy,
-  expiryMinutes
-} from '../../test/password-recovery/fixtures/validate-code.fixtures'
+import { EmptyLogger } from '../../test/common-mocks/logger.mock'
 import {
   googleUserWithRecovery,
   sampleRecoveryEmail as sampleEmail,
   userWithRecovery
 } from '../../test/password-recovery/fixtures/recover-password.fixtures'
+import {
+  expiryMinutes,
+  forwardSystemTimeOnceBy,
+  validCode,
+  validRecovery
+} from '../../test/password-recovery/fixtures/validate-code.fixtures'
 import { userWithCorrectInfo } from '../../test/users/fixtures/sign-up.fixtures'
 import { EmailService } from '../email-service/email.service'
 import { PasswordRecoveryRepository } from '../password-recovery/password-recovery.repository'
 import { UsersRepository } from '../users/users.repository'
 import { PasswordRecoveryService } from './password-recovery.service'
-import { EmptyLogger } from '../../test/common-mocks/logger.mock'
 
 describe('PasswordRecoveryService', () => {
   let passwordRecoveryService: PasswordRecoveryService
