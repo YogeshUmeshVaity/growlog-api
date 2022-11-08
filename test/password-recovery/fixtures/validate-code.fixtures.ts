@@ -46,9 +46,20 @@ export function expiredRecovery(): PasswordRecovery {
  * project can set through an environment variable. This way our test code will not change, if the
  * RECOVERY_CODE_EXPIRY_MINUTES changes.
  */
-function expiryMinutes() {
+export function expiryMinutes() {
   dotenv.config({ path: '.env.test' })
   return process.env.RECOVERY_CODE_EXPIRY_MINUTES
+}
+
+/**
+ * Sets the current system time to a future time. This is happens for just one call of Date.now().
+ * The subsequent calls to Date.now() will return the normal current time.
+ * @param minutes is the number of minutes you want to forward the time by.
+ */
+export function forwardSystemTimeOnceBy(minutes: number) {
+  const currentTime = Date.now()
+  jest.spyOn(Date, 'now').mockReturnValueOnce(currentTime + minutes * 60000)
+  // for a specific time use mockImplementationOnce(() => +new Date('2022-11-11'))
 }
 
 /**

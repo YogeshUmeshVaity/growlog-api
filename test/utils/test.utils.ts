@@ -2,7 +2,7 @@ import { ROUTE_ARGS_METADATA } from '@nestjs/common/constants'
 import { ValidationError } from 'class-validator'
 import { Response } from 'supertest'
 import { DataSource } from 'typeorm'
-
+// TODO: Move this code to /test/users/utils/
 /**
  * Clears the database by synchronizing.
  * More ideas: https://github.com/nestjs/nest/issues/409#issue-295989413
