@@ -7,7 +7,7 @@ import { PasswordRecoveryService } from './password-recovery.service'
 /**
  * Handles the routes related to the account recovery of the User.
  */
-@Controller('recovery')
+@Controller('account-recovery')
 export class PasswordRecoveryController {
   constructor(
     private readonly passwordRecoveryService: PasswordRecoveryService
@@ -17,7 +17,7 @@ export class PasswordRecoveryController {
    * Sends a recovery email with a recovery code to the user's email address.
    * @param recoverDto is a validated email address.
    */
-  @Post('recover-password')
+  @Post('recover-account')
   async recoverPassword(@Body() recoverDto: RecoverPasswordDto) {
     return await this.passwordRecoveryService.recover(recoverDto.email)
   }
