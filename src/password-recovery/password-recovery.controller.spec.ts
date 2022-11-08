@@ -47,7 +47,7 @@ function passwordRecoveryServiceMock() {
   return {
     provide: PasswordRecoveryService,
     useValue: {
-      recover: jest
+      recoverPassword: jest
         .fn()
         .mockResolvedValue(
           'A password reset link has been sent to your email.'
