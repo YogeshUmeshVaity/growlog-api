@@ -14,7 +14,7 @@ import { PasswordRecoveryService } from './password-recovery.service'
  * 5. 'Set New Password' screen displays the username and a form to set new password.
  * 6. set-new-password route validates the code and sets the new password.
  */
-@Controller('account-recovery')
+@Controller('password-recovery')
 export class PasswordRecoveryController {
   constructor(
     private readonly passwordRecoveryService: PasswordRecoveryService
@@ -24,7 +24,7 @@ export class PasswordRecoveryController {
    * Sends a recovery email with a recovery code to the user's email address.
    * @param recoverDto is a validated email address.
    */
-  @Post('recover-account')
+  @Post('recover-password')
   async recoverPassword(@Body() recoverDto: RecoverPasswordDto) {
     return await this.passwordRecoveryService.recoverPassword(recoverDto.email)
   }
