@@ -56,7 +56,7 @@ describe(`PasswordRecoveryModule`, () => {
   describe(`recover-password`, () => {
     it(`should send a recovery email.`, async () => {
       const response = await request(app.getHttpServer())
-        .post('/account-recovery/recover-account')
+        .post('/password-recovery/recover-password')
         .send({ email: userInfo.email })
         .expect(201)
 
@@ -67,7 +67,7 @@ describe(`PasswordRecoveryModule`, () => {
 
     it(`should throw when no user is found by the given email.`, async () => {
       const response = await request(app.getHttpServer())
-        .post('/account-recovery/recover-account')
+        .post('/password-recovery/recover-password')
         .send({ email: 'non-existing@gmail.com' })
         .expect(404)
 
@@ -84,7 +84,7 @@ describe(`PasswordRecoveryModule`, () => {
 
       // Try to recover account
       const response = await request(app.getHttpServer())
-        .post('/account-recovery/recover-account')
+        .post('/password-recovery/recover-password')
         .send({ email: googleUser().email })
         .expect(400)
 
@@ -98,14 +98,14 @@ describe(`PasswordRecoveryModule`, () => {
 
       // create previous recovery
       await request(app.getHttpServer())
-        .post('/account-recovery/recover-account')
+        .post('/password-recovery/recover-password')
         .send({ email: userInfo.email })
         .expect(201)
       const previousCode = getRecoveryCodeFrom(emailSpy)
 
       // create new recovery
       await request(app.getHttpServer())
-        .post('/account-recovery/recover-account')
+        .post('/password-recovery/recover-password')
         .send({ email: userInfo.email })
         .expect(201)
       const newCode = getRecoveryCodeFrom(emailSpy)
@@ -114,14 +114,14 @@ describe(`PasswordRecoveryModule`, () => {
 
       // validate previous code: code not found because deleted
       const response = await request(app.getHttpServer())
-        .get('/account-recovery/validate-code')
+        .get('/password-recovery/validate-code')
         .send({ recoveryCode: previousCode })
         .expect(404)
       expect(messageFrom(response)).toEqual(`Code not found.`)
 
       // validate new code: success
       await request(app.getHttpServer())
-        .get('/account-recovery/validate-code')
+        .get('/password-recovery/validate-code')
         .send({ recoveryCode: newCode })
         .expect(200)
     })
@@ -136,7 +136,7 @@ describe(`PasswordRecoveryModule`, () => {
         )
 
       const response = await request(app.getHttpServer())
-        .post('/account-recovery/recover-account')
+        .post('/password-recovery/recover-password')
         .send({ email: userInfo.email })
         .expect(409)
 
@@ -152,14 +152,14 @@ describe(`PasswordRecoveryModule`, () => {
 
       // create a recovery
       await request(app.getHttpServer())
-        .post('/account-recovery/recover-account')
+        .post('/password-recovery/recover-password')
         .send({ email: userInfo.email })
         .expect(201)
       const recoveryCode = getRecoveryCodeFrom(emailSpy)
 
       // validate the recovery
       const response = await request(app.getHttpServer())
-        .get('/account-recovery/validate-code')
+        .get('/password-recovery/validate-code')
         .send({ recoveryCode: recoveryCode })
         .expect(200)
 
@@ -168,7 +168,7 @@ describe(`PasswordRecoveryModule`, () => {
 
     it(`should throw when the given recovery code is not found in database.`, async () => {
       const response = await request(app.getHttpServer())
-        .get('/account-recovery/validate-code')
+        .get('/password-recovery/validate-code')
         .send(invalidCode)
         .expect(404)
       expect(messageFrom(response)).toEqual(`Code not found.`)
@@ -179,14 +179,14 @@ describe(`PasswordRecoveryModule`, () => {
 
       // create a recovery code
       await request(app.getHttpServer())
-        .post('/account-recovery/recover-account')
+        .post('/password-recovery/recover-password')
         .send({ email: userInfo.email })
         .expect(201)
       const recoveryCode = getRecoveryCodeFrom(emailSpy)
 
       // valid when code is used immediately
       await request(app.getHttpServer())
-        .get('/account-recovery/validate-code')
+        .get('/password-recovery/validate-code')
         .send({ recoveryCode: recoveryCode })
         .expect(200)
 
@@ -194,14 +194,14 @@ describe(`PasswordRecoveryModule`, () => {
       const halfExpiryMinutes = Math.floor(expiryMinutes() / 2)
       forwardSystemTimeOnceBy(halfExpiryMinutes)
       await request(app.getHttpServer())
-        .get('/account-recovery/validate-code')
+        .get('/password-recovery/validate-code')
         .send({ recoveryCode: recoveryCode })
         .expect(200)
 
       // invalid when all the expiry time has elapsed
       forwardSystemTimeOnceBy(expiryMinutes())
       const response = await request(app.getHttpServer())
-        .get('/account-recovery/validate-code')
+        .get('/password-recovery/validate-code')
         .send({ recoveryCode: recoveryCode })
         .expect(401)
 
@@ -213,7 +213,7 @@ describe(`PasswordRecoveryModule`, () => {
 
       // create a recovery code
       await request(app.getHttpServer())
-        .post('/account-recovery/recover-account')
+        .post('/password-recovery/recover-password')
         .send({ email: userInfo.email })
         .expect(201)
       const recoveryCode = getRecoveryCodeFrom(emailSpy)
@@ -223,7 +223,7 @@ describe(`PasswordRecoveryModule`, () => {
 
       // try to validate: this will delete the code
       const expiredResponse = await request(app.getHttpServer())
-        .get('/account-recovery/validate-code')
+        .get('/password-recovery/validate-code')
         .send({ recoveryCode: recoveryCode })
         .expect(401)
       expect(messageFrom(expiredResponse)).toEqual(
@@ -232,12 +232,24 @@ describe(`PasswordRecoveryModule`, () => {
 
       // try again: code should not be found
       const deletedResponse = await request(app.getHttpServer())
-        .get('/account-recovery/validate-code')
+        .get('/password-recovery/validate-code')
         .send({ recoveryCode: recoveryCode })
         .expect(404)
       expect(messageFrom(deletedResponse)).toEqual(`Code not found.`)
     })
   })
+
+  // describe(`set-new-password`, () => {
+  //   it(`should return the same recovery code when the code is valid.`, async () => {
+
+  //     await request(app.getHttpServer())
+  //       .post('/account-recovery/set-new-password')
+  //       .send({ email: userInfo.email })
+  //       .expect(201)
+
+  //     expect(response.body.recoveryCode).toEqual(recoveryCode)
+  //   })
+  // })
 })
 
 async function createUser(app: INestApplication) {
