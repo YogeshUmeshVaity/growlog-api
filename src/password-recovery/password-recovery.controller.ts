@@ -26,7 +26,7 @@ export class PasswordRecoveryController {
    */
   @Post('recover-account')
   async recoverPassword(@Body() recoverDto: RecoverPasswordDto) {
-    return await this.passwordRecoveryService.recover(recoverDto.email)
+    return await this.passwordRecoveryService.recoverPassword(recoverDto.email)
   }
 
   /**

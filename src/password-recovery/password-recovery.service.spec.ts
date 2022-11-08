@@ -57,14 +57,16 @@ describe('PasswordRecoveryService', () => {
     expect(passwordRecoveryService).toBeDefined()
   })
 
-  describe(`recover()`, () => {
+  describe(`recoverPassword()`, () => {
     it(`should send a recovery email.`, async () => {
-      await passwordRecoveryService.recover(sampleEmail)
+      await passwordRecoveryService.recoverPassword(sampleEmail)
       expect(emailService.sendEmail).toBeCalled()
     })
 
     it(`should notify the user that an email has been sent.`, async () => {
-      const response = await passwordRecoveryService.recover(sampleEmail)
+      const response = await passwordRecoveryService.recoverPassword(
+        sampleEmail
+      )
       expect(response).toEqual(
         'A password reset link has been sent to your email.'
       )
@@ -76,7 +78,7 @@ describe('PasswordRecoveryService', () => {
         .mockResolvedValue(null)
       expect.assertions(2)
       try {
-        await passwordRecoveryService.recover(sampleEmail)
+        await passwordRecoveryService.recoverPassword(sampleEmail)
       } catch (error) {
         expect(error).toBeInstanceOf(NotFoundException)
         expect(error).toHaveProperty(
@@ -94,7 +96,7 @@ describe('PasswordRecoveryService', () => {
 
       expect.assertions(2)
       try {
-        await passwordRecoveryService.recover(sampleEmail)
+        await passwordRecoveryService.recoverPassword(sampleEmail)
       } catch (error) {
         expect(error).toBeInstanceOf(BadRequestException)
         expect(error).toHaveProperty(
@@ -108,7 +110,7 @@ describe('PasswordRecoveryService', () => {
       usersRepository.findByEmailWithRecovery = jest
         .fn()
         .mockResolvedValue(userWithRecovery())
-      await passwordRecoveryService.recover(sampleEmail)
+      await passwordRecoveryService.recoverPassword(sampleEmail)
       expect(passwordRecoveryRepository.delete).toBeCalled()
     })
 
@@ -122,7 +124,7 @@ describe('PasswordRecoveryService', () => {
 
       expect.assertions(2)
       try {
-        await passwordRecoveryService.recover(sampleEmail)
+        await passwordRecoveryService.recoverPassword(sampleEmail)
       } catch (error) {
         expect(error).toBeInstanceOf(ConflictException)
         expect(error).toHaveProperty(
@@ -139,7 +141,7 @@ describe('PasswordRecoveryService', () => {
 
       expect.assertions(2)
       try {
-        await passwordRecoveryService.recover(sampleEmail)
+        await passwordRecoveryService.recoverPassword(sampleEmail)
       } catch (error) {
         expect(error).not.toBeInstanceOf(ConflictException)
         expect(error).toHaveProperty('message', `Any error other error.`)

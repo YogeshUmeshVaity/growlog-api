@@ -29,7 +29,7 @@ export class PasswordRecoveryService {
     private readonly configService: ConfigService
   ) {}
 
-  async recover(email: string) {
+  async recoverPassword(email: string) {
     const user = await this.usersRepo.findByEmailWithRecovery(email)
     this.throwIfNoUserByEmail(user)
     this.throwIfSocialUser(user)
