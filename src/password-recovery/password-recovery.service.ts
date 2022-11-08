@@ -19,6 +19,15 @@ import { ValidateCodeDto } from './dtos/validate-code.dto'
 import { PasswordRecovery } from './password-recovery.entity'
 import { PasswordRecoveryRepository } from './password-recovery.repository'
 
+/**
+ * Handles the routes related to the AccountRecovery of the User.
+ * How does it work?
+ * 1. User provides an email address to recoverPassword().
+ * 2. recoverPassword() creates a recovery code and sends it via email.
+ * 3. User provides the recovery code to validateCode().
+ * 4. The validateCode() validates the code and sends the code back along with the username.
+ * 6. setNewPassword() validates the code and sets the new password.
+ */
 @Injectable()
 export class PasswordRecoveryService {
   private readonly logger = new Logger(PasswordRecoveryService.name)
@@ -29,6 +38,9 @@ export class PasswordRecoveryService {
     private readonly configService: ConfigService
   ) {}
 
+  /**
+   * Creates a recovery code and sends it via email.
+   */
   async recoverPassword(email: string) {
     const user = await this.usersRepo.findByEmailWithRecovery(email)
     this.throwIfNoUserByEmail(user)
@@ -39,6 +51,9 @@ export class PasswordRecoveryService {
     return 'A password reset link has been sent to your email.'
   }
 
+  /**
+   * Validates the code and sends the code back along with the username.
+   */
   async validateCode(validateCodeDto: ValidateCodeDto) {
     const { recoveryCode } = validateCodeDto
     const passwordRecovery = await this.findAndValidate(recoveryCode)
@@ -48,6 +63,9 @@ export class PasswordRecoveryService {
     }
   }
 
+  /**
+   * Sets the new password only after validating the recovery code.
+   */
   async setNewPassword(passwords: SetNewPasswordDto) {
     const { recoveryCode, newPassword, confirmPassword } = passwords
     const passwordRecovery = await this.findAndValidate(recoveryCode)
