@@ -10,7 +10,9 @@ import { QueryFailedError } from 'typeorm'
 import {
   validCode as validCode,
   validRecovery,
-  expiredRecovery
+  expiredRecovery,
+  forwardSystemTimeOnceBy,
+  expiryMinutes
 } from '../../test/password-recovery/fixtures/validate-code.fixtures'
 import {
   googleUserWithRecovery,
@@ -56,7 +58,7 @@ describe('PasswordRecoveryService', () => {
     expect(passwordRecoveryService).toBeDefined()
   })
 
-  describe(`recover`, () => {
+  describe(`recover()`, () => {
     it(`should send a recovery email.`, async () => {
       await passwordRecoveryService.recover(sampleEmail)
       expect(emailService.sendEmail).toBeCalled()
@@ -146,7 +148,7 @@ describe('PasswordRecoveryService', () => {
     })
   })
 
-  describe(`validateCode`, () => {
+  describe(`validateCode()`, () => {
     it(`should return the same recovery code when the code is valid.`, async () => {
       const validatedCode = await passwordRecoveryService.validateCode(
         validCode
@@ -166,9 +168,8 @@ describe('PasswordRecoveryService', () => {
     })
 
     it(`should throw when the given recovery code is expired.`, async () => {
-      passwordRecoveryRepository.findByCode = jest
-        .fn()
-        .mockResolvedValue(expiredRecovery())
+      // make the code expire
+      forwardSystemTimeOnceBy(expiryMinutes())
 
       expect.assertions(2)
       try {
@@ -183,17 +184,20 @@ describe('PasswordRecoveryService', () => {
     })
 
     it(`should delete the given recovery code when it is expired.`, async () => {
-      const expiredPasswordRecovery = expiredRecovery()
+      // need to mock the recovery here, because we need the same instance for assertion
+      const recovery = validRecovery()
       passwordRecoveryRepository.findByCode = jest
         .fn()
-        .mockResolvedValue(expiredPasswordRecovery)
+        .mockResolvedValue(recovery)
+
+      // make the code expire
+      forwardSystemTimeOnceBy(expiryMinutes())
+
       expect.assertions(1)
       try {
         await passwordRecoveryService.validateCode(validCode)
       } catch (error) {
-        expect(passwordRecoveryRepository.delete).toBeCalledWith(
-          expiredPasswordRecovery
-        )
+        expect(passwordRecoveryRepository.delete).toBeCalledWith(recovery)
       }
     })
   })
