@@ -191,7 +191,9 @@ export class PasswordRecoveryService {
       return await this.passwordRecoveryRepo.create(code, user, expiryDate)
     } catch (error) {
       if (error instanceof QueryFailedError) {
-        this.logger.error(`Maybe two users had the same account recovery code.`)
+        this.logger.error(
+          `Maybe two users had the same password recovery code.`
+        )
         this.logger.error(error)
         throw new ConflictException('Something went wrong. Please try again.')
       } else {
