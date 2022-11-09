@@ -16,7 +16,8 @@ export const clearDb = async (dataSource: DataSource) => {
   try {
     await dataSource.synchronize(true)
   } catch (err) {
-    throw new Error('Unable to clear the database.')
+    console.log(`Unable to clear the database before test.`)
+    throw err
   }
 }
 
