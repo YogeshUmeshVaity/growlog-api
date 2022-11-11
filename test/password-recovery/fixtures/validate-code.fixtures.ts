@@ -54,6 +54,10 @@ export function expiryMinutes() {
 /**
  * Sets the current system time to a future time. This is happens for just one call of Date.now().
  * The subsequent calls to Date.now() will return the normal current time.
+ *
+ * Warning: this will not work in unit tests, because the tests in multiple files run concurrently.
+ * Works in e2e tests because we are running the tests one file at a time.
+ *
  * @param minutes is the number of minutes you want to forward the time by.
  */
 export function forwardSystemTimeOnceBy(minutes: number) {

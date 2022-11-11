@@ -14,8 +14,7 @@ import {
   userWithRecovery
 } from '../../test/password-recovery/fixtures/recover-password.fixtures'
 import {
-  expiryMinutes,
-  forwardSystemTimeOnceBy,
+  expiredRecovery,
   validCode,
   validRecovery
 } from '../../test/password-recovery/fixtures/validate-code.fixtures'
@@ -169,8 +168,9 @@ describe('PasswordRecoveryService', () => {
     })
 
     it(`should throw when the given recovery code is expired.`, async () => {
-      // make the code expire
-      forwardSystemTimeOnceBy(expiryMinutes())
+      passwordRecoveryRepository.findByCode = jest
+        .fn()
+        .mockResolvedValue(expiredRecovery())
 
       expect.assertions(2)
       try {
@@ -185,20 +185,17 @@ describe('PasswordRecoveryService', () => {
     })
 
     it(`should delete the given recovery code when it is expired.`, async () => {
-      // need to mock the recovery here, because we need the same instance for assertion
-      const recovery = validRecovery()
+      const expiredPasswordRecovery = expiredRecovery()
       passwordRecoveryRepository.findByCode = jest
         .fn()
-        .mockResolvedValue(recovery)
-
-      // make the code expire
-      forwardSystemTimeOnceBy(expiryMinutes())
-
+        .mockResolvedValue(expiredPasswordRecovery)
       expect.assertions(1)
       try {
         await passwordRecoveryService.validateCode(validCode)
       } catch (error) {
-        expect(passwordRecoveryRepository.delete).toBeCalledWith(recovery)
+        expect(passwordRecoveryRepository.delete).toBeCalledWith(
+          expiredPasswordRecovery
+        )
       }
     })
   })
