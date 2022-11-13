@@ -7,7 +7,7 @@ import {
 } from '../../users/dtos/signup-user.dto'
 import { RecoveryCodeValidations } from './validate-code.dto'
 
-export class SetNewPasswordDto {
+export class ResetPasswordDto {
   @RecoveryCodeValidations()
   readonly recoveryCode: string
 

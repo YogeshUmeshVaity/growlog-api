@@ -14,7 +14,7 @@ import { EmailService } from '../email-service/email.service'
 import { EmailMessage } from '../users/dtos/email-message.dto'
 import { User } from '../users/user.entity'
 import { UsersRepository } from '../users/users.repository'
-import { SetNewPasswordDto } from './dtos/set-new-password.dto'
+import { ResetPasswordDto } from './dtos/reset-password.dto'
 import { ValidateCodeDto } from './dtos/validate-code.dto'
 import { PasswordRecovery } from './password-recovery.entity'
 import { PasswordRecoveryRepository } from './password-recovery.repository'
@@ -26,7 +26,7 @@ import { PasswordRecoveryRepository } from './password-recovery.repository'
  * 2. recoverPassword() creates a recovery code and sends it via email.
  * 3. User provides the recovery code to validateCode().
  * 4. The validateCode() validates the code and sends the code back along with the username.
- * 6. setNewPassword() validates the code and sets the new password.
+ * 6. resetPassword() validates the code and sets the new password.
  */
 @Injectable()
 export class PasswordRecoveryService {
@@ -66,7 +66,7 @@ export class PasswordRecoveryService {
   /**
    * Sets the new password only after validating the recovery code.
    */
-  async setNewPassword(passwords: SetNewPasswordDto) {
+  async resetPassword(passwords: ResetPasswordDto) {
     const { recoveryCode, newPassword, confirmPassword } = passwords
     const passwordRecovery = await this.findAndValidate(recoveryCode)
     const user = passwordRecovery.user

@@ -1,6 +1,6 @@
 import { Body, Controller, Get, Post } from '@nestjs/common'
 import { RecoverPasswordDto } from './dtos/recover-password.dto'
-import { SetNewPasswordDto } from './dtos/set-new-password.dto'
+import { ResetPasswordDto } from './dtos/reset-password.dto'
 import { ValidateCodeDto } from './dtos/validate-code.dto'
 import { PasswordRecoveryService } from './password-recovery.service'
 
@@ -11,9 +11,9 @@ import { PasswordRecoveryService } from './password-recovery.service'
  * 2. The recover-password creates a recovery code and sends it via email.
  * 3. User enters the recovery code in the 'Validate Code' screen.
  * 4. The validate-code route validates the code and sends the code back along with the username.
- * 5. If the code is valid, the 'Set New Password' screen displays the username and a form to set
+ * 5. If the code is valid, the 'Reset Password' screen displays the username and a form to set
  *    the new password.
- * 6. set-new-password route validates the code and sets the new password.
+ * 6. The reset-password route validates the code and sets the new password.
  */
 @Controller('password-recovery')
 export class PasswordRecoveryController {
@@ -45,8 +45,8 @@ export class PasswordRecoveryController {
    * Resets the password after validating the recovery code.
    * @param passwords contains the fields recoveryCode, newPassword and confirmPassword.
    */
-  @Post('set-new-password')
-  async setNewPassword(@Body() passwords: SetNewPasswordDto) {
-    return await this.passwordRecoveryService.setNewPassword(passwords)
+  @Post('reset-password')
+  async setNewPassword(@Body() passwords: ResetPasswordDto) {
+    return await this.passwordRecoveryService.resetPassword(passwords)
   }
 }
