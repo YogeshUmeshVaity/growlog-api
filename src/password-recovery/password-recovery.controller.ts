@@ -7,11 +7,12 @@ import { PasswordRecoveryService } from './password-recovery.service'
 /**
  * Handles the routes related to the account recovery of the User.
  * How does it work?
- * 1. User provides an email address to route recover-password.
+ * 1. User provides an email address to the route recover-password.
  * 2. The recover-password creates a recovery code and sends it via email.
  * 3. User enters the recovery code in the 'Validate Code' screen.
- * 4. The validate-route validates the code and sends the code back along with the username.
- * 5. 'Set New Password' screen displays the username and a form to set new password.
+ * 4. The validate-code route validates the code and sends the code back along with the username.
+ * 5. If the code is valid, the 'Set New Password' screen displays the username and a form to set
+ *    the new password.
  * 6. set-new-password route validates the code and sets the new password.
  */
 @Controller('password-recovery')
