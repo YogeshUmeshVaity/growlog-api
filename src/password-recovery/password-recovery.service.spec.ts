@@ -14,6 +14,10 @@ import {
   userWithRecovery
 } from '../../test/password-recovery/fixtures/recover-password.fixtures'
 import {
+  mismatchedPasswords,
+  validPasswords
+} from '../../test/password-recovery/fixtures/reset-password.fixtures'
+import {
   expiredRecovery,
   validCode,
   validRecovery
@@ -23,6 +27,7 @@ import { EmailService } from '../email-service/email.service'
 import { PasswordRecoveryRepository } from '../password-recovery/password-recovery.repository'
 import { UsersRepository } from '../users/users.repository'
 import { PasswordRecoveryService } from './password-recovery.service'
+import * as bcrypt from 'bcrypt'
 
 describe('PasswordRecoveryService', () => {
   let passwordRecoveryService: PasswordRecoveryService
@@ -56,7 +61,7 @@ describe('PasswordRecoveryService', () => {
     expect(passwordRecoveryService).toBeDefined()
   })
 
-  describe(`recoverPassword()`, () => {
+  describe(`recoverPassword`, () => {
     it(`should send a recovery email.`, async () => {
       await passwordRecoveryService.recoverPassword(sampleEmail)
       expect(emailService.sendEmail).toBeCalled()
@@ -148,12 +153,13 @@ describe('PasswordRecoveryService', () => {
     })
   })
 
-  describe(`validateCode()`, () => {
-    it(`should return the same recovery code when the code is valid.`, async () => {
+  describe(`validateCode`, () => {
+    it(`should return the same recovery code and username when the code is valid.`, async () => {
       const validatedCode = await passwordRecoveryService.validateCode(
         validCode
       )
       expect(validatedCode.recoveryCode).toEqual(validCode.recoveryCode)
+      expect(validatedCode).toHaveProperty('username')
     })
 
     it(`should throw when the given recovery code is not found in database.`, async () => {
@@ -197,6 +203,101 @@ describe('PasswordRecoveryService', () => {
           expiredPasswordRecovery
         )
       }
+    })
+  })
+  describe(`resetPassword`, () => {
+    it(`should set the new password when the recovery code is valid.`, async () => {
+      jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => false)
+      await passwordRecoveryService.resetPassword(validPasswords)
+      expect(usersRepository.updatePassword).toBeCalled()
+    })
+
+    it(`should throw when the given recovery code is not found in database.`, async () => {
+      passwordRecoveryRepository.findByCode = jest.fn().mockResolvedValue(null) // code not found
+      expect.assertions(2)
+      try {
+        await passwordRecoveryService.resetPassword(validPasswords)
+      } catch (error) {
+        expect(error).toBeInstanceOf(NotFoundException)
+        expect(error).toHaveProperty('message', `Code not found.`)
+      }
+    })
+
+    it(`should throw when the given recovery code is expired.`, async () => {
+      passwordRecoveryRepository.findByCode = jest
+        .fn()
+        .mockResolvedValue(expiredRecovery())
+
+      expect.assertions(2)
+      try {
+        await passwordRecoveryService.resetPassword(validPasswords)
+      } catch (error) {
+        expect(error).toBeInstanceOf(UnauthorizedException)
+        expect(error).toHaveProperty(
+          'message',
+          `The recovery code has expired.`
+        )
+      }
+    })
+
+    it(`should delete the given recovery code when it is expired.`, async () => {
+      const expiredPasswordRecovery = expiredRecovery()
+      passwordRecoveryRepository.findByCode = jest
+        .fn()
+        .mockResolvedValue(expiredPasswordRecovery)
+      expect.assertions(1)
+      try {
+        await passwordRecoveryService.resetPassword(validPasswords)
+      } catch (error) {
+        expect(passwordRecoveryRepository.delete).toBeCalledWith(
+          expiredPasswordRecovery
+        )
+      }
+    })
+
+    it(`should throw when the new password and confirm-password do not match.`, async () => {
+      expect.assertions(2)
+      try {
+        await passwordRecoveryService.resetPassword(mismatchedPasswords)
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException)
+        expect(error).toHaveProperty('message', `Confirm Password must match.`)
+      }
+    })
+
+    it(`should throw when the new password is same as the current password.`, async () => {
+      jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => true)
+      expect.assertions(2)
+      try {
+        await passwordRecoveryService.resetPassword(validPasswords)
+      } catch (error) {
+        expect(error).toBeInstanceOf(BadRequestException)
+        expect(error).toHaveProperty(
+          'message',
+          `Do not use your old password as the new password.`
+        )
+      }
+    })
+
+    it(`should hash the new password when the recovery code is valid.`, async () => {
+      jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => false)
+      jest.spyOn(bcrypt, 'hash')
+      await passwordRecoveryService.resetPassword(validPasswords)
+      expect(bcrypt.hash).toBeCalledWith(
+        validPasswords.newPassword,
+        expect.anything()
+      )
+    })
+
+    it(`should delete the recovery code when the password reset is successful.`, async () => {
+      jest.spyOn(bcrypt, 'compare').mockImplementationOnce(() => false)
+      const recoveryToDelete = validRecovery()
+      passwordRecoveryRepository.findByCode = jest
+        .fn()
+        .mockResolvedValue(recoveryToDelete)
+
+      await passwordRecoveryService.resetPassword(validPasswords)
+      expect(passwordRecoveryRepository.delete).toBeCalledWith(recoveryToDelete)
     })
   })
 })
