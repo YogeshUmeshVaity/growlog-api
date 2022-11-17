@@ -1,16 +1,41 @@
 import { plainToInstance } from 'class-transformer'
+import { validate } from 'class-validator'
 import {
-  codeWithSpaces,
-  validCode
-} from '../../../test/password-recovery/fixtures/validate-code.fixtures'
-import { ValidateCodeDto } from './validate-code.dto'
+  recoveryCode,
+  shortRecoveryCode
+} from '../../../test/password-recovery/fixtures/recover-password.fixtures'
+import { stringified } from '../../../test/utils/test.utils'
+import { RECOVERY_CODE_LENGTH, ValidateCodeDto } from './validate-code.dto'
 
 describe(`ValidateCodeDto`, () => {
-  it(`should trim the spaces in the recovery code.`, async () => {
+  it(`should trim the outer spaces in the recovery code.`, async () => {
+    const spaces = '  '
+    const codeWithSpaces = spaces + recoveryCode + spaces
+    const codeWithSpacesObject = { recoveryCode: codeWithSpaces }
+
     // Before validation
-    expect(codeWithSpaces.recoveryCode).toContain(' ')
-    const validateCodeDto = plainToInstance(ValidateCodeDto, codeWithSpaces)
+    expect(codeWithSpacesObject.recoveryCode).toContain(spaces)
+
+    // validation
+    const validateCodeDto = plainToInstance(
+      ValidateCodeDto,
+      codeWithSpacesObject
+    )
+
     // After validation
-    expect(validateCodeDto.recoveryCode).toEqual(validCode.recoveryCode)
+    expect(validateCodeDto.recoveryCode).not.toContain(spaces)
+  })
+
+  it(`should throw when length of the code is not ${RECOVERY_CODE_LENGTH}.`, async () => {
+    const shortRecoveryCodeObject = { recoveryCode: shortRecoveryCode }
+    const validateCodeDto = plainToInstance(
+      ValidateCodeDto,
+      shortRecoveryCodeObject
+    )
+    const errors = await validate(validateCodeDto)
+
+    expect(stringified(errors)).toContain(
+      `Recovery code must be exactly ${RECOVERY_CODE_LENGTH} characters long.`
+    )
   })
 })
