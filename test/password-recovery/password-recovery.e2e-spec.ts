@@ -4,7 +4,9 @@ import * as request from 'supertest'
 import { DataSource, QueryFailedError } from 'typeorm'
 import { AppModule } from '../../src/app.module'
 import { EmailService } from '../../src/email-service/email.service'
+import { RECOVERY_CODE_LENGTH } from '../../src/password-recovery/dtos/validate-code.dto'
 import { PasswordRecoveryRepository } from '../../src/password-recovery/password-recovery.repository'
+import { MIN_LENGTH_PASSWORD } from '../../src/users/dtos/signup-user.dto'
 import { mockGoogleAuthUserData } from '../common-mocks/google-auth-service.mock'
 import { EmptyLogger } from '../common-mocks/logger.mock'
 import { sampleUser as googleUser } from '../users/fixtures/find-me.fixtures'
@@ -13,6 +15,14 @@ import {
   userWithCorrectInfo as userInfo
 } from '../users/fixtures/sign-up.fixtures'
 import { clearDb, messageFrom } from '../utils/test.utils'
+import {
+  mismatchedPasswordsWith,
+  noSpecialCharPasswordsWith,
+  oldPasswordsWith,
+  shortPasswordsWith,
+  validPasswords,
+  validPasswordsWith
+} from './fixtures/reset-password.fixtures'
 import {
   expiryMinutes,
   forwardSystemTimeOnceBy,
@@ -147,7 +157,7 @@ describe(`PasswordRecoveryModule`, () => {
   })
 
   describe(`validate-code`, () => {
-    it(`should return the same recovery code when the code is valid.`, async () => {
+    it(`should return username and the same recovery code when the code is valid.`, async () => {
       const emailSpy = await spyOnEmailService(app)
 
       // create a recovery
@@ -164,6 +174,7 @@ describe(`PasswordRecoveryModule`, () => {
         .expect(200)
 
       expect(response.body.recoveryCode).toEqual(recoveryCode)
+      expect(response.body.username).toEqual(userInfo.username)
     })
 
     it(`should throw when the given recovery code is not found in database.`, async () => {
@@ -239,17 +250,255 @@ describe(`PasswordRecoveryModule`, () => {
     })
   })
 
-  // describe(`set-new-password`, () => {
-  //   it(`should return the same recovery code when the code is valid.`, async () => {
+  describe(`reset-password`, () => {
+    it(`should set the new password when the recovery code is valid.`, async () => {
+      const emailSpy = await spyOnEmailService(app)
 
-  //     await request(app.getHttpServer())
-  //       .post('/account-recovery/set-new-password')
-  //       .send({ email: userInfo.email })
-  //       .expect(201)
+      // create a recovery
+      await request(app.getHttpServer())
+        .post('/password-recovery/recover-password')
+        .send({ email: userInfo.email })
+        .expect(201)
+      const codeFromEmail = getRecoveryCodeFrom(emailSpy)
 
-  //     expect(response.body.recoveryCode).toEqual(recoveryCode)
-  //   })
-  // })
+      // validate code and get username
+      const validatedResponse = await request(app.getHttpServer())
+        .get('/password-recovery/validate-code')
+        .send({ recoveryCode: codeFromEmail })
+        .expect(200)
+      const { username, recoveryCode } = validatedResponse.body
+
+      // reset password
+      await request(app.getHttpServer())
+        .post('/password-recovery/reset-password')
+        .send(validPasswordsWith(recoveryCode))
+        .expect(201)
+
+      // login with new password
+      await request(app.getHttpServer())
+        .post('/users/login')
+        .send({ username: username, password: validPasswords.newPassword })
+        .expect(201)
+    })
+
+    it(`should throw when the given recovery code is not found in database.`, async () => {
+      // reset password
+      const response = await request(app.getHttpServer())
+        .post('/password-recovery/reset-password')
+        .send(validPasswordsWith(invalidCode.recoveryCode))
+        .expect(404)
+      expect(messageFrom(response)).toEqual(`Code not found.`)
+    })
+
+    it(`should throw when the given recovery code is expired.`, async () => {
+      const emailSpy = await spyOnEmailService(app)
+
+      // create a recovery code
+      await request(app.getHttpServer())
+        .post('/password-recovery/recover-password')
+        .send({ email: userInfo.email })
+        .expect(201)
+      const codeFromEmail = getRecoveryCodeFrom(emailSpy)
+
+      // make the code expire
+      forwardSystemTimeOnceBy(expiryMinutes())
+
+      // reset password
+      const response = await request(app.getHttpServer())
+        .post('/password-recovery/reset-password')
+        .send(validPasswordsWith(codeFromEmail))
+        .expect(401)
+      expect(messageFrom(response)).toEqual(`The recovery code has expired.`)
+    })
+
+    it(`should delete the given recovery code when it is expired.`, async () => {
+      const emailSpy = await spyOnEmailService(app)
+
+      // create a recovery code
+      await request(app.getHttpServer())
+        .post('/password-recovery/recover-password')
+        .send({ email: userInfo.email })
+        .expect(201)
+      const codeFromEmail = getRecoveryCodeFrom(emailSpy)
+
+      // make the code expire
+      forwardSystemTimeOnceBy(expiryMinutes())
+
+      // try to reset password: this will delete the code
+      const expiredResponse = await request(app.getHttpServer())
+        .post('/password-recovery/reset-password')
+        .send(validPasswordsWith(codeFromEmail))
+        .expect(401)
+      expect(messageFrom(expiredResponse)).toEqual(
+        `The recovery code has expired.`
+      )
+
+      // try to reset password again: code should not be found
+      const deletedResponse = await request(app.getHttpServer())
+        .post('/password-recovery/reset-password')
+        .send(validPasswordsWith(codeFromEmail))
+        .expect(404)
+      expect(messageFrom(deletedResponse)).toEqual(`Code not found.`)
+    })
+
+    it(`should throw when the new password and confirm-password do not match.`, async () => {
+      const emailSpy = await spyOnEmailService(app)
+
+      // create a recovery code
+      await request(app.getHttpServer())
+        .post('/password-recovery/recover-password')
+        .send({ email: userInfo.email })
+        .expect(201)
+      const codeFromEmail = getRecoveryCodeFrom(emailSpy)
+
+      // reset password
+      const response = await request(app.getHttpServer())
+        .post('/password-recovery/reset-password')
+        .send(mismatchedPasswordsWith(codeFromEmail))
+        .expect(400)
+      expect(messageFrom(response)).toEqual(`Confirm Password must match.`)
+    })
+
+    it(`should throw when the new password is same as the current password.`, async () => {
+      const emailSpy = await spyOnEmailService(app)
+
+      // create a recovery code
+      await request(app.getHttpServer())
+        .post('/password-recovery/recover-password')
+        .send({ email: userInfo.email })
+        .expect(201)
+      const codeFromEmail = getRecoveryCodeFrom(emailSpy)
+
+      // reset password
+      const response = await request(app.getHttpServer())
+        .post('/password-recovery/reset-password')
+        .send(oldPasswordsWith(codeFromEmail))
+        .expect(400)
+      expect(messageFrom(response)).toEqual(
+        `Do not use your old password as the new password.`
+      )
+    })
+
+    it(`should delete the recovery code when the password reset is successful.`, async () => {
+      const emailSpy = await spyOnEmailService(app)
+
+      // create a recovery
+      await request(app.getHttpServer())
+        .post('/password-recovery/recover-password')
+        .send({ email: userInfo.email })
+        .expect(201)
+      const codeFromEmail = getRecoveryCodeFrom(emailSpy)
+
+      // validate code and get username
+      const validatedResponse = await request(app.getHttpServer())
+        .get('/password-recovery/validate-code')
+        .send({ recoveryCode: codeFromEmail })
+        .expect(200)
+      const recoveryCode = validatedResponse.body.recoveryCode
+
+      // reset password
+      await request(app.getHttpServer())
+        .post('/password-recovery/reset-password')
+        .send(validPasswordsWith(recoveryCode))
+        .expect(201)
+
+      // reset password again with the same code: it should not be found
+      const notFoundResponse = await request(app.getHttpServer())
+        .post('/password-recovery/reset-password')
+        .send(validPasswordsWith(codeFromEmail))
+        .expect(404)
+      expect(messageFrom(notFoundResponse)).toEqual(`Code not found.`)
+    })
+
+    it(`should throw when length of the code is not ${RECOVERY_CODE_LENGTH}.`, async () => {
+      const response = await request(app.getHttpServer())
+        .post('/password-recovery/reset-password')
+        .send(validPasswordsWith('shorter-length-recovery-code'))
+        .expect(400)
+
+      expect(messageFrom(response)).toEqual(
+        `Recovery code must be exactly ${RECOVERY_CODE_LENGTH} characters long.`
+      )
+    })
+
+    it(`should trim the outer spaces in the recovery code provided by user.`, async () => {
+      const emailSpy = await spyOnEmailService(app)
+
+      // create a recovery
+      await request(app.getHttpServer())
+        .post('/password-recovery/recover-password')
+        .send({ email: userInfo.email })
+        .expect(201)
+      const codeFromEmail = getRecoveryCodeFrom(emailSpy)
+      const codeWithSpaces = '  ' + codeFromEmail + '  '
+
+      // reset password
+      await request(app.getHttpServer())
+        .post('/password-recovery/reset-password')
+        .send(validPasswordsWith(codeWithSpaces))
+        .expect(201)
+    })
+
+    it(`should throw when length of the new password is less than ${MIN_LENGTH_PASSWORD}.`, async () => {
+      const emailSpy = await spyOnEmailService(app)
+
+      // create a recovery
+      await request(app.getHttpServer())
+        .post('/password-recovery/recover-password')
+        .send({ email: userInfo.email })
+        .expect(201)
+      const codeFromEmail = getRecoveryCodeFrom(emailSpy)
+
+      const response = await request(app.getHttpServer())
+        .post('/password-recovery/reset-password')
+        .send(shortPasswordsWith(codeFromEmail))
+        .expect(400)
+
+      expect(messageFrom(response)).toEqual(
+        `New Password must be at least ${MIN_LENGTH_PASSWORD} characters long.`
+      )
+    })
+
+    it(`should throw when the new password doesn't contain a special character`, async () => {
+      const emailSpy = await spyOnEmailService(app)
+
+      // create a recovery
+      await request(app.getHttpServer())
+        .post('/password-recovery/recover-password')
+        .send({ email: userInfo.email })
+        .expect(201)
+      const codeFromEmail = getRecoveryCodeFrom(emailSpy)
+
+      const response = await request(app.getHttpServer())
+        .post('/password-recovery/reset-password')
+        .send(noSpecialCharPasswordsWith(codeFromEmail))
+        .expect(400)
+
+      expect(messageFrom(response)).toEqual(
+        `New Password must contain at least 1 digit and 1 special character.`
+      )
+    })
+
+    it(`should throw when the new password doesn't contain a digit`, async () => {
+      const emailSpy = await spyOnEmailService(app)
+
+      // create a recovery
+      await request(app.getHttpServer())
+        .post('/password-recovery/recover-password')
+        .send({ email: userInfo.email })
+        .expect(201)
+      const codeFromEmail = getRecoveryCodeFrom(emailSpy)
+
+      const response = await request(app.getHttpServer())
+        .post('/password-recovery/reset-password')
+        .send(noSpecialCharPasswordsWith(codeFromEmail))
+        .expect(400)
+
+      expect(messageFrom(response)).toEqual(
+        `New Password must contain at least 1 digit and 1 special character.`
+      )
+    })
+  })
 })
 
 async function createUser(app: INestApplication) {
