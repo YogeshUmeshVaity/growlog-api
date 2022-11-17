@@ -91,7 +91,7 @@ describe(`SignUpDto`, () => {
     expect(signUpDto.username).toEqual(userWithCorrectInfo.username) // after
   })
 
-  it(`should trim the spaces in email`, async () => {
+  it(`should trim the spaces in email.`, async () => {
     expect(userWithEmailSpaces.email).toContain(' ')
     const signUpDto = plainToInstance(SignUpDto, userWithEmailSpaces)
     expect(signUpDto.email).toEqual(userWithCorrectInfo.email)
