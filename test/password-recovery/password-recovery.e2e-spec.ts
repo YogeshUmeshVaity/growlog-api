@@ -15,6 +15,7 @@ import {
   userWithCorrectInfo as userInfo
 } from '../users/fixtures/sign-up.fixtures'
 import { clearDb, messageFrom } from '../utils/test.utils'
+import { shortRecoveryCode } from './fixtures/recover-password.fixtures'
 import {
   mismatchedPasswordsWith,
   noSpecialCharPasswordsWith,
@@ -442,7 +443,7 @@ describe(`PasswordRecoveryModule`, () => {
     it(`should throw when length of the code is not ${RECOVERY_CODE_LENGTH}.`, async () => {
       const response = await request(app.getHttpServer())
         .post('/password-recovery/reset-password')
-        .send(validPasswordsWith('shorter-length-recovery-code'))
+        .send(validPasswordsWith(shortRecoveryCode))
         .expect(400)
 
       expect(messageFrom(response)).toEqual(
@@ -459,7 +460,8 @@ describe(`PasswordRecoveryModule`, () => {
         .send({ email: userInfo.email })
         .expect(201)
       const codeFromEmail = getRecoveryCodeFrom(emailSpy)
-      const codeWithSpaces = '  ' + codeFromEmail + '  '
+      const spaces = '  '
+      const codeWithSpaces = spaces + codeFromEmail + spaces
 
       // reset password: success means the spaces were trimmed successfully
       await request(app.getHttpServer())
@@ -488,7 +490,7 @@ describe(`PasswordRecoveryModule`, () => {
       )
     })
 
-    it(`should throw when the new password doesn't contain a special character`, async () => {
+    it(`should throw when the new password doesn't contain a special character.`, async () => {
       const emailSpy = await spyOnEmailService(app)
 
       // create a recovery
@@ -508,7 +510,7 @@ describe(`PasswordRecoveryModule`, () => {
       )
     })
 
-    it(`should throw when the new password doesn't contain a digit`, async () => {
+    it(`should throw when the new password doesn't contain a digit.`, async () => {
       const emailSpy = await spyOnEmailService(app)
 
       // create a recovery
