@@ -248,6 +248,35 @@ describe(`PasswordRecoveryModule`, () => {
         .expect(404)
       expect(messageFrom(deletedResponse)).toEqual(`Code not found.`)
     })
+
+    it(`should throw when length of the code is not ${RECOVERY_CODE_LENGTH}.`, async () => {
+      const response = await request(app.getHttpServer())
+        .get('/password-recovery/validate-code')
+        .send({ recoveryCode: 'shorter-length-recovery-code' })
+        .expect(400)
+
+      expect(messageFrom(response)).toEqual(
+        `Recovery code must be exactly ${RECOVERY_CODE_LENGTH} characters long.`
+      )
+    })
+
+    it(`should trim the outer spaces in the recovery code provided by user.`, async () => {
+      const emailSpy = await spyOnEmailService(app)
+
+      // create a recovery
+      await request(app.getHttpServer())
+        .post('/password-recovery/recover-password')
+        .send({ email: userInfo.email })
+        .expect(201)
+      const codeFromEmail = getRecoveryCodeFrom(emailSpy)
+      const codeWithSpaces = '  ' + codeFromEmail + '  '
+
+      // validate code: success means the spaces were trimmed successfully
+      await request(app.getHttpServer())
+        .get('/password-recovery/validate-code')
+        .send({ recoveryCode: codeWithSpaces })
+        .expect(200)
+    })
   })
 
   describe(`reset-password`, () => {
@@ -432,7 +461,7 @@ describe(`PasswordRecoveryModule`, () => {
       const codeFromEmail = getRecoveryCodeFrom(emailSpy)
       const codeWithSpaces = '  ' + codeFromEmail + '  '
 
-      // reset password
+      // reset password: success means the spaces were trimmed successfully
       await request(app.getHttpServer())
         .post('/password-recovery/reset-password')
         .send(validPasswordsWith(codeWithSpaces))
