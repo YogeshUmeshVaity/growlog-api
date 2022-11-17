@@ -111,7 +111,7 @@ export function ConfirmPasswordValidations() {
   return applyDecorators(
     IsString(),
 
-    // Empty check is required because we check the equality first.
+    // Empty check is required because we check the 'password' and 'confirm-password' equality first.
     IsNotEmpty({ message: `Confirm Password must not be empty.` })
   )
 }
