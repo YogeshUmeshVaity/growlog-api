@@ -9,8 +9,8 @@ import { RecoverPasswordDto } from './recover-password.dto'
 
 describe(`RecoverPasswordDto`, () => {
   it(`should trim the spaces in email.`, async () => {
-    const spaces = '  '
-    const emailWithSpaces = spaces + userWithEmailSpaces.email + spaces
+    const spaces = ' '
+    const emailWithSpaces = userWithEmailSpaces.email
     const emailWithSpacesObject = { email: emailWithSpaces }
 
     // Before validation
