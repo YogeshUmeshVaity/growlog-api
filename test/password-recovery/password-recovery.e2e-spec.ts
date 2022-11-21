@@ -13,7 +13,7 @@ import { sampleUser as googleUser } from '../users/fixtures/find-me.fixtures'
 import {
   sampleToken,
   userWithCorrectInfo as userInfo
-} from '../users/fixtures/sign-up.fixtures'
+} from '../auth/fixtures/sign-up.fixtures'
 import { clearDb, messageFrom } from '../utils/test.utils'
 import { shortRecoveryCode } from './fixtures/recover-password.fixtures'
 import {
@@ -89,7 +89,7 @@ describe(`PasswordRecoveryModule`, () => {
       // Login using Google
       await mockGoogleAuthUserData(app)
       await request(app.getHttpServer())
-        .post('/users/google-login')
+        .post('/auth/google-login')
         .set('Authorization', `Bearer ${sampleToken.token}`)
         .expect(201)
 
@@ -306,7 +306,7 @@ describe(`PasswordRecoveryModule`, () => {
 
       // login with new password
       await request(app.getHttpServer())
-        .post('/users/login')
+        .post('/auth/login')
         .send({ username: username, password: validPasswords.newPassword })
         .expect(201)
     })
@@ -533,5 +533,5 @@ describe(`PasswordRecoveryModule`, () => {
 })
 
 async function createUser(app: INestApplication) {
-  await request(app.getHttpServer()).post('/users/sign-up').send(userInfo)
+  await request(app.getHttpServer()).post('/auth/sign-up').send(userInfo)
 }

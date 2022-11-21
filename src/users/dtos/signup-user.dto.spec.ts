@@ -12,7 +12,7 @@ import {
   userWithUsernameSpecialChars,
   userWithUsernameTwentyTwoChars,
   userWithUsernameTwoChars
-} from '../../../test/users/fixtures/sign-up.fixtures'
+} from '../../../test/auth/fixtures/sign-up.fixtures'
 import { stringified } from '../../../test/utils/test.utils'
 import {
   MAX_LENGTH_USERNAME,

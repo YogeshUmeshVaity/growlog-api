@@ -22,7 +22,7 @@ import {
   validCode,
   validRecovery
 } from '../../test/password-recovery/fixtures/validate-code.fixtures'
-import { userWithCorrectInfo } from '../../test/users/fixtures/sign-up.fixtures'
+import { userWithCorrectInfo } from '../../test/auth/fixtures/sign-up.fixtures'
 import { EmailService } from '../email-service/email.service'
 import { PasswordRecoveryRepository } from '../password-recovery/password-recovery.repository'
 import { UsersRepository } from '../users/users.repository'

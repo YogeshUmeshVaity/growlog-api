@@ -4,11 +4,11 @@ import {
   userWithPasswordSevenChars,
   userWithPasswordWithoutDigit,
   userWithPasswordWithoutSpecialChars
-} from '../../users/fixtures/sign-up.fixtures'
+} from '../../auth/fixtures/sign-up.fixtures'
 import {
   correctPasswords,
   wrongConfirmPassword
-} from '../../users/fixtures/update-password.fixtures'
+} from '../../auth/fixtures/update-password.fixtures'
 import { recoveryCode } from './recover-password.fixtures'
 
 export const validPasswords: ResetPasswordDto = {

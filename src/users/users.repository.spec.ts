@@ -4,8 +4,8 @@ import {
   expiration,
   recoveryCode
 } from '../../test/password-recovery/fixtures/recover-password.fixtures'
-import { userWithCorrectInfo as testUser } from '../../test/users/fixtures/sign-up.fixtures'
-import { correctPasswords } from '../../test/users/fixtures/update-password.fixtures'
+import { userWithCorrectInfo as testUser } from '../../test/auth/fixtures/sign-up.fixtures'
+import { correctPasswords } from '../../test/auth/fixtures/update-password.fixtures'
 import { createInMemoryDataSource } from '../../test/utils/in-memory-database'
 import { PasswordRecoveryRepository } from '../password-recovery/password-recovery.repository'
 import { UsersRepository } from './users.repository'

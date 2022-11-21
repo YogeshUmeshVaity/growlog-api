@@ -7,7 +7,7 @@ import { createInMemoryDataSource } from '../../test/utils/in-memory-database'
 import { UsersRepository } from '../users/users.repository'
 import { PasswordRecovery } from './password-recovery.entity'
 import { PasswordRecoveryRepository } from './password-recovery.repository'
-import { userWithCorrectInfo as userInfo } from '../../test/users/fixtures/sign-up.fixtures'
+import { userWithCorrectInfo as userInfo } from '../../test/auth/fixtures/sign-up.fixtures'
 import { User } from '../users/user.entity'
 
 describe('PasswordRecoveryRepository', () => {

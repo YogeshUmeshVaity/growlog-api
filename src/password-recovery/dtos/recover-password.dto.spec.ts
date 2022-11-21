@@ -3,7 +3,7 @@ import { validate } from 'class-validator'
 import {
   userWithEmailSpaces,
   userWithInvalidEmail
-} from '../../../test/users/fixtures/sign-up.fixtures'
+} from '../../../test/auth/fixtures/sign-up.fixtures'
 import { stringified } from '../../../test/utils/test.utils'
 import { RecoverPasswordDto } from './recover-password.dto'
 

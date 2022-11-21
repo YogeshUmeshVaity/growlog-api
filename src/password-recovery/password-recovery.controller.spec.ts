@@ -1,7 +1,7 @@
-import { JwtModule } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
 import { validCode } from '../../test/password-recovery/fixtures/validate-code.fixtures'
 import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
+import { JwtAuthGuard } from '../auth/jwt-auth.guard'
 import { PasswordRecoveryController } from './password-recovery.controller'
 import { PasswordRecoveryService } from './password-recovery.service'
 
@@ -10,10 +10,14 @@ describe('UsersController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [JwtModule.register(null)],
       controllers: [PasswordRecoveryController],
       providers: [passwordRecoveryServiceMock()]
-    }).compile()
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue({
+        canActivate: jest.fn().mockResolvedValue(true)
+      })
+      .compile()
 
     passwordRecoveryController = module.get<PasswordRecoveryController>(
       PasswordRecoveryController

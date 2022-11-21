@@ -1,13 +1,7 @@
-import { createMock } from '@golevelup/ts-jest'
-import { JwtModule } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
-import { Request } from 'express'
 import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
-import {
-  sampleToken,
-  userWithCorrectInfo as user
-} from '../../test/users/fixtures/sign-up.fixtures'
-import { correctPasswords } from '../../test/users/fixtures/update-password.fixtures'
+import { sampleToken } from '../../test/auth/fixtures/sign-up.fixtures'
+import { correctPasswords } from '../../test/auth/fixtures/update-password.fixtures'
 import { isGuarded } from '../../test/utils/is-guarded'
 import { AuthService } from '../auth/auth.service'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'
@@ -20,7 +14,6 @@ describe('UsersController', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [JwtModule.register(null)],
       controllers: [UsersController],
       providers: [
         {
@@ -42,7 +35,12 @@ describe('UsersController', () => {
           }
         }
       ]
-    }).compile()
+    })
+      .overrideGuard(JwtAuthGuard)
+      .useValue({
+        canActivate: jest.fn().mockResolvedValue(true)
+      })
+      .compile()
 
     usersController = module.get<UsersController>(UsersController)
     usersService = module.get<UsersService>(UsersService)
@@ -50,34 +48,6 @@ describe('UsersController', () => {
 
   it('should be defined', () => {
     expect(usersController).toBeDefined()
-  })
-
-  describe(`signUp`, () => {
-    it(`should return a token when correct user info is provided.`, async () => {
-      const returnedToken = await usersController.signUp(user)
-      expect(returnedToken).toEqual(sampleToken)
-      expect(usersService.signUp).toBeCalledWith(user)
-    })
-  })
-
-  describe(`login`, () => {
-    it(`should return a token when correct credentials are provided.`, async () => {
-      const returnedToken = await usersController.login({
-        username: user.username,
-        password: user.password
-      })
-      expect(returnedToken).toEqual(sampleToken)
-      expect(usersService.login).toBeCalledWith(user.username, user.password)
-    })
-  })
-
-  describe(`loginWithGoogle`, () => {
-    it(`should return a token when correct google access token is provided.`, async () => {
-      const request = createMock<Request>()
-      request.headers = { authorization: `bearer ${sampleToken.token}` }
-      const returnedToken = await usersController.loginWithGoogle(request)
-      expect(returnedToken).toEqual(sampleToken)
-    })
   })
 
   describe(`findMe`, () => {
@@ -91,15 +61,6 @@ describe('UsersController', () => {
       const returnedUser = usersController.findMe(sampleUser())
       expect(returnedUser.id).toEqual(sampleUser().id)
       expect(returnedUser.username).toEqual(sampleUser().username)
-    })
-  })
-
-  describe(`logoutOtherDevices`, () => {
-    it(`should invalidate the existing tokens from all devices.`, async () => {
-      const user = sampleUser()
-      const returnedToken = await usersController.logoutOtherDevices(user)
-      expect(returnedToken).toEqual(sampleToken)
-      expect(usersService.logoutOtherDevices).toBeCalledWith(user)
     })
   })
 
@@ -118,14 +79,6 @@ describe('UsersController', () => {
       const newEmail = 'newEmail@gmail.com'
       await usersController.updateEmail(user, newEmail)
       expect(usersService.updateEmail).toBeCalledWith(user, newEmail)
-    })
-  })
-
-  describe(`updatePassword`, () => {
-    it(`should update the password when valid info is provided.`, async () => {
-      const user = sampleUser()
-      await usersController.updatePassword(user, correctPasswords)
-      expect(usersService.updatePassword).toBeCalledWith(user, correctPasswords)
     })
   })
 })

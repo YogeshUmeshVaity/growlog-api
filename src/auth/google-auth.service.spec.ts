@@ -1,6 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
 import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
-import { sampleToken } from '../../test/users/fixtures/sign-up.fixtures'
+import { sampleToken } from '../../test/auth/fixtures/sign-up.fixtures'
 import { GoogleAuthService } from './google-auth.service'
 import { google } from 'googleapis'
 import { BadRequestException } from '@nestjs/common'

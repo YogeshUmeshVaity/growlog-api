@@ -9,7 +9,7 @@ import { Reflector } from '@nestjs/core'
 import { JwtService } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
 import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
-import { sampleToken } from '../../test/users/fixtures/sign-up.fixtures'
+import { sampleToken } from '../../test/auth/fixtures/sign-up.fixtures'
 import { UsersService } from '../users/users.service'
 import { AuthService } from './auth.service'
 import {
