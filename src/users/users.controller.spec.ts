@@ -1,7 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import { sampleToken } from '../../test/auth/fixtures/sign-up.fixtures'
-import { correctPasswords } from '../../test/auth/fixtures/update-password.fixtures'
+import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import { isGuarded } from '../../test/utils/is-guarded'
 import { AuthService } from '../auth/auth.service'
 import { JwtAuthGuard } from '../auth/jwt-auth.guard'

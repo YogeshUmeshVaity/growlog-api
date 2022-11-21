@@ -1,18 +1,11 @@
-import { BadRequestException, UnauthorizedException } from '@nestjs/common'
+import { BadRequestException } from '@nestjs/common'
 import { Test, TestingModule } from '@nestjs/testing'
-import * as bcrypt from 'bcrypt'
-import { configServiceMock } from '../../test/common-mocks/config-service.mock'
-import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import {
   sampleToken,
   userWithCorrectInfo
 } from '../../test/auth/fixtures/sign-up.fixtures'
-import {
-  correctPasswords,
-  sameNewPassword,
-  wrongConfirmPassword,
-  wrongCurrentPassword
-} from '../../test/auth/fixtures/update-password.fixtures'
+import { configServiceMock } from '../../test/common-mocks/config-service.mock'
+import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import { AuthService } from '../auth/auth.service'
 import { EmailService } from '../email-service/email.service'
 import { PasswordRecovery } from '../password-recovery/password-recovery.entity'
