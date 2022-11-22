@@ -31,10 +31,7 @@ export class JwtAuthGuard implements CanActivate {
   ) {}
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request: Request = context.switchToHttp().getRequest()
-    const isPublicRoute = this.reflector.get<boolean>(
-      IS_PUBLIC_ROUTE_KEY,
-      context.getHandler()
-    )
+    const isPublicRoute = this.checkForPublicRoute(context)
 
     if (isPublicRoute) {
       return true
@@ -47,6 +44,14 @@ export class JwtAuthGuard implements CanActivate {
     request.user = user
 
     return request.user !== null
+  }
+
+  private checkForPublicRoute(context: ExecutionContext) {
+    const isPublicRoute = this.reflector.get<boolean>(
+      IS_PUBLIC_ROUTE_KEY,
+      context.getHandler()
+    )
+    return isPublicRoute
   }
 
   private async verifyUser(userId: string) {
