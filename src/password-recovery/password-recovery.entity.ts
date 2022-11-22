@@ -26,7 +26,6 @@ export class PasswordRecovery {
 
   /**
    * Date and time of the expiry of the code. The code is invalid if it exceeds the expiration.
-   * TODO: rename to expiryTime
    */
   @Column()
   expiration: Date
