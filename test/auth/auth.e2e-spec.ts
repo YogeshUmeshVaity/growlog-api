@@ -21,10 +21,12 @@ import {
   userWithConfirmPasswordEmpty,
   userWithConfirmPasswordNoMatch,
   userWithCorrectInfo,
+  userWithEmailSpaces,
   userWithInvalidEmail,
   userWithPasswordSevenChars,
   userWithPasswordWithoutDigit,
   userWithPasswordWithoutSpecialChars,
+  userWithUsernameSpaces,
   userWithUsernameSpecialChars,
   userWithUsernameTwentyTwoChars,
   userWithUsernameTwoChars
@@ -185,7 +187,31 @@ describe(`UsersModule`, () => {
       expect(messageFrom(response)).toEqual(`Username already exists.`)
     })
 
-    //TODO: e2e test to check if spaces in username and email are trimmed.
+    it(`should trim the spaces in username when it contains spaces.`, async () => {
+      const signUpResponse = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(userWithUsernameSpaces)
+        .expect(201)
+      const findMeResponse = await request(app.getHttpServer())
+        .get('/users/me')
+        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+        .expect(200)
+      const spaces = ' '
+      expect(findMeResponse.body.username).not.toContain(spaces)
+    })
+
+    it(`should trim the spaces in email when it contains spaces.`, async () => {
+      const signUpResponse = await request(app.getHttpServer())
+        .post('/auth/sign-up')
+        .send(userWithEmailSpaces)
+        .expect(201)
+      const findMeResponse = await request(app.getHttpServer())
+        .get('/users/me')
+        .set('Authorization', `Bearer ${signUpResponse.body.token}`)
+        .expect(200)
+      const spaces = ' '
+      expect(findMeResponse.body.email).not.toContain(spaces)
+    })
   })
 
   describe(`loginWithGoogle`, () => {
