@@ -2,8 +2,6 @@ import { PasswordRecovery } from '../../../src/password-recovery/password-recove
 import { User } from '../../../src/users/user.entity'
 import { sampleUser } from '../../users/fixtures/find-me.fixtures'
 
-//TODO: move this file to test/password-recovery/fixtures
-
 /** For password recovery. */
 export const recoveryCode =
   'Q1iN-dBCUEaTiZ1rUV6ve07ZSH8Ilpf2otnJZgd2e3A4-igiRlSWKuaeaV4bdwAZ'
