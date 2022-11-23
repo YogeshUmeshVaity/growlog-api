@@ -14,18 +14,28 @@ import { UsersService } from '../users/users.service'
 import { extractTokenFrom } from '../utils/token-extractor'
 import { AuthService } from './auth.service'
 
-export const IS_PUBLIC_ROUTE_KEY = 'isPublicRoute'
-
-/**
- * When the JwtAuthGuard is applied to an entire Controller
- */
-export const PublicRoute = () => SetMetadata(IS_PUBLIC_ROUTE_KEY, true)
-
 interface DecodedToken {
   userId: string
   username: string
 }
 
+/**
+ * This constant is used inside the JwtAuthGuard to determine whether route being handled is
+ * decorated with @PublicRoute() decorator.
+ */
+export const IS_PUBLIC_ROUTE_KEY = 'isPublicRoute'
+
+/**
+ * When the JwtAuthGuard is applied to an entire Controller, the @PublicRoute() decorator can be
+ * used to make a specific route from that controller a public route.
+ */
+export const PublicRoute = () => SetMetadata(IS_PUBLIC_ROUTE_KEY, true)
+
+/**
+ * If an entire Controller is decorated with @JwtAuthGuard() decorator, then it checks whether a
+ * specific route is decorated with @PublicRoute() and allows access if that's the case. Otherwise
+ * it validates the token and sets the user object inside the request object, if token is valid.
+ */
 @Injectable()
 export class JwtAuthGuard implements CanActivate {
   constructor(
