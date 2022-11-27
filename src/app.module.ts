@@ -34,6 +34,7 @@ const globalConfigModule = ConfigModule.forRoot({
 /**
  * Represents a dynamic module responsible for establishing a connection to the database.
  * This way we don't need to get a connection to the database in our repositories.
+ * Very important TODO: make synchronize: false forever once the app goes in production.
  */
 const typeOrmModule = TypeOrmModule.forRootAsync({
   // Injects the dependency required by the useFactory.
