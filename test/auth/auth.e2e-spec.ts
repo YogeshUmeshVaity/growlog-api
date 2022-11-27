@@ -327,20 +327,23 @@ describe(`UsersModule`, () => {
         .expect(200)
 
       // logout other devices
-      await request(app.getHttpServer())
+      const logOutAllResponse = await request(app.getHttpServer())
         .post('/auth/logout-other-devices')
         .set('Authorization', `Bearer ${existingToken}`)
         .expect(201)
 
-      // ensure user is not authenticated(findMe)
+      // ensure user is not authenticated using existing token (findMe)
       await request(app.getHttpServer())
         .get('/users/me')
         .set('Authorization', `Bearer ${existingToken}`)
         .expect(401)
 
-      // TODO: login user on current device
-
-      // TODO: ensure user is authenticated
+      // ensure user is authenticated using new token (findMe)
+      const newToken = logOutAllResponse.body.token
+      await request(app.getHttpServer())
+        .get('/users/me')
+        .set('Authorization', `Bearer ${newToken}`)
+        .expect(200)
     })
   })
 
