@@ -87,7 +87,7 @@ class EnvironmentVariables {
   POSTGRES_USER_NAME: string
 
   /**
-   * Password the Postgres database server.
+   * Password of the Postgres database server.
    */
   @IsString()
   POSTGRES_PASSWORD: string
