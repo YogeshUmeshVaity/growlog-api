@@ -69,6 +69,10 @@ const globalValidationPipe = {
   useValue: new ValidationPipe({ whitelist: true, transform: true })
 }
 
+/**
+ * This is our root module, Nest assembles the dependency graph by looking at the modules registered
+ * here.
+ */
 @Module({
   imports: [
     globalConfigModule,
