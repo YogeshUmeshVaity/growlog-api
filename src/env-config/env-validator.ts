@@ -3,6 +3,7 @@ import {
   IsEmail,
   IsEnum,
   IsIP,
+  IsNotEmpty,
   IsNumber,
   IsPort,
   IsString,
@@ -37,6 +38,7 @@ class EnvironmentVariables {
    * Company details.
    */
   @IsString()
+  @IsNotEmpty()
   COMPANY_NAME: string
 
   /**
@@ -58,6 +60,7 @@ class EnvironmentVariables {
    * For sending emails to users from Postmark email service
    */
   @IsString()
+  @IsNotEmpty()
   POSTMARK_SERVER_TOKEN: string
 
   /**
@@ -84,24 +87,27 @@ class EnvironmentVariables {
    * Username of the Postgres database server.
    */
   @IsString()
+  @IsNotEmpty()
   POSTGRES_USER_NAME: string
 
   /**
    * Password of the Postgres database server.
    */
   @IsString()
+  @IsNotEmpty()
   POSTGRES_PASSWORD: string
 
   /**
    * Name of the specific database on our database server.
    */
   @IsString()
+  @IsNotEmpty()
   POSTGRES_DATABASE_NAME: string
 }
 
 /**
- * Throws errors if required environment variables haven't been provided or if they don't meet
- * certain validation rules.
+ * Throws errors at the start of the application, if required environment variables haven't been
+ * provided or if they don't meet the specified validation rules.
  * @param config is an object with key-value pairs of environment variables and their values. This
  * provided by the Nest when it calls the ConfigModule.forRoot({}).
  * @returns the validated instance of EnvironmentVariables.
