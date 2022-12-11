@@ -20,10 +20,6 @@ import { validateEnvs } from './env-config/env-validator'
  * isGlobal: true; so we don't have to import this module in every module.
  * cache: true; improves performance of accessing the envs.
  *
- * TODO: Check if Nest prevents app start up, if env vars are absent. If not, implement it with
- * the require() method.
- * https://docs.nestjs.com/techniques/configuration#schema-validation
- *
  * TODO: Consider using getter functions for envs. Possibly with a separate module called 'config'.
  * https://docs.nestjs.com/techniques/configuration#custom-getter-functions
  */
