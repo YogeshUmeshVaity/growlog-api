@@ -99,6 +99,13 @@ class EnvironmentVariables {
   POSTGRES_DATABASE_NAME: string
 }
 
+/**
+ * Throws errors if required environment variables haven't been provided or if they don't meet
+ * certain validation rules.
+ * @param config is an object with key-value pairs of environment variables and their values. This
+ * provided by the Nest when it calls the ConfigModule.forRoot({}).
+ * @returns the validated instance of EnvironmentVariables.
+ */
 export function validateEnvs(config: Record<string, unknown>) {
   const validatedConfig = plainToInstance(EnvironmentVariables, config, {
     enableImplicitConversion: true
