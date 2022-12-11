@@ -18,7 +18,7 @@ enum Environment {
 
 class EnvironmentVariables {
   /**
-   * States whether the current environment is development, test or production. This is not included
+   * States whether the current environment is development, test or production. This is not defined
    * in the .env files. This is set through the package.json scripts, depending on whether you run
    * 'yarn test', 'yarn start:dev' and so on.
    */
