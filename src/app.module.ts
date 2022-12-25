@@ -1,8 +1,6 @@
 import { Module, ValidationPipe } from '@nestjs/common'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { TypeOrmModule } from '@nestjs/typeorm'
-import { AppController } from './app.controller'
-import { AppService } from './app.service'
 import { User } from './users/user.entity'
 import { UsersModule } from './users/users.module'
 import { AuthModule } from './auth/auth.module'
@@ -79,7 +77,6 @@ const globalValidationPipe = {
     EmailServiceModule,
     EnvConfigModule
   ],
-  controllers: [AppController],
-  providers: [AppService, globalValidationPipe]
+  providers: [globalValidationPipe]
 })
 export class AppModule {}
