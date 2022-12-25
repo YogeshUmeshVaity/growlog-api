@@ -1,5 +1,5 @@
 import { Test, TestingModule } from '@nestjs/testing'
-import { configServiceMock } from '../../test/common-mocks/config-service.mock'
+import { envConfigServiceMock } from '../../test/common-mocks/config-service.mock'
 import { EmailService } from '../email-service/email.service'
 
 /**
@@ -29,7 +29,7 @@ describe('EmailService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [EmailService, configServiceMock()]
+      providers: [EmailService, envConfigServiceMock()]
     }).compile()
 
     emailService = module.get<EmailService>(EmailService)

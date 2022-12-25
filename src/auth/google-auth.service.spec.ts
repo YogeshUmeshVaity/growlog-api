@@ -4,7 +4,7 @@ import { sampleToken } from '../../test/auth/fixtures/sign-up.fixtures'
 import { GoogleAuthService } from './google-auth.service'
 import { google } from 'googleapis'
 import { BadRequestException } from '@nestjs/common'
-import { configServiceMock } from '../../test/common-mocks/config-service.mock'
+import { envConfigServiceMock } from '../../test/common-mocks/config-service.mock'
 import { EmptyLogger } from '../../test/common-mocks/logger.mock'
 
 /**
@@ -41,7 +41,7 @@ describe('GoogleAuthService', () => {
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [GoogleAuthService, configServiceMock()]
+      providers: [GoogleAuthService, envConfigServiceMock()]
     }).compile()
     // suppresses the log messages created from the code used in tests.
     module.useLogger(new EmptyLogger())

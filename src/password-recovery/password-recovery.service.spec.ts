@@ -28,6 +28,7 @@ import { PasswordRecoveryRepository } from '../password-recovery/password-recove
 import { UsersRepository } from '../users/users.repository'
 import { PasswordRecoveryService } from './password-recovery.service'
 import * as bcrypt from 'bcrypt'
+import { envConfigServiceMock } from '../../test/common-mocks/config-service.mock'
 
 describe('PasswordRecoveryService', () => {
   let passwordRecoveryService: PasswordRecoveryService
@@ -42,7 +43,7 @@ describe('PasswordRecoveryService', () => {
         usersRepositoryMock(),
         passwordRecoveryRepositoryMock(),
         emailServiceMock(),
-        ConfigService
+        envConfigServiceMock()
       ]
     }).compile()
     module.useLogger(new EmptyLogger())

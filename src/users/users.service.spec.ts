@@ -4,7 +4,7 @@ import {
   sampleToken,
   userWithCorrectInfo
 } from '../../test/auth/fixtures/sign-up.fixtures'
-import { configServiceMock } from '../../test/common-mocks/config-service.mock'
+import { envConfigServiceMock } from '../../test/common-mocks/config-service.mock'
 import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import { AuthService } from '../auth/auth.service'
 import { EmailService } from '../email-service/email.service'
@@ -25,7 +25,7 @@ describe('UsersService', () => {
         authServiceMock(),
         passwordRecoveryRepositoryMock(),
         emailServiceMock(),
-        configServiceMock()
+        envConfigServiceMock()
       ]
     }).compile()
 

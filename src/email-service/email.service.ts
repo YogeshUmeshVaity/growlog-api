@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { ServerClient } from 'postmark'
+import { EnvConfigService } from '../env-config/env-config.service'
 import { EmailMessage } from '../users/dtos/email-message.dto'
 
 /**
@@ -9,10 +10,8 @@ import { EmailMessage } from '../users/dtos/email-message.dto'
 @Injectable()
 export class EmailService {
   private emailClient: ServerClient
-  constructor(private readonly configService: ConfigService) {
-    this.emailClient = new ServerClient(
-      this.configService.get<string>('POSTMARK_SERVER_TOKEN')
-    )
+  constructor(private readonly config: EnvConfigService) {
+    this.emailClient = new ServerClient(this.config.postmarkServerToken)
   }
 
   async sendEmail(message: EmailMessage) {

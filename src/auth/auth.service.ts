@@ -4,7 +4,6 @@ import {
   Logger,
   UnauthorizedException
 } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { JwtService, JwtSignOptions } from '@nestjs/jwt'
 import { SignUpDto } from '../users/dtos/signup-user.dto'
 import { User } from '../users/user.entity'
@@ -13,6 +12,7 @@ import { Token } from './dtos/token.dto'
 import { GoogleAuthService, GoogleUser } from './google-auth.service'
 import * as bcrypt from 'bcrypt'
 import { UpdatePasswordDto } from '../users/dtos/update-password.dto'
+import { EnvConfigService } from '../env-config/env-config.service'
 
 @Injectable()
 export class AuthService {
@@ -20,7 +20,7 @@ export class AuthService {
   constructor(
     private readonly usersRepo: UsersRepository,
     private readonly googleAuthService: GoogleAuthService,
-    private readonly configService: ConfigService,
+    private readonly config: EnvConfigService,
     private readonly jwtService: JwtService
   ) {}
 
@@ -101,16 +101,12 @@ export class AuthService {
   private jwtOptions(user: User): JwtSignOptions {
     return {
       secret: this.jwtSecret(user),
-      expiresIn: this.jwtExpiration()
+      expiresIn: this.config.jwtExpiry
     }
   }
 
   private jwtSecret(user: User) {
-    return this.configService.get<string>('JWT_SECRET') + user.tokenInvalidator
-  }
-
-  private jwtExpiration() {
-    return this.configService.get<string>('JWT_EXPIRY')
+    return this.config.jwtSecret + user.tokenInvalidator
   }
 
   private throwIfPasswordsMismatch(password: string, confirmPassword: string) {

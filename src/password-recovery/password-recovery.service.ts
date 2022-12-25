@@ -7,10 +7,10 @@ import {
   UnauthorizedException
 } from '@nestjs/common'
 import * as bcrypt from 'bcrypt'
-import { ConfigService } from '@nestjs/config'
 import * as crypto from 'crypto'
 import { QueryFailedError } from 'typeorm'
 import { EmailService } from '../email-service/email.service'
+import { EnvConfigService } from '../env-config/env-config.service'
 import { EmailMessage } from '../users/dtos/email-message.dto'
 import { User } from '../users/user.entity'
 import { UsersRepository } from '../users/users.repository'
@@ -35,7 +35,7 @@ export class PasswordRecoveryService {
     private readonly usersRepo: UsersRepository,
     private readonly passwordRecoveryRepo: PasswordRecoveryRepository,
     private readonly emailService: EmailService,
-    private readonly configService: ConfigService
+    private readonly config: EnvConfigService
   ) {}
 
   /**
@@ -136,7 +136,7 @@ export class PasswordRecoveryService {
     toEmail: string
   ) {
     const emailMessage: EmailMessage = {
-      fromEmail: this.prepareFromEmail(),
+      fromEmail: this.config.fromEmail,
       toEmail: toEmail,
       subject: this.prepareRecoveryEmailSubject(),
       body: this.prepareRecoveryEmailBody(passwordRecovery)
@@ -144,24 +144,16 @@ export class PasswordRecoveryService {
     return emailMessage
   }
 
-  private prepareFromEmail() {
-    return this.configService.get<string>('FROM_EMAIL')
-  }
-
   private prepareRecoveryEmailBody(passwordRecovery: PasswordRecovery) {
     return `
     Recovery code: ${passwordRecovery.code}
-    The recovery code expires in ${this.getExpiryMinutes()} minutes.
+    The recovery code expires in ${this.config.recoveryCodeExpiryMinutes} minutes.
     If it wasn't you who requested this password recovery, worry not, no changes will be made to your account.
     `
   }
 
   private prepareRecoveryEmailSubject() {
-    return `Password reset at ${this.companyName()}`
-  }
-
-  private companyName() {
-    this.configService.get<string>('COMPANY_NAME')
+    return `Password reset at ${this.config.companyName}`
   }
 
   private async createPasswordRecovery(user: User) {
@@ -206,12 +198,8 @@ export class PasswordRecoveryService {
    * 60000 milliseconds = 1 minute. So, we multiply the given minutes by 60000.
    */
   private getExpiryTime() {
-    const expiryMinutes = this.getExpiryMinutes()
+    const expiryMinutes = this.config.recoveryCodeExpiryMinutes
     return new Date(Date.now() + expiryMinutes * 60000)
-  }
-
-  private getExpiryMinutes() {
-    return this.configService.get<number>('RECOVERY_CODE_EXPIRY_MINUTES')
   }
 
   private throwIfNoUserByEmail(user: User) {

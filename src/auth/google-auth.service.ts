@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { GaxiosResponse } from 'gaxios'
 import { google, oauth2_v2 } from 'googleapis'
+import { EnvConfigService } from '../env-config/env-config.service'
 
 export type GoogleUser = oauth2_v2.Schema$Userinfo
 export type GoogleResponse = GaxiosResponse<oauth2_v2.Schema$Userinfo>
@@ -9,15 +10,15 @@ export type GoogleResponse = GaxiosResponse<oauth2_v2.Schema$Userinfo>
 @Injectable()
 export class GoogleAuthService {
   private readonly logger = new Logger(GoogleAuthService.name)
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly config: EnvConfigService) {}
   /**
    * Retrieves user's data from Google.
    * @param accessToken is the token retrieved at client side from Google.
    */
   async getUserData(accessToken: string) {
     const client = new google.auth.OAuth2(
-      this.configService.get<string>('GOOGLE_OAUTH_CLIENT_ID'),
-      this.configService.get<string>('GOOGLE_OAUTH_CLIENT_SECRET')
+      this.config.googleAuthClientId,
+      this.config.googleAuthClientSecret
     )
 
     client.setCredentials({ access_token: accessToken })

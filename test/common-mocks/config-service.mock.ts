@@ -1,4 +1,4 @@
-import { ConfigService } from '@nestjs/config'
+import { EnvConfigService } from '../../src/env-config/env-config.service'
 
 /**
  * This is an example of how to mock the ConfigService. We can also use the real ConfigService as a
@@ -6,20 +6,14 @@ import { ConfigService } from '@nestjs/config'
  * or development environment. See an example in password-recovery.service.spec for the real
  * ConfigService.
  */
-export function configServiceMock() {
+export function envConfigServiceMock() {
   return {
-    provide: ConfigService,
+    provide: EnvConfigService,
     useValue: {
-      get: jest.fn((key: string) => {
-        switch (key) {
-          case 'JWT_SECRET':
-            return 'test_secret'
-          case 'JWT_EXPIRY':
-            return '1y'
-          default:
-            return null
-        }
-      })
+      googleAuthClientId: jest.fn().mockReturnValue({}),
+      googleAuthClientSecret: jest.fn().mockReturnValue({}),
+      jwtSecret: jest.fn().mockReturnValue('test_secret'),
+      jwtExpiry: jest.fn().mockReturnValue('1y')
     }
   }
 }

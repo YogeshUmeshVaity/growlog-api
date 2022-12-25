@@ -2,7 +2,7 @@ import { BadRequestException, UnauthorizedException } from '@nestjs/common'
 import { JwtService } from '@nestjs/jwt'
 import { Test, TestingModule } from '@nestjs/testing'
 import * as bcrypt from 'bcrypt'
-import { configServiceMock } from '../../test/common-mocks/config-service.mock'
+import { envConfigServiceMock } from '../../test/common-mocks/config-service.mock'
 import { sampleUser } from '../../test/users/fixtures/find-me.fixtures'
 import {
   sampleToken,
@@ -30,7 +30,7 @@ describe('AuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
-        configServiceMock(),
+        envConfigServiceMock(),
         jwtServiceMock(),
         usersRepositoryMock(),
         googleAuthServiceMock()

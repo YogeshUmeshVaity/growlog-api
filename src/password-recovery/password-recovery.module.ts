@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common'
 import { EmailServiceModule } from '../email-service/email-service.module'
 import { EmailService } from '../email-service/email.service'
+import { EnvConfigService } from '../env-config/env-config.service'
 import { UsersModule } from '../users/users.module'
 import { UsersRepository } from '../users/users.repository'
 import { PasswordRecoveryController } from './password-recovery.controller'
@@ -14,7 +15,8 @@ import { PasswordRecoveryService } from './password-recovery.service'
     PasswordRecoveryService,
     PasswordRecoveryRepository,
     UsersRepository,
-    EmailService
+    EmailService,
+    EnvConfigService
   ]
 })
 export class PasswordRecoveryModule {}
