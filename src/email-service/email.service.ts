@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { ServerClient } from 'postmark'
 import { EnvConfigService } from '../env-config/env-config.service'
 import { EmailMessage } from '../users/dtos/email-message.dto'
