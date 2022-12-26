@@ -4,9 +4,11 @@ import {
   NotFoundException,
   UnauthorizedException
 } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { Test, TestingModule } from '@nestjs/testing'
+import * as bcrypt from 'bcrypt'
 import { QueryFailedError } from 'typeorm'
+import { userWithCorrectInfo } from '../../test/auth/fixtures/sign-up.fixtures'
+import { envConfigServiceMock } from '../../test/common-mocks/config-service.mock'
 import { EmptyLogger } from '../../test/common-mocks/logger.mock'
 import {
   googleUserWithRecovery,
@@ -22,13 +24,10 @@ import {
   validCode,
   validRecovery
 } from '../../test/password-recovery/fixtures/validate-code.fixtures'
-import { userWithCorrectInfo } from '../../test/auth/fixtures/sign-up.fixtures'
 import { EmailService } from '../email-service/email.service'
 import { PasswordRecoveryRepository } from '../password-recovery/password-recovery.repository'
 import { UsersRepository } from '../users/users.repository'
 import { PasswordRecoveryService } from './password-recovery.service'
-import * as bcrypt from 'bcrypt'
-import { envConfigServiceMock } from '../../test/common-mocks/config-service.mock'
 
 describe('PasswordRecoveryService', () => {
   let passwordRecoveryService: PasswordRecoveryService
