@@ -1,5 +1,4 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common'
-import { ConfigService } from '@nestjs/config'
 import { GaxiosResponse } from 'gaxios'
 import { google, oauth2_v2 } from 'googleapis'
 import { EnvConfigService } from '../env-config/env-config.service'
