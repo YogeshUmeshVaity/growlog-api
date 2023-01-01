@@ -36,4 +36,24 @@ export class EnvConfigService {
   get recoveryCodeExpiryMinutes(): number {
     return this.configService.get<number>('RECOVERY_CODE_EXPIRY_MINUTES')
   }
+
+  get postgresHost(): string {
+    return this.configService.get<string>('POSTGRES_HOST')
+  }
+
+  get postgresPort(): number {
+    return this.configService.get<number>('POSTGRES_PORT')
+  }
+
+  get postgresDatabaseName(): string {
+    return this.configService.get<string>('POSTGRES_DATABASE_NAME')
+  }
+
+  get postgresUsername(): string {
+    return this.configService.get<string>('POSTGRES_USER_NAME')
+  }
+
+  get postgresPassword(): string {
+    return this.configService.get<string>('POSTGRES_PASSWORD')
+  }
 }

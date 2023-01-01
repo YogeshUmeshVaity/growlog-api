@@ -1,15 +1,16 @@
 import { Module, ValidationPipe } from '@nestjs/common'
-import { ConfigModule, ConfigService } from '@nestjs/config'
-import { TypeOrmModule } from '@nestjs/typeorm'
-import { User } from './users/user.entity'
-import { UsersModule } from './users/users.module'
-import { AuthModule } from './auth/auth.module'
+import { ConfigModule } from '@nestjs/config'
 import { APP_PIPE } from '@nestjs/core'
-import { PasswordRecovery } from './password-recovery/password-recovery.entity'
-import { PasswordRecoveryModule } from './password-recovery/password-recovery.module'
+import { TypeOrmModule } from '@nestjs/typeorm'
+import { AuthModule } from './auth/auth.module'
 import { EmailServiceModule } from './email-service/email-service.module'
 import { EnvConfigModule } from './env-config/env-config.module'
+import { EnvConfigService } from './env-config/env-config.service'
 import { validateEnvs } from './env-config/env-validator'
+import { PasswordRecovery } from './password-recovery/password-recovery.entity'
+import { PasswordRecoveryModule } from './password-recovery/password-recovery.module'
+import { User } from './users/user.entity'
+import { UsersModule } from './users/users.module'
 
 /**
  * The forRoot() method registers the ConfigService provider. During this step, environment variable
@@ -17,9 +18,6 @@ import { validateEnvs } from './env-config/env-validator'
  *
  * isGlobal: true; so we don't have to import this module in every module.
  * cache: true; improves performance of accessing the envs.
- *
- * TODO: Consider using getter functions for envs. Possibly with a separate module called 'config'.
- * https://docs.nestjs.com/techniques/configuration#custom-getter-functions
  */
 const globalConfigModule = ConfigModule.forRoot({
   isGlobal: true,
@@ -34,17 +32,19 @@ const globalConfigModule = ConfigModule.forRoot({
  * Very important TODO: make synchronize: false forever once the app goes in production.
  */
 const typeOrmModule = TypeOrmModule.forRootAsync({
+  // Need to import like this, if not using the global ConfigService.
+  imports: [EnvConfigModule],
   // Injects the dependency required by the useFactory.
-  inject: [ConfigService],
+  inject: [EnvConfigService],
   // Creates a TypeOrmModuleAsyncOptions object.
-  useFactory: (config: ConfigService) => {
+  useFactory: (config: EnvConfigService) => {
     return {
       type: 'postgres',
-      host: config.get<string>('POSTGRES_HOST'),
-      port: config.get<number>('POSTGRES_PORT'),
-      database: config.get<string>('POSTGRES_DATABASE_NAME'),
-      username: config.get<string>('POSTGRES_USER_NAME'),
-      password: config.get<string>('POSTGRES_PASSWORD'),
+      host: config.postgresHost,
+      port: config.postgresPort,
+      database: config.postgresDatabaseName,
+      username: config.postgresUsername,
+      password: config.postgresPassword,
       synchronize: true,
       entities: [User, PasswordRecovery]
     }
