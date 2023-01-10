@@ -103,6 +103,34 @@ class EnvironmentVariables {
   @IsString()
   @IsNotEmpty()
   POSTGRES_DATABASE_NAME: string
+
+  /**
+   * JWT secret text used for verifying the jwt token.
+   */
+  @IsString()
+  @IsNotEmpty()
+  JWT_SECRET: string
+
+  /**
+   * Expiry time for the jwt token.
+   */
+  @IsString()
+  @IsNotEmpty()
+  JWT_EXPIRY: string
+
+  /**
+   * Used for login using Google.
+   */
+  @IsString()
+  @IsNotEmpty()
+  GOOGLE_OAUTH_CLIENT_ID: string
+
+  /**
+   * Used for login using Google.
+   */
+  @IsString()
+  @IsNotEmpty()
+  GOOGLE_OAUTH_CLIENT_SECRET: string
 }
 
 /**
