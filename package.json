@@ -1,8 +1,8 @@
 {
-  "name": "growlog-api",
+  "name": "nestjs-authentication",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
+  "description": "A complete nestjs authentication system with 100% test coverage.",
+  "author": "Yogesh Umesh Vaity",
   "private": true,
   "license": "UNLICENSED",
   "scripts": {
