@@ -45,6 +45,14 @@ describe('UsersController', () => {
       expect(response.recoveryCode).toEqual(validCode.recoveryCode)
     })
   })
+
+  // describe(`setNewPassword`, () => {
+  //   it(`should set the new password.`, async () => {
+  //     // TODO:
+  //     // const response = await passwordRecoveryController.validateCode(validCode)
+  //     // expect(response.recoveryCode).toEqual(validCode.recoveryCode)
+  //   })
+  // })
 })
 
 function passwordRecoveryServiceMock() {
